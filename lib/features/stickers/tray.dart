@@ -637,7 +637,12 @@ class _MemesState extends ConsumerState<_Memes> {
     final results = ref.watch(
       memeSearchProvider((query: _query, source: _source, kind: _kind)),
     );
-    final bottom = MediaQuery.paddingOf(context).bottom;
+    // With the keyboard up (searching), the send bar and the grid's end
+    // ride above it; otherwise above the gesture bar.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final bottom = keyboard > 0
+        ? keyboard
+        : MediaQuery.paddingOf(context).bottom;
     return Stack(
       children: [
         Column(
