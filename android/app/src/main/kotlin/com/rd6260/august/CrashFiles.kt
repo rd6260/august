@@ -1,4 +1,4 @@
-package com.isg32.moose
+package com.rd6260.august
 
 import android.content.ContentValues
 import android.content.Context
@@ -20,12 +20,12 @@ import java.util.Locale
  * - [installCrashHandler]: an uncaught Kotlin/Java exception kills the app
  *   before Flutter can show anything, so its stack trace is written to
  *   `<files>/crashes/native-<time>.txt`; the next launch shows it.
- * - `moose/files` → `saveToDownloads({name, text})`: writes a log to the
+ * - `august/files` → `saveToDownloads({name, text})`: writes a log to the
  *   public Downloads folder (MediaStore on Android 10+, no permission);
  *   `crashDir()`: where crash files live, for the Dart side.
  */
 object CrashFiles {
-    private const val CHANNEL = "moose/files"
+    private const val CHANNEL = "august/files"
 
     @Volatile
     private var installed = false
@@ -58,7 +58,7 @@ object CrashFiles {
             when (call.method) {
                 "crashDir" -> result.success(File(app.filesDir, "crashes").apply { mkdirs() }.absolutePath)
                 "saveToDownloads" -> try {
-                    val name = call.argument<String>("name") ?: "moose-log.txt"
+                    val name = call.argument<String>("name") ?: "august-log.txt"
                     val text = call.argument<String>("text") ?: ""
                     result.success(saveToDownloads(app, name, text))
                 } catch (e: Exception) {

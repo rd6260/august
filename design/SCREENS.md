@@ -1,13 +1,13 @@
-# Moose: screens and components
+# August: screens and components
 
-This is the full inventory of every page, and every component on each page, for the Moose design canvas. It is the brief for Claude Design and the checklist for building the UI: nothing gets drawn or built that isn't listed here, and nothing listed here is left out.
+This is the full inventory of every page, and every component on each page, for the August design canvas. It is the brief for Claude Design and the checklist for building the UI: nothing gets drawn or built that isn't listed here, and nothing listed here is left out.
 
 Design rules are the same as Veronica, Idris and Cariño: two inks only (`#000` / `#FFF`), Doto and Inter, glass surfaces, Cariño's progressive top and bottom blur, and the chat wallpaper as the only colour. Draw every page in **both inks**: each screen board has a dark-ink row and a light-ink row.
 
 Example people: **Sapan** (you, he) and **Aatika** (your partner, she). The decoy chat's made-up name is **Neha**. The example song is **"Sienna" by The Marías**.
 
 ## A. Shared components (component sheet)
-1. **Ink and type:** wordmark `MO/OSE` (Doto 900), page title, eyebrow, body, secondary, hero number, mono code.
+1. **Ink and type:** wordmark `AUG/UST` (Doto 900), page title, eyebrow, body, secondary, hero number, mono code.
 2. **Glass surfaces:** top progressive blur (status bar), bottom progressive blur (behind composer and pill), tab pill, glass card, bottom sheet (top border only), overlay card, and full-screen scrim.
 3. **Buttons:** primary (filled, plus a disabled state @0.35), secondary (outline), ghost/text, dashed (for 'add'), icon button (outline circle), FAB-style hold button (record), and destructive (inverted).
 4. **Controls:** toggle, slider (dim, blur, glass, brush size), segmented control, stepper, checkbox row, radio row, wheel picker (Idris `v_wheel`), and progress bar and ring (Idris `v_progress`).
@@ -86,7 +86,7 @@ Each bubble comes in outgoing and incoming. States: pending (clock), sent ✓, d
 37. **Partner detail:** avatar, name, paired date, security code, and Unpair (destructive with confirm).
 38. **Storage page:** a breakdown by type (photos, videos, voice, round, doodles, wallpapers) with sizes, and clear-per-type.
 39. **Notification settings:** channels list, poke sounds preview, and background service status (running / stopped + Fix).
-40. **About** (copied from Idris): big app mark, 'Moose' in Doto 40, version, one line; LICENCES list (Doto, Inter, NewPipe Extractor, youtube_explode_dart, OkHttp, flutter_webrtc, cryptography, drift, just_audio, camera); DEVELOPER (photo, Sapan Gajjar, "You've probably guessed who made this app", GitHub isg32, LinkedIn sapangajjar101105); HELP (See a test crash report); footnote. The Settings row shows the mark, 'Moose' and 'Version 0.1.0 · licences, developer'.
+40. **About** (copied from Idris): big app mark, 'August' in Doto 40, version, one line; LICENCES list (Doto, Inter, NewPipe Extractor, youtube_explode_dart, OkHttp, flutter_webrtc, cryptography, drift, just_audio, camera); DEVELOPER (photo, Sapan Gajjar, "You've probably guessed who made this app", GitHub isg32, LinkedIn sapangajjar101105); HELP (See a test crash report); footnote. The Settings row shows the mark, 'August' and 'Version 0.1.0 · licences, developer'.
 41. **Unpair confirm:** what gets deleted, a type-to-confirm field, and Unpair.
 
 *System surfaces*
@@ -114,7 +114,7 @@ Stickers can be made from **doodles** and from **photos**, and are kept in a Wha
 - **S2 · Sticker from a photo:** checkerboard canvas, auto cut-out with a white outline, tools (Auto cut, Erase, Restore, Text, Outline), Save and Send.
 - **S3 · Sticker from a doodle:** lasso › Sticker (also on the lasso popover), preview with a white outline toggle, choose a pack, Save / Save and send.
 - **S4 · Save a received sticker:** big preview, 'From Aatika · in her pack', Add to favourites, Save to my stickers, Save the whole pack.
-- **S5 · Sticker library** (Settings › Stickers): count and size, make from a photo or a doodle, packs with thumbnails (Ours, Moose doodles, Cat chaos, Favourites).
+- **S5 · Sticker library** (Settings › Stickers): count and size, make from a photo or a doodle, packs with thumbnails (Ours, August doodles, Cat chaos, Favourites).
 - **S6 · Stickers in the chat:** no bubble, tilted a few degrees, white outline, time chip under it, reactions on stickers, and replying to a sticker.
 
 ## F. Calls (P2P, WebRTC)
@@ -123,4 +123,4 @@ Stickers can be made from **doodles** and from **photos**, and are kept in a Wha
 - **K2 · Incoming:** 'Video call · direct and encrypted', name, 'is calling you', 'Reply with a message', Decline / Accept.
 - **K3 · Voice call:** timer in Doto, 'Direct, phone to phone · encrypted', signal bars, Mute / Speaker / Video / Send a hug / End / Chat.
 - **K4 · Video call:** partner full screen, your own picture top right, glass control bar (Flip, Mute, Camera off, End). Always dark.
-- **K5 · Calls in the chat:** voice and video call buttons in the header; call rows (done, missed with Call back, 'no answer: her Moose was closed').
+- **K5 · Calls in the chat:** voice and video call buttons in the header; call rows (done, missed with Call back, 'no answer: her August was closed').

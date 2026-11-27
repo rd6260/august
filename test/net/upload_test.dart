@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:moose/net/api.dart';
-import 'package:moose/net/auth.dart';
-import 'package:moose/net/vault.dart';
+import 'package:august/net/api.dart';
+import 'package:august/net/auth.dart';
+import 'package:august/net/vault.dart';
 
 /// Uploads report how far they've got, and only give up when they stall
 /// (a video can take longer than any fixed deadline).
@@ -20,7 +20,7 @@ void main() {
   }
 
   /// Managed Auth, the API's /v1/blobs, and storage's PUT ([put]).
-  MooseApi api(
+  AugustApi api(
     Future<http.StreamedResponse> Function(
       http.BaseRequest req,
       Stream<List<int>> body,
@@ -55,7 +55,7 @@ void main() {
       if (req.method == 'PUT') return put(req, body);
       return http.StreamedResponse(const Stream.empty(), 404);
     });
-    return MooseApi(
+    return AugustApi(
       base: 'https://api',
       auth: NeonAuth(
         base: 'https://auth/neondb/auth',

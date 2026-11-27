@@ -3,33 +3,33 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/chat_theme.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/calls/call_page.dart';
-import 'package:moose/features/chat/chat_page.dart';
-import 'package:moose/features/chat/composer.dart';
-import 'package:moose/features/chat/message_actions.dart';
-import 'package:moose/features/chat/theme_sheet.dart';
-import 'package:moose/features/common/overlay.dart';
-import 'package:moose/features/doodles/board_page.dart';
-import 'package:moose/features/doodles/doodle_sheets.dart';
-import 'package:moose/features/doodles/doodles_page.dart';
-import 'package:moose/features/lock/lock_pages.dart';
-import 'package:moose/features/media/attach_sheet.dart';
-import 'package:moose/features/media/media_pages.dart';
-import 'package:moose/features/media/media_viewer.dart';
-import 'package:moose/features/moments/moment_burst.dart';
-import 'package:moose/features/moments/poke_picker.dart';
-import 'package:moose/features/music/music_pages.dart';
-import 'package:moose/features/onboarding/onboarding_pages.dart';
-import 'package:moose/features/settings/settings_page.dart';
-import 'package:moose/features/settings/settings_pages.dart';
-import 'package:moose/features/stickers/sticker_maker.dart';
-import 'package:moose/features/stickers/tray.dart';
-import 'package:moose/mock/mock_data.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/chat_theme.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/calls/call_page.dart';
+import 'package:august/features/chat/chat_page.dart';
+import 'package:august/features/chat/composer.dart';
+import 'package:august/features/chat/message_actions.dart';
+import 'package:august/features/chat/theme_sheet.dart';
+import 'package:august/features/common/overlay.dart';
+import 'package:august/features/doodles/board_page.dart';
+import 'package:august/features/doodles/doodle_sheets.dart';
+import 'package:august/features/doodles/doodles_page.dart';
+import 'package:august/features/lock/lock_pages.dart';
+import 'package:august/features/media/attach_sheet.dart';
+import 'package:august/features/media/media_pages.dart';
+import 'package:august/features/media/media_viewer.dart';
+import 'package:august/features/moments/moment_burst.dart';
+import 'package:august/features/moments/poke_picker.dart';
+import 'package:august/features/music/music_pages.dart';
+import 'package:august/features/onboarding/onboarding_pages.dart';
+import 'package:august/features/settings/settings_page.dart';
+import 'package:august/features/settings/settings_pages.dart';
+import 'package:august/features/stickers/sticker_maker.dart';
+import 'package:august/features/stickers/tray.dart';
+import 'package:august/mock/mock_data.dart';
 
 /// Opens every screen on a small phone and a regular one, on a dark
 /// wallpaper and a light one, and fails on any exception or overflow.
@@ -147,7 +147,7 @@ void main() {
               .read(sessionProvider.notifier)
               .set(c.read(sessionProvider).copyWith(locked: false));
           await t.pumpWidget(
-            UncontrolledProviderScope(container: c, child: const MooseApp()),
+            UncontrolledProviderScope(container: c, child: const AugustApp()),
           );
           await t.pump(const Duration(milliseconds: 600));
           return c;
@@ -235,7 +235,7 @@ void main() {
             .read(sessionProvider.notifier)
             .set(c.read(sessionProvider).copyWith(locked: false));
         await t.pumpWidget(
-          UncontrolledProviderScope(container: c, child: const MooseApp()),
+          UncontrolledProviderScope(container: c, child: const AugustApp()),
         );
         await t.pump(const Duration(milliseconds: 600));
         unawaited(value(t.element(find.byType(ChatPage))));

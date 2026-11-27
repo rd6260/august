@@ -26,7 +26,7 @@ Without `env.json`, every repository is a mock (`lib/mock/`). The pretend partne
 - answers calls after 3 seconds, and calls back if you write "call me";
 - sends a re-pair request if you write "new phone".
 
-On the mock, PIN `1402` opens Moose and `2580` opens the decoy chat. Invite `K7Q2MX` joins, `R3PA1R` plays the new-phone wait, and any other code has expired. All of this is listed in [`mockdata.md`](../mockdata.md).
+On the mock, PIN `1402` opens August and `2580` opens the decoy chat. Invite `K7Q2MX` joins, `R3PA1R` plays the new-phone wait, and any other code has expired. All of this is listed in [`mockdata.md`](../mockdata.md).
 
 ## Real mode (Neon)
 
@@ -35,9 +35,9 @@ On the mock, PIN `1402` opens Moose and `2580` opens the decoy chat. Invite `K7Q
 
    ```json
    {
-     "MOOSE_API_URL": "https://<branch-id>-api.compute.<region>.aws.neon.tech",
-     "MOOSE_AUTH_URL": "https://<endpoint>.neonauth.<region>.aws.neon.tech/neondb/auth",
-     "MOOSE_KLIPY_KEY": "<optional>"
+     "AUGUST_API_URL": "https://<branch-id>-api.compute.<region>.aws.neon.tech",
+     "AUGUST_AUTH_URL": "https://<endpoint>.neonauth.<region>.aws.neon.tech/neondb/auth",
+     "AUGUST_KLIPY_KEY": "<optional>"
    }
    ```
 
@@ -47,26 +47,26 @@ Other build-time defines:
 
 | Define | Default | Does |
 | --- | --- | --- |
-| `MOOSE_UPDATE_URL` | The latest GitHub release's `update.json` | Where the updater looks |
-| `MOOSE_CHECK_EVERY` | 360 (seconds) | The background check's interval |
+| `AUGUST_UPDATE_URL` | The latest GitHub release's `update.json` | Where the updater looks |
+| `AUGUST_CHECK_EVERY` | 360 (seconds) | The background check's interval |
 
 ### Firebase
 
-Push needs `android/app/google-services.json` (committed; the client key is public by design) and, on the server, a service-account key at `backend/firebase-sa.json` (git-ignored). `npm run deploy` passes it to the Function as `FIREBASE_SA_B64`. Without Firebase, Moose still works: it just can't be woken, and relies on the live socket and the background check.
+Push needs `android/app/google-services.json` (committed; the client key is public by design) and, on the server, a service-account key at `backend/firebase-sa.json` (git-ignored). `npm run deploy` passes it to the Function as `FIREBASE_SA_B64`. Without Firebase, August still works: it just can't be woken, and relies on the live socket and the background check.
 
 ## On the phone
 
 Use a **release-signed** build, as CI makes, so it installs over a release without wiping data:
 
 ```bash
-export MOOSE_KEYSTORE_FILE=/path/to/release-key.jks \
-       MOOSE_KEYSTORE_PASSWORD=… MOOSE_KEY_PASSWORD=… MOOSE_KEY_ALIAS=upload
+export AUGUST_KEYSTORE_FILE=/path/to/release-key.jks \
+       AUGUST_KEYSTORE_PASSWORD=… AUGUST_KEY_PASSWORD=… AUGUST_KEY_ALIAS=upload
 flutter build apk --release --split-per-abi --target-platform android-arm64 --dart-define-from-file=env.json
 adb install -r build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 ```
 
 - `adb install -r` keeps the app's data, so pairing and history survive. **Uninstalling wipes the identity**, and the phone has to pair again.
-- Without the `MOOSE_*` signing variables, Gradle signs with the debug key, which can't be installed over a release-key install.
+- Without the `AUGUST_*` signing variables, Gradle signs with the debug key, which can't be installed over a release-key install.
 - Screenshots: `adb exec-out screencap -p > shot.png`.
 
 ## On Linux
@@ -75,13 +75,13 @@ The Linux build is a full second device: the same pairing and chat, against the 
 
 ```bash
 flutter build linux --debug --dart-define-from-file=env.json
-build/linux/x64/debug/bundle/moose
+build/linux/x64/debug/bundle/august
 ```
 
 | | Linux |
 | --- | --- |
-| App data | `~/.local/share/com.isg32.moose/` (`moose.json`, `vault.json`) |
-| Cache | `~/.cache/com.isg32.moose/` |
+| App data | `~/.local/share/com.rd6260.august/` (`moose.json`, `vault.json`) |
+| Cache | `~/.cache/com.rd6260.august/` |
 | Secrets | `FileVault`: a private `vault.json`, because the desktop keyring isn't always reachable |
 | Audio and video | media_kit (libmpv) |
 | Not available | Push (no FCM on Linux), the background check, round video recording, ML Kit cut-outs, the camera QR scanner (type the code instead), and self-update. Share on the pair screen copies the code instead |
@@ -125,7 +125,7 @@ Notes:
 tool/e2e_neon.sh     # needs env.json, backend/.env.local and a phone on adb
 ```
 
-Moose runs on the phone, and Aatika is emulated in Python on this computer (`tool/partner/partner.py`, with `calls.py` using aiortc for WebRTC, in the venv at `tool/partner/.venv`). They meet only through the deployed backend. The phone's screen has to stay on for the whole run. Afterwards, `npm run cleanup` in `backend/` deletes the `e2e-…` test accounts.
+August runs on the phone, and Aatika is emulated in Python on this computer (`tool/partner/partner.py`, with `calls.py` using aiortc for WebRTC, in the venv at `tool/partner/.venv`). They meet only through the deployed backend. The phone's screen has to stay on for the whole run. Afterwards, `npm run cleanup` in `backend/` deletes the `e2e-…` test accounts.
 
 ## Renders
 

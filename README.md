@@ -1,14 +1,14 @@
 <div align="center">
 
-<img src="docs/renders/welcome_night.webp" width="240" alt="Moose's welcome screen: the MOOSE wordmark over the night wallpaper">
+<img src="docs/renders/welcome_night.webp" width="240" alt="August's welcome screen: the AUGUST wordmark over the night wallpaper">
 
-# Moose
+# August
 
 **A quiet, private chat for two.**
 
 One app, one couple. Messages live on your two phones, and the server only holds sealed mail until it's delivered.
 
-![Release](https://img.shields.io/github/v/release/isg32/moose?color=black&label=release) ![Flutter](https://img.shields.io/badge/Flutter-Cupertino-black) ![Android](https://img.shields.io/badge/Android-arm64-black) ![Linux](https://img.shields.io/badge/Linux-desktop-black) ![E2EE](https://img.shields.io/badge/end--to--end-encrypted-black)
+![Release](https://img.shields.io/github/v/release/rd6260/august?color=black&label=release) ![Flutter](https://img.shields.io/badge/Flutter-Cupertino-black) ![Android](https://img.shields.io/badge/Android-arm64-black) ![Linux](https://img.shields.io/badge/Linux-desktop-black) ![E2EE](https://img.shields.io/badge/end--to--end-encrypted-black)
 
 </div>
 
@@ -24,7 +24,7 @@ One app, one couple. Messages live on your two phones, and the server only holds
 
 ## What it is
 
-Moose is a Flutter chat app for **exactly two people**: a paired couple. Sapan wrote it for himself and his partner, as a sibling of his apps Veronica, Idris and Cariño, and it shares their design language: two inks, Doto and Inter, and one shared wallpaper as the only colour.
+August is a Flutter chat app for **exactly two people**: a paired couple. Sapan wrote it for himself and his partner, as a sibling of his apps Veronica, Idris and Cariño, and it shares their design language: two inks, Doto and Inter, and one shared wallpaper as the only colour.
 
 There are no accounts, phone numbers or contact lists. You pair once, with a six-character code or a QR, and from then on everything you send is encrypted on your phone and opened on theirs.
 
@@ -41,7 +41,7 @@ There are no accounts, phone numbers or contact lists. You pair once, with a six
 | 🎨 **Shared theme** | Eight palettes or your own photo, with dim and blur. Either of you can change it for both. |
 | 🔒 **App lock** | A PIN, plus a decoy PIN that opens an empty chat with someone else. |
 | 🔔 **Delivery** | Live WebSocket while open, Firebase push when not, and a 6-minute background check as a safety net. |
-| ⬆️ **Updates** | Moose updates itself from GitHub Releases, verifying size, SHA-256 and signer first. |
+| ⬆️ **Updates** | August updates itself from GitHub Releases, verifying size, SHA-256 and signer first. |
 
 Every screen comes in both inks: white on dark wallpapers and black on light ones. See the **[gallery](docs/gallery.md)** for all of them.
 
@@ -50,7 +50,7 @@ Every screen comes in both inks: white on dark wallpapers and black on light one
 ```mermaid
 flowchart LR
   subgraph A["Sapan's phone"]
-    A1[Moose] --- A2[(moose.json<br/>history)]
+    A1[August] --- A2[(moose.json<br/>history)]
     A1 --- A3[(Keystore<br/>X25519 key)]
   end
   subgraph N["Neon (one branch)"]
@@ -63,7 +63,7 @@ flowchart LR
     API --- S3
   end
   subgraph B["Aatika's phone"]
-    B1[Moose] --- B2[(moose.json)]
+    B1[August] --- B2[(moose.json)]
   end
   A1 -- "sealed mail" --> API
   API -- "WebSocket" --> B1
@@ -86,7 +86,7 @@ flutter pub get
 flutter run                     # mock mode: a fake partner, no server needed
 ```
 
-Without `env.json`, Moose runs on **mocks**: a pretend Aatika who types, replies, sends moments and answers calls. Every widget test runs this way.
+Without `env.json`, August runs on **mocks**: a pretend Aatika who types, replies, sends moments and answers calls. Every widget test runs this way.
 
 To run against a real backend, copy `env.example.json` to `env.json`, fill in your Neon URLs, and build with it:
 
@@ -118,7 +118,7 @@ The full setup is in [Development](docs/development.md): the backend, the phone,
   <img src="design/screens/Main.png" width="100%" alt="The Main design board: rules, type, wallpapers and moment colours">
 </p>
 
-Moose follows the **Moose Screens** design canvas in [`design/canvas/`](design/canvas/), rendered to [`design/screens/`](design/screens/).
+August follows the **August Screens** design canvas in [`design/canvas/`](design/canvas/), rendered to [`design/screens/`](design/screens/).
 
 - **Two inks only:** `#000` and `#FFF`, with no greys. Hierarchy comes from size, weight, outline vs fill and inversion.
 - **The wallpaper decides the ink:** dark wallpapers get white, light ones black.

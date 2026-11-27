@@ -28,7 +28,7 @@ class LocalStore {
   AppSettings settings = const AppSettings();
   List<Doodle> doodles = const [];
 
-  /// The sticker library (null until first saved: Moose starts it empty).
+  /// The sticker library (null until first saved: August starts it empty).
   List<StickerPack>? stickers;
 
   Timer? _save;

@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../core/widgets/v_ink.dart';
 
-/// Three square Doto dots filling in turn: Moose's "working on it".
+/// Three square Doto dots filling in turn: August's "working on it".
 class DotLoader extends StatefulWidget {
   const DotLoader({super.key, this.size = 10});
 

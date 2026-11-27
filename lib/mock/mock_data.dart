@@ -4,7 +4,7 @@ import 'dart:ui' show Offset;
 import '../core/theme/v_colors.dart';
 import '../data/models.dart';
 
-/// Every fake dataset in Moose, as listed in `mockdata.md`. The values match
+/// Every fake dataset in August, as listed in `mockdata.md`. The values match
 /// the design canvas, so screens can be compared side by side. Times are
 /// anchored to [mockNow], the moment the data is built.
 abstract final class MockData {
@@ -51,7 +51,7 @@ abstract final class MockData {
   /// The decoy chat's made-up person (C14).
   static const decoyName = 'Neha';
 
-  /// The PINs that open Moose and the decoy chat, until real ones are set.
+  /// The PINs that open August and the decoy chat, until real ones are set.
   static const pin = '1402';
   static const decoyPin = '2580';
 
@@ -313,8 +313,8 @@ abstract final class MockData {
       editedAt: mockNow.subtract(const Duration(days: 1)),
     ),
     Doodle(
-      id: 'moose',
-      name: 'Moose!',
+      id: 'august',
+      name: 'August!',
       strokes: [
         Stroke(
           tool: PenTool.brush,
@@ -381,7 +381,7 @@ abstract final class MockData {
       ),
       StickerPack(
         id: 'doodles',
-        name: 'Moose doodles',
+        name: 'August doodles',
         note: '12 · from doodles',
         stickers: [
           Sticker.doodle(

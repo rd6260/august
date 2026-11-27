@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/net/crypto.dart';
-import 'package:moose/net/vault.dart';
+import 'package:august/net/crypto.dart';
+import 'package:august/net/vault.dart';
 
 void main() {
   late Identity sapan, aatika, stranger;

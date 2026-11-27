@@ -18,8 +18,8 @@ import 'local_store.dart';
 import 'vault.dart';
 import 'wire.dart';
 
-/// Moose on Neon: the hidden account, this phone's keys, the API and the
-/// conversation on disk. Opening needs no network, so Moose starts offline.
+/// August on Neon: the hidden account, this phone's keys, the API and the
+/// conversation on disk. Opening needs no network, so August starts offline.
 class NeonBackend {
   NeonBackend._(
     this.auth,
@@ -40,7 +40,7 @@ class NeonBackend {
   static const _kDecoyName = 'lock.decoyName';
 
   final NeonAuth auth;
-  final MooseApi api;
+  final AugustApi api;
   final Identity identity;
   final LocalStore store;
   final Directory dir;
@@ -64,7 +64,7 @@ class NeonBackend {
   /// Asks for the notification permission.
   Future<bool> Function() askNotifications = () async => true;
 
-  /// Shows a notification for a message taken while Moose isn't on
+  /// Shows a notification for a message taken while August isn't on
   /// screen (its live socket still runs in the background).
   Future<void> Function(Map<String, dynamic> push)? notifyAway;
 
@@ -116,7 +116,7 @@ class NeonBackend {
     }
   }
 
-  /// Whether Moose is on screen, so a new message counts as seen.
+  /// Whether August is on screen, so a new message counts as seen.
   bool Function() isOpen = () =>
       WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
 
@@ -129,7 +129,7 @@ class NeonBackend {
     final auth = NeonAuth(base: config.auth, vault: vault, label: label);
     return NeonBackend._(
       auth,
-      MooseApi(base: config.api, auth: auth),
+      AugustApi(base: config.api, auth: auth),
       await Identity.load(vault),
       await LocalStore.open(dir),
       dir,
@@ -205,7 +205,7 @@ class NeonBackend {
           vault,
           Session(
             paired: store.paired,
-            // With a PIN saved, Moose opens locked (C13).
+            // With a PIN saved, August opens locked (C13).
             locked: _lock.pin.isNotEmpty,
             pin: _lock.pin,
             decoyPin: _lock.decoy,

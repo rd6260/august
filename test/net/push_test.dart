@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/net/api.dart';
-import 'package:moose/net/crypto.dart';
-import 'package:moose/net/local_store.dart';
-import 'package:moose/net/push.dart';
-import 'package:moose/net/vault.dart';
-import 'package:moose/net/wire.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/models.dart';
+import 'package:august/net/api.dart';
+import 'package:august/net/crypto.dart';
+import 'package:august/net/local_store.dart';
+import 'package:august/net/push.dart';
+import 'package:august/net/vault.dart';
+import 'package:august/net/wire.dart';
 
 void main() {
   late MemoryVault mine;
@@ -19,7 +19,7 @@ void main() {
     mine = MemoryVault();
     final me = await Identity.load(mine);
     final aatika = await Identity.load(MemoryVault());
-    final dir = await Directory.systemTemp.createTemp('moose-push');
+    final dir = await Directory.systemTemp.createTemp('august-push');
     addTearDown(() => dir.delete(recursive: true));
     store = await LocalStore.open(dir)
       ..partner = Member(id: 'a', name: 'Aatika', pubkey: aatika.publicKey);

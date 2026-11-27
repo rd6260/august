@@ -1,4 +1,4 @@
-package com.isg32.moose
+package com.rd6260.august
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -25,8 +25,8 @@ import java.security.MessageDigest
  * downloaded APK can replace it, and installing it through PackageInstaller.
  */
 object Updater {
-    private const val CHANNEL = "moose/update"
-    private const val STATUS_ACTION = "com.isg32.moose.UPDATE_STATUS"
+    private const val CHANNEL = "august/update"
+    private const val STATUS_ACTION = "com.rd6260.august.UPDATE_STATUS"
 
     /** The open Flutter side, to hear how an install went. */
     private var channel: MethodChannel? = null
@@ -97,7 +97,7 @@ object Updater {
         )
     }
 
-    /** What the APK at [path] is, and whether Android would let it update Moose. */
+    /** What the APK at [path] is, and whether Android would let it update August. */
     private fun check(context: Context, path: String): Map<String, Any?> {
         val pm = context.packageManager
         val apk: PackageInfo? = if (Build.VERSION.SDK_INT >= 33) {
@@ -145,7 +145,7 @@ object Updater {
         params.setAppPackageName(context.packageName)
         params.setSize(file.length())
         if (Build.VERSION.SDK_INT >= 31) {
-            // Once Moose installed itself, Android can skip the confirm step.
+            // Once August installed itself, Android can skip the confirm step.
             params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
         }
         if (Build.VERSION.SDK_INT >= 26) {
@@ -155,7 +155,7 @@ object Updater {
         val session = installer.openSession(id)
         try {
             file.inputStream().use { input ->
-                session.openWrite("moose.apk", 0, file.length()).use { out ->
+                session.openWrite("august.apk", 0, file.length()).use { out ->
                     input.copyTo(out, 1 shl 16)
                     session.fsync(out)
                 }
@@ -188,7 +188,7 @@ object Updater {
         if (nm.getNotificationChannel(UPDATES_CHANNEL) != null) return
         nm.createNotificationChannel(
             NotificationChannel(UPDATES_CHANNEL, "Updates", NotificationManager.IMPORTANCE_LOW).apply {
-                description = "When Moose has updated itself"
+                description = "When August has updated itself"
             },
         )
     }
@@ -199,7 +199,7 @@ class UpdateReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
         if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
-            // Android's "Update Moose?" screen.
+            // Android's "Update August?" screen.
             val confirm: Intent? = if (Build.VERSION.SDK_INT >= 33) {
                 intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent::class.java)
             } else {
@@ -215,7 +215,7 @@ class UpdateReceiver : BroadcastReceiver() {
     }
 }
 
-/** After Moose is replaced by a newer copy: a quiet note to open it again. */
+/** After August is replaced by a newer copy: a quiet note to open it again. */
 class UpdatedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
@@ -238,7 +238,7 @@ class UpdatedReceiver : BroadcastReceiver() {
         }
         val n = builder
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(if (name != null) "Moose updated to $name" else "Moose updated")
+            .setContentTitle(if (name != null) "August updated to $name" else "August updated")
             .setContentText("Tap to open")
             .setAutoCancel(true)
             .setContentIntent(tap)

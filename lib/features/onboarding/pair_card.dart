@@ -47,7 +47,7 @@ class PairCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'MO\nOSE',
+                        'AUG\nUST',
                         style: VText.doto(20, weight: 900, height: 0.9),
                       ),
                       const Spacer(),
@@ -80,7 +80,7 @@ class PairCard extends StatelessWidget {
                   Center(child: QrCard(data: pairQr(code), size: 132)),
                   const Spacer(),
                   Text(
-                    'In Moose: I have a code, then type or scan it. '
+                    'In August: I have a code, then type or scan it. '
                     'Works once, for 10 minutes.',
                     style: VText.inter(12, weight: 300),
                   ),
@@ -103,7 +103,7 @@ Future<void> sharePairCard(
   // Desktop has no share sheet for files: the code goes on the clipboard.
   if (!Platform.isAndroid && !Platform.isIOS) {
     await Clipboard.setData(
-      ClipboardData(text: 'Pair with me on Moose: $code'),
+      ClipboardData(text: 'Pair with me on August: $code'),
     );
     if (context.mounted) showToast(context, 'Code copied');
     return;
@@ -131,13 +131,13 @@ Future<void> sharePairCard(
         key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final image = await boundary.toImage(pixelRatio: 3);
     final png = (await image.toByteData(format: ui.ImageByteFormat.png))!;
-    final file = File('${(await getTemporaryDirectory()).path}/moose-$code.png')
+    final file = File('${(await getTemporaryDirectory()).path}/august-$code.png')
       ..writeAsBytesSync(png.buffer.asUint8List());
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'image/png')],
-        text: 'Pair with me on Moose: $code',
-        subject: 'Moose',
+        text: 'Pair with me on August: $code',
+        subject: 'August',
       ),
     );
   } finally {

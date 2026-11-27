@@ -7,14 +7,14 @@ import '../data/repositories.dart';
 
 /// Memes from the web (C26): Reddit through meme-api.com (no key), and
 /// GIFs, stickers, memes and clips from KLIPY when the build has a key
-/// (`MOOSE_KLIPY_KEY` in env.json). A sent meme carries its link, and the
+/// (`AUGUST_KLIPY_KEY` in env.json). A sent meme carries its link, and the
 /// other phone loads it from there.
 class WebMemes implements MemeRepository {
   WebMemes({http.Client? client}) : _http = client ?? http.Client();
 
   final http.Client _http;
 
-  static const _klipyKey = String.fromEnvironment('MOOSE_KLIPY_KEY');
+  static const _klipyKey = String.fromEnvironment('AUGUST_KLIPY_KEY');
   static bool get hasKlipy => _klipyKey.isNotEmpty;
 
   @override

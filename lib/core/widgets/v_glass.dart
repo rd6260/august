@@ -141,7 +141,7 @@ class VTabBar extends StatefulWidget {
 
   final List<VTabItem> items;
 
-  /// Moose's pill: the full width less 12 on each side, with the tabs spread
+  /// August's pill: the full width less 12 on each side, with the tabs spread
   /// to its ends (the canvas's A10). Otherwise the bar hugs its tabs and
   /// centres, as in Cariño.
   final bool stretch;

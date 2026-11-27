@@ -16,7 +16,7 @@ class Choice<T> {
   final String? sub;
 }
 
-/// A glass sheet of rows to pick from (Moose's own, in the current ink).
+/// A glass sheet of rows to pick from (August's own, in the current ink).
 Future<T?> showChoiceSheet<T>(
   BuildContext context, {
   required String title,

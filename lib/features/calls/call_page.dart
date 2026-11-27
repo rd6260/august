@@ -142,7 +142,7 @@ class _CallPageState extends ConsumerState<CallPage>
       _answer = Timer(widget.answersAfter, () {
         if (!mounted) return;
         if (away) {
-          // Her Moose is closed: nobody picks up (K5).
+          // Her August is closed: nobody picks up (K5).
           Navigator.of(context)
               .pop(CallBody(video: _video, outcome: CallOutcome.noAnswer));
         } else {

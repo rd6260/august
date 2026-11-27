@@ -31,16 +31,16 @@ import '../moments/moment_burst.dart';
 import '../onboarding/onboarding_pages.dart';
 import 'settings_page.dart';
 
-/// Moose's mark until the launcher icon lands: the wordmark on the night
+/// August's mark until the launcher icon lands: the wordmark on the night
 /// wallpaper, in a rounded tile.
-class MooseMark extends StatelessWidget {
-  const MooseMark({super.key, this.size = 132});
+class AugustMark extends StatelessWidget {
+  const AugustMark({super.key, this.size = 132});
 
   final double size;
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Moose',
+    label: 'August',
     excludeSemantics: true,
     child: Container(
       width: size,
@@ -65,7 +65,7 @@ class MooseMark extends StatelessWidget {
           const WallpaperView(wallpaper: WallpaperRef.builtin('night')),
           Center(
             child: Text(
-              'MO\nOSE',
+              'AUG\nUST',
               textAlign: TextAlign.center,
               style: VText.doto(
                 size * 0.26,
@@ -145,7 +145,7 @@ class PartnerPage extends ConsumerWidget {
             ),
             VListRow(
               title: 'Their new phone',
-              subtitle: 'Lost theirs? Type the code their new Moose shows',
+              subtitle: 'Lost theirs? Type the code their new August shows',
               onTap: () =>
                   pushPage<void>(context, (_) => const JoinPage(repair: true)),
             ),
@@ -366,7 +366,7 @@ class _UnpairState extends ConsumerState<_Unpair> {
   }
 }
 
-/// C38: what Moose keeps on this phone, by kind, each clearable.
+/// C38: what August keeps on this phone, by kind, each clearable.
 class StoragePage extends ConsumerWidget {
   const StoragePage({super.key});
 
@@ -529,7 +529,7 @@ class NotificationsPage extends ConsumerWidget {
                   children: [
                     Text('If Android stops it', style: VText.rowTitle),
                     Text(
-                      'Pokes would wait until you open Moose',
+                      'Pokes would wait until you open August',
                       style: VText.secondary,
                     ),
                   ],
@@ -545,7 +545,7 @@ class NotificationsPage extends ConsumerWidget {
                   if (context.mounted) {
                     showToast(
                       context,
-                      ok ? 'Moose can check in the background' : 'Not allowed',
+                      ok ? 'August can check in the background' : 'Not allowed',
                     );
                   }
                 },
@@ -586,12 +586,12 @@ class AboutPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Column(
             children: [
-              const MooseMark(),
+              const AugustMark(),
               const SizedBox(height: 18),
-              Text('Moose', style: VText.doto(40, height: 1)),
+              Text('August', style: VText.doto(40, height: 1)),
               const SizedBox(height: 8),
               Text(
-                'Version $mooseVersion',
+                'Version $augustVersion',
                 style: VText.inter(13, weight: 300),
               ),
               const SizedBox(height: 4),
@@ -652,7 +652,7 @@ class AboutPage extends StatelessWidget {
           children: [
             VListRow(
               title: 'See a test crash report',
-              subtitle: 'What Moose shows if something goes wrong',
+              subtitle: 'What August shows if something goes wrong',
               onTap: CrashLog.instance.test,
             ),
           ],

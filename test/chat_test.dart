@@ -1,15 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/icons/v_icons.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/chat_theme.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/chat/chat_page.dart';
-import 'package:moose/features/moments/moment_burst.dart';
-import 'package:moose/mock/mock_repositories.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/icons/v_icons.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/chat_theme.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/chat/chat_page.dart';
+import 'package:august/features/moments/moment_burst.dart';
+import 'package:august/mock/mock_repositories.dart';
 
 /// The chat end to end on the mock: send, Aatika replies, react, reply,
 /// change the theme for both, poke, and a moment coming back.
@@ -34,7 +34,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(locked: false));
     await tester.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await tester.pump(const Duration(milliseconds: 600));
     return c;

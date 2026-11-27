@@ -172,10 +172,10 @@ class Wordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Moose',
+    label: 'August',
     excludeSemantics: true,
     child: Text(
-      'MO\nOSE',
+      'AUG\nUST',
       textAlign: center ? TextAlign.center : TextAlign.start,
       style: VText.doto(
         size,

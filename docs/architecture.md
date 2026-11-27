@@ -1,6 +1,6 @@
 # Architecture
 
-Moose is one Flutter app with two backends behind the same interfaces: **mocks**, with a pretend partner, and **Neon**, the real one. Which one runs is decided once, in `lib/main.dart`, by whether the build has an `env.json`.
+August is one Flutter app with two backends behind the same interfaces: **mocks**, with a pretend partner, and **Neon**, the real one. Which one runs is decided once, in `lib/main.dart`, by whether the build has an `env.json`.
 
 ```mermaid
 flowchart TB
@@ -18,7 +18,7 @@ flowchart TB
 
 | Folder | Role | Depends on |
 | --- | --- | --- |
-| `lib/app` | The root: `MooseApp`, the router, the tab shell, the shared wallpaper and the version | everything below |
+| `lib/app` | The root: `AugustApp`, the router, the tab shell, the shared wallpaper and the version | everything below |
 | `lib/core` | Design tokens, `VColors`, `VText`, icons and the shared widget kit (`VGlass`, `VEdgeBlur`, `VRing`, `VMarquee`, `VMotionBlur`…) | Flutter only |
 | `lib/features` | Screens, one folder per area | `core`, `data` |
 | `lib/data` | Models, repository interfaces, Riverpod providers and the session | nothing app-specific |
@@ -33,7 +33,7 @@ Features never import `lib/net` or `lib/mock`; they only see `lib/data`. That's 
 ```dart
 final config = NeonConfig.fromEnvironment;          // from --dart-define-from-file=env.json
 final backend = config == null ? null : await NeonBackend.open(config, …);
-runApp(ProviderScope(overrides: [...?backend?.overrides(), …], child: const MooseApp(splash: true)));
+runApp(ProviderScope(overrides: [...?backend?.overrides(), …], child: const AugustApp(splash: true)));
 ```
 
 - **No `env.json`:** the providers keep their defaults, the `Mock…Repository` classes. The mock partner answers within seconds, so the whole app can be clicked through offline.
@@ -112,7 +112,7 @@ Unpairing wipes the partner and the conversation. Uninstalling wipes the identit
 
 ## The wallpaper and surfaces
 
-`lib/app/moose_theme.dart` paints the shared wallpaper once, behind everything, and works out the ink. Pages lay a `VVeil` over it: a copy of the wallpaper under the tint, opaque from the first frame, so nothing "pops" during a fade. Panels are see-through paper (cards 55 %) or solid (Settings › Look › Solid panels, `VPanels`), and sheets are always solid. The only live blurs are the shader edge blur (`shaders/progressive_blur.frag`) and the tab pill.
+`lib/app/august_theme.dart` paints the shared wallpaper once, behind everything, and works out the ink. Pages lay a `VVeil` over it: a copy of the wallpaper under the tint, opaque from the first frame, so nothing "pops" during a fade. Panels are see-through paper (cards 55 %) or solid (Settings › Look › Solid panels, `VPanels`), and sheets are always solid. The only live blurs are the shader edge blur (`shaders/progressive_blur.frag`) and the tab pill.
 
 ## Platform code
 

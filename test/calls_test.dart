@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/calls/call_page.dart';
-import 'package:moose/mock/mock_repositories.dart';
+import 'package:august/app/app.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/calls/call_page.dart';
+import 'package:august/mock/mock_repositories.dart';
 
 /// Calls end to end on the mock: you call and Aatika answers; she calls
 /// back when asked.
@@ -36,7 +36,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(locked: false));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await frames(t);
     return c;

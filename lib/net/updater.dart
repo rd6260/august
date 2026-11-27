@@ -11,17 +11,17 @@ import '../platform/updater_channel.dart';
 
 /// Where each release's `update.json` is: the latest GitHub release of the
 /// public repo (see .github/workflows/release.yml). A build can point
-/// elsewhere with --dart-define=MOOSE_UPDATE_URL (a local test server).
+/// elsewhere with --dart-define=AUGUST_UPDATE_URL (a local test server).
 const updateManifestUrl = String.fromEnvironment(
-  'MOOSE_UPDATE_URL',
+  'AUGUST_UPDATE_URL',
   defaultValue:
-      'https://github.com/isg32/moose/releases/latest/download/update.json',
+      'https://github.com/rd6260/august/releases/latest/download/update.json',
 );
 
 /// The releases page, for a phone that has to reinstall once by hand.
-const releasesPageUrl = 'https://github.com/isg32/moose/releases/latest';
+const releasesPageUrl = 'https://github.com/rd6260/august/releases/latest';
 
-/// A newer Moose, for this phone's ABI.
+/// A newer August, for this phone's ABI.
 class UpdateRelease {
   const UpdateRelease({
     required this.version,
@@ -139,7 +139,7 @@ class UpdateReady extends UpdateState {
   final String path;
 }
 
-/// Android needs "Install unknown apps" allowed for Moose first.
+/// Android needs "Install unknown apps" allowed for August first.
 class UpdateNeedsPermission extends UpdateState {
   const UpdateNeedsPermission(this.release, this.path);
   @override
@@ -153,7 +153,7 @@ class UpdateInstalling extends UpdateState {
   final UpdateRelease release;
   final String path;
 
-  /// Android's "Update Moose?" screen is up.
+  /// Android's "Update August?" screen is up.
   final bool confirming;
 }
 
@@ -163,7 +163,7 @@ class UpdateFailed extends UpdateState {
   @override
   final UpdateRelease? release;
 
-  /// This Moose can't be updated in place (signed differently): reinstall
+  /// This August can't be updated in place (signed differently): reinstall
   /// it once from GitHub.
   final bool reinstall;
 }
@@ -185,10 +185,10 @@ class UpdateDeps {
   final DateTime Function() now;
 }
 
-/// The phone's [UpdateDeps]; null where Moose doesn't update itself.
+/// The phone's [UpdateDeps]; null where August doesn't update itself.
 final updateDepsProvider = Provider<UpdateDeps?>((ref) => null);
 
-/// Over-the-air updates: checks GitHub for a newer Moose, downloads it
+/// Over-the-air updates: checks GitHub for a newer August, downloads it
 /// (resuming if the connection drops), checks it, and hands it to Android
 /// to install.
 final updaterProvider = NotifierProvider<Updater, UpdateState>(Updater.new);
@@ -227,7 +227,7 @@ class Updater extends Notifier<UpdateState> {
 
   bool get supported => _deps != null;
 
-  /// Work that outlives the updater (a check finishing after Moose closed)
+  /// Work that outlives the updater (a check finishing after August closed)
   /// just stops.
   @override
   set state(UpdateState value) {
@@ -284,7 +284,7 @@ class Updater extends Notifier<UpdateState> {
     }
   }
 
-  /// Coming back to Moose: carries on an install that was waiting for
+  /// Coming back to August: carries on an install that was waiting for
   /// "Install unknown apps", and checks if it's time.
   Future<void> resumed() async {
     if (!supported) return;
@@ -303,7 +303,7 @@ class Updater extends Notifier<UpdateState> {
     await check();
   }
 
-  /// Looks for a newer Moose. [manual] checks now, whatever the time, and
+  /// Looks for a newer August. [manual] checks now, whatever the time, and
   /// says so when something goes wrong; otherwise it only runs every
   /// [every] and fails quietly.
   Future<void> check({bool manual = false}) async {
@@ -369,7 +369,7 @@ class Updater extends Notifier<UpdateState> {
     }
   }
 
-  /// The release the last check found, if it's still newer than this Moose.
+  /// The release the last check found, if it's still newer than this August.
   Future<void> _showSaved() async {
     final r = _saved.latest;
     if (r == null) return;
@@ -443,14 +443,14 @@ class Updater extends Notifier<UpdateState> {
       final apk = part.renameSync(path);
       final me = await deps.platform.info();
       final c = await deps.platform.check(apk.path);
-      if (!c.valid || c.package != 'com.isg32.moose') {
+      if (!c.valid || c.package != 'com.rd6260.august') {
         apk.deleteSync();
         throw const _Damaged();
       }
       if (!c.sameSigner) {
         apk.deleteSync();
         state = UpdateFailed(
-          'This copy of Moose was installed another way, so it can\'t '
+          'This copy of August was installed another way, so it can\'t '
           'update itself. Uninstall it once and install the latest from '
           'GitHub; after that, updates come right here.',
           release: release,
@@ -516,7 +516,7 @@ class Updater extends Notifier<UpdateState> {
   }
 
   /// Installs the downloaded release, asking for "Install unknown apps"
-  /// first if Moose doesn't have it yet.
+  /// first if August doesn't have it yet.
   Future<void> install() async {
     final s = state;
     final (release, path) = switch (s) {
@@ -548,7 +548,7 @@ class Updater extends Notifier<UpdateState> {
     }
   }
 
-  /// Opens Android's "Install unknown apps" switch for Moose.
+  /// Opens Android's "Install unknown apps" switch for August.
   Future<void> allowInstalls() async {
     try {
       await _deps?.platform.openInstallSettings();
@@ -564,7 +564,7 @@ class Updater extends Notifier<UpdateState> {
       case InstallResult.pendingUser:
         state = UpdateInstalling(s.release, s.path, confirming: true);
       case InstallResult.success:
-        // Moose is being replaced and will close.
+        // August is being replaced and will close.
         state = UpdateInstalling(s.release, s.path);
       case InstallResult.aborted:
         state = UpdateReady(s.release, s.path);

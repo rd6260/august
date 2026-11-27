@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/platform/crash_log.dart';
+import 'package:august/platform/crash_log.dart';
 
 void main() {
   test('network failures are logged, not reported', () {
@@ -23,7 +23,7 @@ void main() {
       device: 'android 17',
       at: DateTime(2026, 11, 8, 12),
     );
-    expect(log, startsWith('Moose 1.0.0 · android 17 · 2026-11-08T12:00:00'));
+    expect(log, startsWith('August 1.0.0 · android 17 · 2026-11-08T12:00:00'));
     expect(log, contains('What: Bad state: boom'));
     expect(log, contains('Where: While drawing'));
     expect(log, contains('#0 main (file.dart:1)'));

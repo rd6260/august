@@ -118,7 +118,7 @@ class _CrashCardState extends State<_CrashCard> {
                   VButton.secondary('Copy details', onPressed: _copy),
                   const SizedBox(height: 12),
                   VButton.primary(
-                    'Back to Moose',
+                    'Back to August',
                     onPressed: CrashLog.instance.dismiss,
                   ),
                   const SizedBox(height: 12),

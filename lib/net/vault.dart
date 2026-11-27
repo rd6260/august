@@ -36,8 +36,8 @@ class MemoryVault implements Vault {
       value == null ? values.remove(key) : values[key] = value;
 }
 
-/// On the Linux desktop build (a second Moose on a laptop): a file only
-/// you can read, in Moose's data folder. The desktop's keyring isn't
+/// On the Linux desktop build (a second August on a laptop): a file only
+/// you can read, in August's data folder. The desktop's keyring isn't
 /// always reachable over the Secret Service.
 class FileVault implements Vault {
   FileVault(this.path);

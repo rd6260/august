@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 
 /// "Hide in recent apps" (C36): FLAG_SECURE on Android.
 abstract final class SecureWindow {
-  static const _channel = MethodChannel('moose/window');
+  static const _channel = MethodChannel('august/window');
 
   static Future<void> set(bool on) async {
     try {

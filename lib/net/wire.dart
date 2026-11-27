@@ -11,7 +11,7 @@ sealed class Envelope {
 
   Map<String, Object?> toJson();
 
-  /// Null for an envelope from a newer Moose this one can't read.
+  /// Null for an envelope from a newer August this one can't read.
   static Envelope? fromJson(Map<String, Object?> j) => switch (j['type']) {
     'msg' => MessageEnvelope(Wire.message(j)),
     'receipt' => ReceiptEnvelope([
@@ -327,7 +327,7 @@ abstract final class Wire {
       SystemKind.values.byName(j['kind'] as String),
       j['text'] as String,
     ),
-    final t => TextBody('This needs a newer Moose ($t)'),
+    final t => TextBody('This needs a newer August ($t)'),
   };
 
   static Map<String, Object?> _song(Song s) => {

@@ -3,7 +3,7 @@ import 'package:path_drawing/path_drawing.dart';
 
 import '../widgets/v_ink.dart';
 
-/// Moose's line icons (the canvas's Icons board), drawn on a 24 × 24 grid
+/// August's line icons (the canvas's Icons board), drawn on a 24 × 24 grid
 /// with 1.5 round-capped strokes, as in Veronica, Idris and Cariño.
 enum VIcon {
   send('M4 12L20 4l-6 16l-3-7zM11 13l9-9'),

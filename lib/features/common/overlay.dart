@@ -56,14 +56,14 @@ Future<T?> pushPage<T>(BuildContext context, WidgetBuilder builder) {
   return Navigator.of(
     context,
     rootNavigator: true,
-  ).push<T>(MoosePageRoute<T>(builder: builder));
+  ).push<T>(AugustPageRoute<T>(builder: builder));
 }
 
 /// iOS's page route (slide, parallax, shadow, edge swipe back), kept
 /// see-through so the shared wallpaper shows under every page.
-class MoosePageRoute<T> extends PageRoute<T>
+class AugustPageRoute<T> extends PageRoute<T>
     with CupertinoRouteTransitionMixin<T> {
-  MoosePageRoute({required this.builder, super.settings});
+  AugustPageRoute({required this.builder, super.settings});
 
   final WidgetBuilder builder;
 

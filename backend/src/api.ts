@@ -1,4 +1,4 @@
-// The Moose API: one Neon Function between the phones and Neon.
+// The August API: one Neon Function between the phones and Neon.
 //
 // Phones sign in to Neon Managed Auth with hidden credentials and send the
 // 15-minute JWT here. The API pairs two members into a couple, passes sealed
@@ -60,7 +60,7 @@ const realtime =
     : null;
 
 // Object storage: S3-compatible, path-style, private bucket.
-const bucket = process.env.MOOSE_BUCKET ?? "assets";
+const bucket = process.env.AUGUST_BUCKET ?? "assets";
 const s3 = new S3Client({
   endpoint: process.env.AWS_ENDPOINT_URL_S3,
   region: process.env.AWS_REGION ?? "auto",
@@ -86,7 +86,7 @@ app.onError((err, c) => {
 app.get("/", (c) =>
   c.json({
     ok: true,
-    service: "moose",
+    service: "august",
     realtime: realtime !== null,
     storage: !!process.env.AWS_ENDPOINT_URL_S3,
     push: pushEnabled,

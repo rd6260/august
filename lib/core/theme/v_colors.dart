@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-/// The only colours Moose may use (Veronica's palette, as in Cariño).
+/// The only colours August may use (Veronica's palette, as in Cariño).
 ///
 /// The interface is pure black and white: white ink on dark wallpapers,
 /// black ink on light ones. Translucency exists only for the glass surfaces
@@ -77,7 +77,7 @@ class VWallpaperPalette {
   final bool light;
 }
 
-/// Cariño's built-in wallpapers, shared by both partners in Moose.
+/// Cariño's built-in wallpapers, shared by both partners in August.
 abstract final class VWallpapers {
   static const night = VWallpaperPalette(Color(0xFF06070A), [
     VWallpaperBlob(Color(0xFF24344F), -0.7, -0.8, 0.75),

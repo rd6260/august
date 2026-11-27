@@ -43,7 +43,7 @@ abstract final class OnboardingRoutes {
   static const paired = '/paired';
 }
 
-/// C1: the wordmark over the wallpaper while Moose starts.
+/// C1: the wordmark over the wallpaper while August starts.
 class SplashView extends StatelessWidget {
   const SplashView({super.key});
 
@@ -251,7 +251,7 @@ class _NamePageState extends ConsumerState<NamePage> {
   }
 }
 
-/// C4: why Moose runs in the background, and the two permissions.
+/// C4: why August runs in the background, and the two permissions.
 class BackgroundPage extends ConsumerStatefulWidget {
   const BackgroundPage({super.key, this.join = false});
 
@@ -295,7 +295,7 @@ class _BackgroundPageState extends ConsumerState<BackgroundPage> {
       eyebrow: 'Step 2 of 3',
       title: 'Staying in touch',
       body:
-          "Moose checks for new messages and pokes every 6 minutes, even when it's "
+          "August checks for new messages and pokes every 6 minutes, even when it's "
           'closed. Android asks for a small, quiet notification while it does.',
       step: 1,
       content: [
@@ -322,7 +322,7 @@ class _BackgroundPageState extends ConsumerState<BackgroundPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Moose', style: VText.inter(14, weight: 500)),
+                      Text('August', style: VText.inter(14, weight: 500)),
                       Text('Keeping in touch · quiet', style: VText.secondary),
                     ],
                   ),
@@ -354,7 +354,7 @@ class _BackgroundPageState extends ConsumerState<BackgroundPage> {
             ),
             VListRow(
               title: 'Run in the background',
-              subtitle: "Battery: don't optimise Moose",
+              subtitle: "Battery: don't optimise August",
               trailing: granted(_battery, () async {
                 unawaited(HapticFeedback.selectionClick());
                 final ok = await ref.read(keepCheckingProvider)();
@@ -393,12 +393,13 @@ class _BackgroundPageState extends ConsumerState<BackgroundPage> {
 }
 
 /// A QR code drawn in black on a white card (always: scanners need it).
-/// What a pairing QR holds: "moose:" and the code.
-String pairQr(String code) => 'moose:$code';
+/// What a pairing QR holds: "august:" and the code. Codes from before the
+/// rename ("moose:") still scan.
+String pairQr(String code) => 'august:$code';
 
 /// The code in a scanned QR (or a code typed straight in), or null.
 String? codeFromQr(String raw) {
-  final m = RegExp(r'^(?:moose:)?([A-Za-z2-9]{6})$').firstMatch(raw.trim());
+  final m = RegExp(r'^(?:(?:august|moose):)?([A-Za-z2-9]{6})$').firstMatch(raw.trim());
   return m?[1]?.toUpperCase();
 }
 
@@ -515,14 +516,14 @@ class _CreatePairPageState extends ConsumerState<CreatePairPage> {
             onError: (Object _) {
               if (mounted) {
                 setState(
-                  () => _error = "Couldn't reach Moose's server. Tap to retry.",
+                  () => _error = "Couldn't reach August's server. Tap to retry.",
                 );
               }
             },
           );
     } on Object {
       if (mounted) {
-        setState(() => _error = "Couldn't reach Moose's server. Tap to retry.");
+        setState(() => _error = "Couldn't reach August's server. Tap to retry.");
       }
     }
   }
@@ -700,7 +701,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
       }
       error = 'That code has expired. Ask for a new one.';
     } on Object {
-      error = "Couldn't reach Moose's server. Try again.";
+      error = "Couldn't reach August's server. Try again.";
     }
     if (!mounted) return;
     unawaited(HapticFeedback.heavyImpact());
@@ -729,7 +730,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
       }
       error = 'That code has expired. Ask for a new one.';
     } on Object {
-      error = "Couldn't reach Moose's server. Try again.";
+      error = "Couldn't reach August's server. Try again.";
     }
     if (!mounted) return;
     unawaited(HapticFeedback.heavyImpact());
@@ -746,7 +747,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
       back: 'Back',
       eyebrow: 'Step 3 of 3',
       title: 'Enter their code',
-      body: 'Six letters and numbers, from their Moose.',
+      body: 'Six letters and numbers, from their August.',
       content: [
         const SizedBox(height: 24),
         GestureDetector(
@@ -799,7 +800,7 @@ class _JoinPageState extends ConsumerState<JoinPage> {
 }
 
 /// C7: point at their QR. Always dark, it's a viewfinder. On Neon it's
-/// the camera, and a Moose code it reads goes back to Join; in the mock a
+/// the camera, and an August code it reads goes back to Join; in the mock a
 /// tap reads it.
 class ScanPage extends ConsumerStatefulWidget {
   const ScanPage({super.key});
@@ -847,7 +848,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
     }
     if (!mounted) return;
     if (capture != null) _read(capture);
-    if (!_done) showToast(context, 'No Moose code in that picture');
+    if (!_done) showToast(context, 'No August code in that picture');
   }
 
   void _read(BarcodeCapture capture) {
@@ -889,7 +890,7 @@ class _ScanPageState extends ConsumerState<ScanPage> {
                     child: Padding(
                       padding: const EdgeInsets.all(32),
                       child: Text(
-                        "Moose can't use the camera. Type their code instead.",
+                        "August can't use the camera. Type their code instead.",
                         textAlign: TextAlign.center,
                         style: VText.inter(15, weight: 500),
                       ),
@@ -1103,7 +1104,7 @@ class RepairRequestPage extends ConsumerWidget {
           eyebrow: 'New phone',
           title: '$partner has a new phone',
           body:
-              "Her old one is gone, so Moose made her a new key. Only approve if you're "
+              "Her old one is gone, so August made her a new key. Only approve if you're "
               'sure it\'s $partner. A quick call is the easiest way to check.',
           content: [
             const SizedBox(height: 18),
@@ -1195,7 +1196,7 @@ class _RepairWaitingPageState extends ConsumerState<RepairWaitingPage> {
       title: 'Ask $me to approve',
       body:
           "We've sent a request to $me's phone. It reaches him within about 6 minutes, "
-          'or straight away if Moose is open.',
+          'or straight away if August is open.',
       content: [
         const SizedBox(height: 16),
         Row(

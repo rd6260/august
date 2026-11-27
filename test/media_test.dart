@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/icons/v_icons.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/chat/composer.dart';
-import 'package:moose/features/media/media_viewer.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/icons/v_icons.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/chat/composer.dart';
+import 'package:august/features/media/media_viewer.dart';
 
 /// Attachments end to end: attach, pick two in the gallery, caption, send;
 /// then open a photo in the viewer.
@@ -27,7 +27,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(locked: false));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await frames(t);
 

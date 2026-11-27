@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/icons/v_icons.dart';
-import 'package:moose/core/widgets/v_progress.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/icons/v_icons.dart';
+import 'package:august/core/widgets/v_progress.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
 
 /// Stickers, GIFs and songs end to end on the mock.
 void main() {
@@ -25,7 +25,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(locked: false));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await frames(t);
     return c;

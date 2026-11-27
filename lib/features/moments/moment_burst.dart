@@ -160,7 +160,7 @@ class _MomentBurstState extends State<MomentBurst>
   void initState() {
     super.initState();
     if (widget.buzz) unawaited(widget.moment.buzz());
-    // The keyboard is the system's, drawn over everything Moose draws:
+    // The keyboard is the system's, drawn over everything August draws:
     // take it down so the burst isn't hidden under it.
     final focus = FocusManager.instance.primaryFocus;
     if (focus?.context?.findAncestorStateOfType<EditableTextState>() != null) {

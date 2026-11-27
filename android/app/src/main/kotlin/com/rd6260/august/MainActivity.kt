@@ -1,9 +1,9 @@
-package com.isg32.moose
+package com.rd6260.august
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import com.isg32.moose.youtube.YouTubeChannel
+import com.rd6260.august.youtube.YouTubeChannel
 
 class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
@@ -20,9 +20,9 @@ class MainActivity : FlutterActivity() {
         YouTubeChannel.register(flutterEngine.dartExecutor.binaryMessenger)
         // Over-the-air updates from GitHub Releases (lib/net/updater.dart).
         Updater.register(this, flutterEngine.dartExecutor.binaryMessenger)
-        // "Hide in recent apps" (C36): FLAG_SECURE blanks Moose in the
+        // "Hide in recent apps" (C36): FLAG_SECURE blanks August in the
         // app switcher and blocks screenshots of it.
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "moose/window")
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "august/window")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "secure" -> {

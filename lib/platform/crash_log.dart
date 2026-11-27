@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-const _files = MethodChannel('moose/files');
+const _files = MethodChannel('august/files');
 
 /// A problem worth showing the person: what happened, and the full log.
 @immutable
@@ -23,11 +23,11 @@ class CrashReport {
   /// Everything to copy or save: device, error, stack, recent log lines.
   final String log;
 
-  /// Moose closed unexpectedly last time (a native crash, read at start).
+  /// August closed unexpectedly last time (a native crash, read at start).
   final bool fromLastRun;
 }
 
-/// Keeps a rolling log of what Moose printed, catches errors that would
+/// Keeps a rolling log of what August printed, catches errors that would
 /// otherwise be lost or crash the app, and raises a [CrashReport] the app
 /// shows as a popup (copy, save to Downloads, close).
 ///
@@ -98,13 +98,13 @@ class CrashLog {
     pending.value ??= CrashReport(
       title: 'Something broke',
       summary:
-          'Moose hit an error. Your chats are safe on this phone. Copy the '
+          'August hit an error. Your chats are safe on this phone. Copy the '
           'details if you want to report it.',
       log: log,
     );
   }
 
-  /// A crash Moose couldn't catch last time (written by MainActivity),
+  /// A crash August couldn't catch last time (written by MainActivity),
   /// shown once at start.
   Future<void> checkLastRun() async {
     try {
@@ -123,9 +123,9 @@ class CrashLog {
         await f.rename('${dir.path}/seen-${_name(f.path)}');
       }
       pending.value ??= CrashReport(
-        title: 'Moose closed unexpectedly',
+        title: 'August closed unexpectedly',
         summary:
-            'Last time, Moose stopped because of a problem on the Android '
+            'Last time, August stopped because of a problem on the Android '
             'side. Your chats are safe.',
         log: '${_header(appVersion, _device())}\n$text',
         fromLastRun: true,
@@ -148,7 +148,7 @@ class CrashLog {
 
   /// Saves [log] to the phone's Downloads folder; returns where.
   Future<String> saveToDownloads(String log) async {
-    final name = 'moose-log-${_stamp(DateTime.now())}.txt';
+    final name = 'august-log-${_stamp(DateTime.now())}.txt';
     final where = await _files.invokeMethod<String>('saveToDownloads', {
       'name': name,
       'text': log,
@@ -216,7 +216,7 @@ String buildLog({
 }
 
 String _header(String version, String device, {DateTime? at}) =>
-    'Moose ${version.isEmpty ? '' : '$version '}· $device · '
+    'August ${version.isEmpty ? '' : '$version '}· $device · '
     '${(at ?? DateTime.now()).toIso8601String()}';
 
 String _time(DateTime t) =>

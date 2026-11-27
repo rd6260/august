@@ -322,7 +322,7 @@ class _MediaViewerState extends State<MediaViewer> {
     );
   }
 
-  /// Into the phone's gallery (Pictures/Moose, Movies/Moose); on the
+  /// Into the phone's gallery (Pictures/August, Movies/August); on the
   /// desktop, into Downloads.
   Future<void> _save(ViewerItem item) async {
     final path = item.media.path;
@@ -338,17 +338,17 @@ class _MediaViewerState extends State<MediaViewer> {
         }
         final ext = item.video ? 'mp4' : _imageExt(path);
         final named = await File(path).copy(
-          '${(await getTemporaryDirectory()).path}/moose-${item.media.id}.$ext',
+          '${(await getTemporaryDirectory()).path}/august-${item.media.id}.$ext',
         );
         item.video
-            ? await Gal.putVideo(named.path, album: 'Moose')
-            : await Gal.putImage(named.path, album: 'Moose');
+            ? await Gal.putVideo(named.path, album: 'August')
+            : await Gal.putImage(named.path, album: 'August');
       } else {
         final dir =
             await getDownloadsDirectory() ??
             await getApplicationDocumentsDirectory();
         await File(path).copy(
-          '${dir.path}/moose-${item.media.id}.${item.video ? 'mp4' : _imageExt(path)}',
+          '${dir.path}/august-${item.media.id}.${item.video ? 'mp4' : _imageExt(path)}',
         );
       }
       if (mounted) showToast(context, 'Saved');
@@ -366,7 +366,7 @@ class _MediaViewerState extends State<MediaViewer> {
     unawaited(HapticFeedback.selectionClick());
     final ext = item.video ? 'mp4' : _imageExt(path);
     final named = await File(path).copy(
-      '${(await getTemporaryDirectory()).path}/moose-${item.media.id}.$ext',
+      '${(await getTemporaryDirectory()).path}/august-${item.media.id}.$ext',
     );
     await SharePlus.instance.share(
       ShareParams(

@@ -1248,7 +1248,7 @@ class _Centred extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "$partner's Moose was closed. She'll see a missed call at "
+                    "$partner's August was closed. She'll see a missed call at "
                     'its next check.',
                     style: VText.secondary,
                   ),

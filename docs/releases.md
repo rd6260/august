@@ -1,6 +1,6 @@
 # Releases and OTA
 
-Every push to `main` builds, tests, signs and publishes a GitHub release, and installed copies of Moose update themselves from it.
+Every push to `main` builds, tests, signs and publishes a GitHub release, and installed copies of August update themselves from it.
 
 ## Versioning
 
@@ -9,7 +9,7 @@ Bump the version **on every push to main**, in three places:
 | File | What |
 | --- | --- |
 | `pubspec.yaml` | `version: 0.32.2+41` (name + build number) |
-| `lib/app/version.dart` | `mooseVersion` |
+| `lib/app/version.dart` | `augustVersion` |
 | `test/settings_test.dart` | The expected "Version 0.32.2 · licences, developer" |
 
 `test/version_test.dart` checks that they agree.
@@ -44,7 +44,7 @@ flowchart TB
   I --> J{arm64 versionCode<br/>went up?}
   J -- no --> X
   J -- yes --> K[Remove keystore and env.json]
-  K --> L["Release 'Moose X'<br/>tag v&lt;ver&gt;-&lt;sha&gt;, make_latest"]
+  K --> L["Release 'August X'<br/>tag v&lt;ver&gt;-&lt;sha&gt;, make_latest"]
 ```
 
 - **Gradle memory** is turned down for the runner: the old 8 GB heap made it lose contact and die.
@@ -55,13 +55,13 @@ flowchart TB
 
 | Secret | For |
 | --- | --- |
-| `MOOSE_KEYSTORE_BASE64` | The release keystore, base64 |
-| `MOOSE_KEYSTORE_PASSWORD`, `MOOSE_KEY_PASSWORD` | Its passwords |
-| `MOOSE_KEY_ALIAS` | `upload` |
-| `MOOSE_API_URL`, `MOOSE_AUTH_URL` | The Neon Function and Managed Auth |
-| `MOOSE_KLIPY_KEY` | KLIPY GIFs (optional) |
+| `AUGUST_KEYSTORE_BASE64` | The release keystore, base64 |
+| `AUGUST_KEYSTORE_PASSWORD`, `AUGUST_KEY_PASSWORD` | Its passwords |
+| `AUGUST_KEY_ALIAS` | `upload` |
+| `AUGUST_API_URL`, `AUGUST_AUTH_URL` | The Neon Function and Managed Auth |
+| `AUGUST_KLIPY_KEY` | KLIPY GIFs (optional) |
 
-`android/app/build.gradle.kts` reads the `MOOSE_KEYSTORE_*` and `MOOSE_KEY_*` variables, and falls back to the debug key when they're missing, so local debug builds still work.
+`android/app/build.gradle.kts` reads the `AUGUST_KEYSTORE_*` and `AUGUST_KEY_*` variables, and falls back to the debug key when they're missing, so local debug builds still work.
 
 ### The release key
 
@@ -72,7 +72,7 @@ Releases from **0.31.0** onward are signed with the release key, which lives out
 
 ## `update.json`
 
-Published with every release, at `https://github.com/isg32/moose/releases/latest/download/update.json`:
+Published with every release, at `https://github.com/rd6260/august/releases/latest/download/update.json`:
 
 ```json
 {
@@ -81,7 +81,7 @@ Published with every release, at `https://github.com/isg32/moose/releases/latest
   "published": "2026-11-14T…Z",
   "notes": ["Keep covered setup steps alive, so a scanned QR pairs", "…"],
   "apks": {
-    "arm64-v8a":   {"url": "https://github.com/isg32/moose/releases/download/v0.32.2-63a4ad8/app-arm64-v8a-release.apk",
+    "arm64-v8a":   {"url": "https://github.com/rd6260/august/releases/download/v0.32.2-63a4ad8/app-arm64-v8a-release.apk",
                     "sha256": "…", "size": 0, "versionCode": 2041},
     "armeabi-v7a": {"…": "…"},
     "x86_64":      {"…": "…"}
@@ -109,12 +109,12 @@ stateDiagram-v2
   Installing --> [*]: PackageInstaller session
 ```
 
-1. **Check:** read `update.json` (a build can point elsewhere with `--dart-define=MOOSE_UPDATE_URL=…`), pick this phone's ABI, and compare versionCodes. This runs at launch, on resume if 6 hours have passed, and from Settings › Check for updates.
+1. **Check:** read `update.json` (a build can point elsewhere with `--dart-define=AUGUST_UPDATE_URL=…`), pick this phone's ABI, and compare versionCodes. This runs at launch, on resume if 6 hours have passed, and from Settings › Check for updates.
 2. **Prompt:** a card in Chat (dismissed per version) and a row in Settings both open the update sheet.
 3. **Download:** with progress, following redirects by hand and **resuming with Range headers** after a drop.
 4. **Verify:** the size and SHA-256 must match `update.json`, the APK's **signer must match the installed app** (`sameSigner`), and its versionCode must be higher.
-5. **Install:** the first time, Android asks to allow "Install unknown apps" for Moose. Then a **PackageInstaller session** installs it. After the first self-install, Android skips its own confirm screen.
-6. **After:** `UpdatedReceiver` posts a quiet "Moose updated to X" notification, and "What's new" shows once on the next launch.
+5. **Install:** the first time, Android asks to allow "Install unknown apps" for August. Then a **PackageInstaller session** installs it. After the first self-install, Android skips its own confirm screen.
+6. **After:** `UpdatedReceiver` posts a quiet "August updated to X" notification, and "What's new" shows once on the next launch.
 
 **Google Play Protect** may still show "App scan recommended" for each new APK. That's Play Protect's decision about apps from outside the Play Store; the user taps Scan app.
 
@@ -125,7 +125,7 @@ stateDiagram-v2
 python3 -m http.server 8765        # or any server that supports Range
 adb reverse tcp:8765 tcp:8765
 flutter build apk --release --split-per-abi --target-platform android-arm64 \
-  --dart-define-from-file=env.json --dart-define=MOOSE_UPDATE_URL=http://127.0.0.1:8765/update.json
+  --dart-define-from-file=env.json --dart-define=AUGUST_UPDATE_URL=http://127.0.0.1:8765/update.json
 ```
 
 Install an older build with that define, put a newer APK and its `update.json` on the server, then use Settings › Check for updates. Python's built-in `http.server` doesn't support Range, so use a small Range-capable one to test resuming.

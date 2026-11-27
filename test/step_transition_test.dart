@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:moose/app/router.dart';
+import 'package:august/app/router.dart';
 
 /// A step that remembers it was built once.
 class _Step extends StatefulWidget {

@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/data/repositories.dart';
-import 'package:moose/mock/mock_repositories.dart';
-import 'package:moose/features/chat/composer.dart';
+import 'package:august/app/app.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/data/repositories.dart';
+import 'package:august/mock/mock_repositories.dart';
+import 'package:august/features/chat/composer.dart';
 
 void main() {
   Future<ProviderContainer> open(WidgetTester t) async {
@@ -19,7 +19,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(locked: false));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await t.pump(const Duration(milliseconds: 600));
     return c;
@@ -117,7 +117,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(locked: false));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await t.pump(const Duration(milliseconds: 600));
     final screen = t.view.physicalSize.height / t.view.devicePixelRatio;

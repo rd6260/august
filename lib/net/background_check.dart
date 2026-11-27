@@ -13,15 +13,15 @@ import 'push.dart';
 import 'vault.dart';
 
 /// The background check: a quiet foreground service that looks for sealed
-/// mail every 6 minutes while Moose is closed, so a message still makes a
-/// notification when Firebase can't wake the phone. It only peeks; Moose
+/// mail every 6 minutes while August is closed, so a message still makes a
+/// notification when Firebase can't wake the phone. It only peeks; August
 /// takes the mail (and acks it) when it opens.
 abstract final class BackgroundCheck {
   /// Every 6 minutes (the user's choice: it keeps Neon's compute within
-  /// the free plan). `--dart-define=MOOSE_CHECK_EVERY=<seconds>` shortens
+  /// the free plan). `--dart-define=AUGUST_CHECK_EVERY=<seconds>` shortens
   /// it for tests.
   static const every = Duration(
-    seconds: int.fromEnvironment('MOOSE_CHECK_EVERY', defaultValue: 360),
+    seconds: int.fromEnvironment('AUGUST_CHECK_EVERY', defaultValue: 360),
   );
 
   static const _file = 'background-check.json';
@@ -30,7 +30,7 @@ abstract final class BackgroundCheck {
     androidNotificationOptions: AndroidNotificationOptions(
       channelId: 'background',
       channelName: 'Background check',
-      channelDescription: 'Quietly looks for messages while Moose is closed',
+      channelDescription: 'Quietly looks for messages while August is closed',
       onlyAlertOnce: true,
     ),
     iosNotificationOptions: const IOSNotificationOptions(),
@@ -43,7 +43,7 @@ abstract final class BackgroundCheck {
 
   static Future<bool> get running => FlutterForegroundTask.isRunningService;
 
-  /// Asks Android not to optimise Moose's battery (so the check runs on
+  /// Asks Android not to optimise August's battery (so the check runs on
   /// time), then starts the check when paired. True when allowed.
   static Future<bool> keepGoing({required bool paired}) async {
     var ok = await FlutterForegroundTask.isIgnoringBatteryOptimizations;
@@ -59,7 +59,7 @@ abstract final class BackgroundCheck {
     await FlutterForegroundTask.startService(
       serviceId: 600,
       serviceTypes: [ForegroundServiceTypes.remoteMessaging],
-      notificationTitle: 'Moose',
+      notificationTitle: 'August',
       notificationText:
           'Checking for messages every '
           '${every.inMinutes > 0 ? '${every.inMinutes} min' : '${every.inSeconds} s'}',

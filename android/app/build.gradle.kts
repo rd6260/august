@@ -8,15 +8,15 @@ plugins {
 // Release signing: set by the release workflow (from secrets) or by hand,
 // never committed. Without them, release builds fall back to the debug key,
 // so `flutter build apk --release` still works with no setup.
-val releaseStoreFile = System.getenv("MOOSE_KEYSTORE_FILE")?.let { file(it) }
-val releaseStorePassword = System.getenv("MOOSE_KEYSTORE_PASSWORD")?.takeIf { it.isNotEmpty() }
+val releaseStoreFile = System.getenv("AUGUST_KEYSTORE_FILE")?.let { file(it) }
+val releaseStorePassword = System.getenv("AUGUST_KEYSTORE_PASSWORD")?.takeIf { it.isNotEmpty() }
 val releaseKeyPassword =
-    System.getenv("MOOSE_KEY_PASSWORD")?.takeIf { it.isNotEmpty() } ?: releaseStorePassword
-val releaseKeyAlias = System.getenv("MOOSE_KEY_ALIAS")?.takeIf { it.isNotEmpty() } ?: "upload"
+    System.getenv("AUGUST_KEY_PASSWORD")?.takeIf { it.isNotEmpty() } ?: releaseStorePassword
+val releaseKeyAlias = System.getenv("AUGUST_KEY_ALIAS")?.takeIf { it.isNotEmpty() } ?: "upload"
 val canSignRelease = releaseStorePassword != null && releaseStoreFile?.exists() == true
 
 android {
-    namespace = "com.isg32.moose"
+    namespace = "com.rd6260.august"
     // Firebase and notifications need androidx.core 1.19, built for API 37.
     compileSdk = 37
     ndkVersion = flutter.ndkVersion
@@ -30,7 +30,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.isg32.moose"
+        applicationId = "com.rd6260.august"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

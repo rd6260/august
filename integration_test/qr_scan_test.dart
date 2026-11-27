@@ -6,10 +6,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:moose/features/onboarding/onboarding_pages.dart';
+import 'package:august/features/onboarding/onboarding_pages.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// The pairing QR, drawn by Moose, read by the phone's own scanner (ML Kit,
+/// The pairing QR, drawn by August, read by the phone's own scanner (ML Kit,
 /// the same reader the camera page uses).
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +38,7 @@ void main() {
     addTearDown(scanner.dispose);
     final capture = await scanner.analyzeImage(file.path);
     final read = capture?.barcodes.map((b) => b.rawValue).toList();
-    expect(read, contains('moose:H4PPY2'));
+    expect(read, contains('august:H4PPY2'));
     expect(codeFromQr(read!.first!), 'H4PPY2');
   });
 }

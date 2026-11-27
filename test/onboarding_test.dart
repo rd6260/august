@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/chat/chat_page.dart';
-import 'package:moose/features/lock/lock_pages.dart';
-import 'package:moose/features/onboarding/onboarding_pages.dart';
-import 'package:moose/mock/mock_data.dart';
+import 'package:august/app/app.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/chat/chat_page.dart';
+import 'package:august/features/lock/lock_pages.dart';
+import 'package:august/features/onboarding/onboarding_pages.dart';
+import 'package:august/mock/mock_data.dart';
 
 /// Onboarding and the lock end to end on the mock.
 void main() {
@@ -30,7 +30,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(paired: paired, locked: locked));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await frames(t);
     return c;

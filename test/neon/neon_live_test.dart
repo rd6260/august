@@ -3,25 +3,25 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/repositories.dart';
-import 'package:moose/net/config.dart';
-import 'package:moose/net/crypto.dart';
-import 'package:moose/net/neon_backend.dart';
-import 'package:moose/net/vault.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/repositories.dart';
+import 'package:august/net/config.dart';
+import 'package:august/net/crypto.dart';
+import 'package:august/net/neon_backend.dart';
+import 'package:august/net/vault.dart';
 
 /// Two pretend phones pair and talk through the deployed Neon backend:
 /// Managed Auth, the API Function, Postgres, Realtime and storage.
 ///
-///   MOOSE_API_URL=… MOOSE_AUTH_URL=… flutter test test/neon
+///   AUGUST_API_URL=… AUGUST_AUTH_URL=… flutter test test/neon
 ///   (cd backend && npm run cleanup)   # deletes the e2e- accounts
 void main() {
   final env = Platform.environment;
-  final api = env['MOOSE_API_URL'] ?? '';
-  final authUrl = env['MOOSE_AUTH_URL'] ?? '';
+  final api = env['AUGUST_API_URL'] ?? '';
+  final authUrl = env['AUGUST_AUTH_URL'] ?? '';
   final skip = api.isEmpty || authUrl.isEmpty
-      ? 'set MOOSE_API_URL and MOOSE_AUTH_URL to run against Neon'
+      ? 'set AUGUST_API_URL and AUGUST_AUTH_URL to run against Neon'
       : null;
 
   // flutter_test answers every HTTP request with 400; this test wants the
@@ -29,7 +29,7 @@ void main() {
   setUpAll(() => HttpOverrides.global = null);
 
   Future<NeonBackend> phone() async {
-    final dir = await Directory.systemTemp.createTemp('moose-e2e');
+    final dir = await Directory.systemTemp.createTemp('august-e2e');
     addTearDown(() => dir.delete(recursive: true));
     final b = await NeonBackend.open(
       NeonConfig(api: api, auth: authUrl),

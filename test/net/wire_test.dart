@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/mock/mock_data.dart';
-import 'package:moose/net/local_store.dart';
-import 'package:moose/net/wire.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/models.dart';
+import 'package:august/mock/mock_data.dart';
+import 'package:august/net/local_store.dart';
+import 'package:august/net/wire.dart';
 
 void main() {
   test('every message in the sample day survives the wire', () {
@@ -58,7 +58,7 @@ void main() {
     expect(sticker.sticker.strokes.single.tool, PenTool.neon);
     expect(
       (Wire.toBody({'t': 'hologram'}) as TextBody).text,
-      contains('newer Moose'),
+      contains('newer August'),
     );
   });
 
@@ -79,7 +79,7 @@ void main() {
   });
 
   test('the conversation is kept on the phone across restarts', () async {
-    final dir = await Directory.systemTemp.createTemp('moose-store');
+    final dir = await Directory.systemTemp.createTemp('august-store');
     addTearDown(() => dir.delete(recursive: true));
     final store = await LocalStore.open(dir);
     expect(store.paired, isFalse);

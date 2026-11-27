@@ -71,9 +71,9 @@ class Mail {
 /// What the server lets mail be (it routes; it can't read).
 enum MailKind { msg, receipt, typing, moment, theme, doodle, rtc, call }
 
-/// The Moose API Function (see backend/src/api.ts).
-class MooseApi {
-  MooseApi({required this.base, required this.auth, http.Client? client})
+/// The August API Function (see backend/src/api.ts).
+class AugustApi {
+  AugustApi({required this.base, required this.auth, http.Client? client})
     : _http = client ?? http.Client();
 
   final String base;

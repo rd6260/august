@@ -1,6 +1,6 @@
 # Gallery
 
-Every Moose screen in both inks: **night** (a dark wallpaper, white ink) and **paper** (a light wallpaper, black ink). Codes like C15 and S2 refer to [`design/SCREENS.md`](../design/SCREENS.md).
+Every August screen in both inks: **night** (a dark wallpaper, white ink) and **paper** (a light wallpaper, black ink). Codes like C15 and S2 refer to [`design/SCREENS.md`](../design/SCREENS.md).
 
 These are rendered from the real widgets running on the mock data, at 390 × 844 (1.5× here). Regenerate them with `tool/docs_renders.sh` (see [Development](development.md#renders)). The design boards they were built from are [at the end](#design-boards).
 
@@ -262,7 +262,7 @@ From left: at the bottom; scrolled up 700; 1400: photos, video and a song; 2100:
 
 ## Design boards
 
-The **Moose Screens** canvas ([`design/canvas/`](../design/canvas/)), rendered with `tool/design_render/render.sh`. Each screen board draws a dark-ink row over a light-ink row. The spec distilled from it is [`design/DESIGN.md`](../design/DESIGN.md).
+The **August Screens** canvas ([`design/canvas/`](../design/canvas/)), rendered with `tool/design_render/render.sh`. Each screen board draws a dark-ink row over a light-ink row. The spec distilled from it is [`design/DESIGN.md`](../design/DESIGN.md).
 
 ### Main
 

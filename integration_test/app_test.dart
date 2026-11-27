@@ -2,20 +2,20 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/icons/v_icons.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/chat/chat_page.dart';
-import 'package:moose/features/doodles/board_page.dart';
-import 'package:moose/features/lock/lock_pages.dart';
-import 'package:moose/features/moments/moment_burst.dart';
-import 'package:moose/features/onboarding/onboarding_pages.dart';
-import 'package:moose/mock/mock_data.dart';
-import 'package:moose/mock/mock_repositories.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/icons/v_icons.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/chat/chat_page.dart';
+import 'package:august/features/doodles/board_page.dart';
+import 'package:august/features/lock/lock_pages.dart';
+import 'package:august/features/moments/moment_burst.dart';
+import 'package:august/features/onboarding/onboarding_pages.dart';
+import 'package:august/mock/mock_data.dart';
+import 'package:august/mock/mock_repositories.dart';
 
-/// Moose end to end on a phone, against the mock partner (Phase 3): a new
+/// August end to end on a phone, against the mock partner (Phase 3): a new
 /// phone pairs, chats, pokes, calls, sends stickers and songs, draws, and
 /// locks. Phase 4 runs the same journey against Neon and a second phone.
 void main() {
@@ -71,7 +71,7 @@ void main() {
         .set(c.read(sessionProvider).copyWith(paired: false, locked: false));
     await binding.convertFlutterSurfaceToImage();
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await frames(t, 1000);
 

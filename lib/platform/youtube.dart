@@ -10,10 +10,10 @@ import 'quality.dart';
 /// for a video, the way Idris finds one (NewPipe first, then the Dart
 /// extractor's clients). Only the video id and the 15 s window travel in a
 /// message; each phone finds the stream itself.
-const _newPipe = MethodChannel('moose/youtube');
+const _newPipe = MethodChannel('august/youtube');
 
 /// On the phone's usual route. (Idris pins one address family because it
-/// downloads the stream itself over the same route; Moose's clips play
+/// downloads the stream itself over the same route; August's clips play
 /// through just_audio on the usual route, so resolving goes that way too.
 /// Pinning IPv6 failed on Wi-Fi when only mobile data had IPv6.)
 YoutubeExplode _yt() => YoutubeExplode();

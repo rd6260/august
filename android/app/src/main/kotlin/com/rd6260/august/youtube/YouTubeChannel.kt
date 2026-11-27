@@ -1,4 +1,4 @@
-package com.isg32.moose.youtube
+package com.rd6260.august.youtube
 
 import android.os.Handler
 import android.os.Looper
@@ -21,16 +21,16 @@ import kotlin.math.abs
 
 /**
  * YouTube audio through NewPipe's extractor, the engine NewPipe itself
- * uses. Moose tries it first for a song clip, kept
+ * uses. August tries it first for a song clip, kept
  * up to date by the NewPipe team when YouTube changes.
  *
- * Methods on `moose/youtube`:
+ * Methods on `august/youtube`:
  * - `audio({link, quality})` → {url, mime, bitrate, ms}: an audio-only
  *   stream that plays straight from its URL, picked for `quality`
  *   ("best", "high", "medium" or "low"; see lib/platform/quality.dart).
  */
 object YouTubeChannel {
-    private const val NAME = "moose/youtube"
+    private const val NAME = "august/youtube"
 
     @Volatile
     private var ready = false

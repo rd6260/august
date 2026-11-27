@@ -11,7 +11,7 @@ import '../data/providers.dart';
 import 'neon_backend.dart';
 
 /// The phone's own gallery and camera (C18, C20 on Neon). Each pick is
-/// copied into Moose's private storage, so the chat keeps it even if it's
+/// copied into August's private storage, so the chat keeps it even if it's
 /// deleted from the gallery.
 class PhoneMedia implements MediaSource {
   PhoneMedia(this.dir);

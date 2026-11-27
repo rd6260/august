@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Moose's launcher icon: the MO/OSE wordmark (Doto 900, white) on the
+"""August's launcher icon: the AUG/UST wordmark (Doto 900, white) on the
 night wallpaper (DESIGN.md). Writes Android's adaptive icon (background,
 foreground and a monochrome layer for themed icons) and the legacy sizes.
 
@@ -32,7 +32,7 @@ def night(size: int) -> Image.Image:
 
 
 def wordmark(size: int, scale: float, colour=(255, 255, 255, 255)) -> Image.Image:
-    """MO over OSE, centred, its block [scale] of [size] wide."""
+    """AUG over UST, centred, its block [scale] of [size] wide."""
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     font = ImageFont.truetype(str(FONT), 100)
     try:
@@ -41,7 +41,7 @@ def wordmark(size: int, scale: float, colour=(255, 255, 255, 255)) -> Image.Imag
         pass
     # Measure at 100 px, then size so the wider line fills [scale].
     probe = ImageDraw.Draw(img)
-    w = max(probe.textlength(t, font=font) for t in ("MO", "OSE"))
+    w = max(probe.textlength(t, font=font) for t in ("AUG", "UST"))
     px = int(100 * size * scale / w)
     font = ImageFont.truetype(str(FONT), px)
     try:
@@ -51,7 +51,7 @@ def wordmark(size: int, scale: float, colour=(255, 255, 255, 255)) -> Image.Imag
     d = ImageDraw.Draw(img)
     line = px * 0.92
     top = size / 2 - line
-    for i, text in enumerate(("MO", "OSE")):
+    for i, text in enumerate(("AUG", "UST")):
         tw = d.textlength(text, font=font)
         d.text(((size - tw) / 2, top + i * line), text, font=font, fill=colour)
     return img

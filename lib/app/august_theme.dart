@@ -11,17 +11,17 @@ import '../features/common/wallpaper.dart';
 /// The couple's shared theme over everything: the wallpaper behind every
 /// screen, and its ink and glass for everything drawn on it (as Cariño's
 /// LayoutTheme).
-class MooseTheme extends StatefulWidget {
-  const MooseTheme({super.key, required this.theme, required this.child});
+class AugustTheme extends StatefulWidget {
+  const AugustTheme({super.key, required this.theme, required this.child});
 
   final ChatTheme theme;
   final Widget child;
 
   @override
-  State<MooseTheme> createState() => _MooseThemeState();
+  State<AugustTheme> createState() => _AugustThemeState();
 }
 
-class _MooseThemeState extends State<MooseTheme> {
+class _AugustThemeState extends State<AugustTheme> {
   @override
   void initState() {
     super.initState();
@@ -29,7 +29,7 @@ class _MooseThemeState extends State<MooseTheme> {
   }
 
   @override
-  void didUpdateWidget(MooseTheme old) {
+  void didUpdateWidget(AugustTheme old) {
     super.didUpdateWidget(old);
     if (old.theme.wallpaper != widget.theme.wallpaper ||
         old.theme.blur != widget.theme.blur) {

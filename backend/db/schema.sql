@@ -1,4 +1,4 @@
--- Moose: the server only knows who is paired with whom and holds sealed
+-- August: the server only knows who is paired with whom and holds sealed
 -- mail until the other phone takes it. Every body is ciphertext.
 -- Realtime reads `mailbox`, so it keeps a primary key and no RLS; the API
 -- authorises every query itself (one API, no Data API).

@@ -1,12 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/data/repositories.dart';
-import 'package:moose/data/session.dart';
-import 'package:moose/mock/mock_data.dart';
-import 'package:moose/mock/mock_repositories.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/data/repositories.dart';
+import 'package:august/data/session.dart';
+import 'package:august/mock/mock_data.dart';
+import 'package:august/mock/mock_repositories.dart';
 
 void main() {
   late ProviderContainer c;
@@ -27,7 +27,7 @@ void main() {
   tearDown(() => c.dispose());
 
   group('lock', () {
-    test('the PIN opens Moose, the decoy PIN opens the decoy', () {
+    test('the PIN opens August, the decoy PIN opens the decoy', () {
       final s = c.read(sessionProvider.notifier);
       expect(c.read(sessionProvider).locked, isTrue);
       expect(s.unlock(MockData.decoyPin), Unlock.decoy);

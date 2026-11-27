@@ -4,15 +4,16 @@ import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/features/onboarding/onboarding_pages.dart';
+import 'package:august/features/onboarding/onboarding_pages.dart';
 
 void main() {
-  test('codes come out of scans, typed or as moose: links', () {
+  test('codes come out of scans, typed or as august: links', () {
+    expect(codeFromQr('august:K7Q2MX'), 'K7Q2MX');
     expect(codeFromQr('moose:K7Q2MX'), 'K7Q2MX');
     expect(codeFromQr('k7q2mx'), 'K7Q2MX');
-    expect(codeFromQr(' moose:ABCD23 '), 'ABCD23');
+    expect(codeFromQr(' august:ABCD23 '), 'ABCD23');
     expect(codeFromQr('https://example.com'), isNull);
-    expect(codeFromQr('moose:K7Q2M'), isNull);
+    expect(codeFromQr('august:K7Q2M'), isNull);
   });
 
   // The QR on the pairing screen is a real one: drawn here, then read back
@@ -55,7 +56,7 @@ void main() {
     );
     expect(
       (read!.stdout as String).trim(),
-      'moose:K7Q2MX',
+      'august:K7Q2MX',
       reason: '${read.stderr}',
     );
   });

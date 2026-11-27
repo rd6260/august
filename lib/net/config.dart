@@ -1,4 +1,4 @@
-/// Where Moose's backend lives, from `--dart-define-from-file=env.json`
+/// Where August's backend lives, from `--dart-define-from-file=env.json`
 /// (git-ignored; see `env.example.json`). With no API URL the app runs on
 /// the mock partner, as tests and previews do.
 class NeonConfig {
@@ -10,8 +10,8 @@ class NeonConfig {
   /// Managed Auth's base URL (`NEON_AUTH_BASE_URL`).
   final String auth;
 
-  static const _api = String.fromEnvironment('MOOSE_API_URL');
-  static const _auth = String.fromEnvironment('MOOSE_AUTH_URL');
+  static const _api = String.fromEnvironment('AUGUST_API_URL');
+  static const _auth = String.fromEnvironment('AUGUST_AUTH_URL');
 
   /// The build's backend, or null to use the mocks.
   static NeonConfig? get fromEnvironment => _api.isEmpty || _auth.isEmpty

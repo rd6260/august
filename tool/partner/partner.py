@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aatika, a second Moose user emulated in Python, for end-to-end runs with
+"""Aatika, a second August user emulated in Python, for end-to-end runs with
 one phone. She speaks the app's protocol from scratch (it shares no code
 with lib/net/): a hidden Neon Managed Auth account, an X25519 identity,
 HKDF-SHA256, XChaCha20-Poly1305 sealed envelopes, the API Function, the
@@ -26,8 +26,8 @@ join, then plays a script against whatever the phone sends:
                     makes one and draws, she draws a heart on it too
   "brb"             presses Home on the phone (adb), sends "you there?",
                     checks a notification went up (from Firebase, or from
-                    Moose itself still running), then reopens Moose
-  "closing"         Moose is closed and its background check started: she
+                    August itself still running), then reopens August
+  "closing"         August is closed and its background check started: she
                     sends "while you were closed" and checks the check
                     notified
   a call            answers after 2 s with a tone (and a test card on video),
@@ -77,7 +77,7 @@ from calls import CallSide  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 ORIGIN = "http://localhost"  # Managed Auth trusts localhost by default.
-APP_ID = "com.isg32.moose"
+APP_ID = "com.rd6260.august"
 
 
 def log(msg: str) -> None:
@@ -130,9 +130,9 @@ class Neon:
         self.user = ""
 
     def sign_up(self) -> None:
-        email = f"e2e-{uuid.uuid4().hex[:24]}@moose.app"  # npm run cleanup finds these
+        email = f"e2e-{uuid.uuid4().hex[:24]}@august.app"  # npm run cleanup finds these
         r = self.http.post(f"{self.auth}/sign-up/email", headers={"origin": ORIGIN},
-                           json={"email": email, "password": os.urandom(24).hex(), "name": "moose"})
+                           json={"email": email, "password": os.urandom(24).hex(), "name": "august"})
         r.raise_for_status()
         self.user = r.json()["user"]["id"]
 
@@ -366,7 +366,7 @@ class Aatika:
         log("hung up")
 
     def notified(self, seconds: int, tag: str | None = None) -> bool:
-        """A Moose notification from Aatika saying "New message" is up
+        """An August notification from Aatika saying "New message" is up
         (with [tag]: only one posted under that tag)."""
         end = time.time() + seconds
         while time.time() < end:
@@ -379,9 +379,9 @@ class Aatika:
         return False
 
     def closed_check(self) -> None:
-        time.sleep(20)  # Moose closes and its background check starts
+        time.sleep(20)  # August closes and its background check starts
         self.text("while you were closed")
-        log("sent a message while Moose is closed")
+        log("sent a message while August is closed")
         self.check("background check notified while closed", self.notified(75, tag="bg"),
                    "Aatika · New message")
 
@@ -400,7 +400,7 @@ class Aatika:
             self.check("push: wake-up sent", sent.get("pushed") == "sent", sent.get("pushed"))
         self.check("notification shown while backgrounded", self.notified(30),
                    "Aatika · New message")
-        log("bringing Moose back")
+        log("bringing August back")
         self.adb("shell", "monkey", "-p", APP_ID, "-c", "android.intent.category.LAUNCHER", "1")
 
     def new_phone(self) -> None:
@@ -556,7 +556,7 @@ class Aatika:
                     for _ in range(3):  # Reddit rate-limits now and then
                         try:
                             got_meme = requests.get(url, timeout=20,
-                                                    headers={"user-agent": "Mozilla/5.0 (Moose e2e)"})
+                                                    headers={"user-agent": "Mozilla/5.0 (August e2e)"})
                             ok = got_meme.status_code == 200 and got_meme.headers.get(
                                 "content-type", "").startswith("image/")
                         except Exception:  # noqa: BLE001
@@ -608,7 +608,7 @@ def main() -> int:
     args = ap.parse_args()
     env = json.loads((ROOT / "env.json").read_text())
     args.report.parent.mkdir(parents=True, exist_ok=True)
-    return Aatika(Neon(env["MOOSE_API_URL"], env["MOOSE_AUTH_URL"]), args.report).run(args.code_file)
+    return Aatika(Neon(env["AUGUST_API_URL"], env["AUGUST_AUTH_URL"]), args.report).run(args.code_file)
 
 
 if __name__ == "__main__":

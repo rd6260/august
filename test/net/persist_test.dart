@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/net/config.dart';
-import 'package:moose/net/neon_backend.dart';
-import 'package:moose/net/vault.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/net/config.dart';
+import 'package:august/net/neon_backend.dart';
+import 'package:august/net/vault.dart';
 
 void main() {
   test('the app lock and settings survive a restart', () async {
-    final dir = await Directory.systemTemp.createTemp('moose-keep');
+    final dir = await Directory.systemTemp.createTemp('august-keep');
     addTearDown(() => dir.delete(recursive: true));
     final vault = MemoryVault();
     const config = NeonConfig(api: 'https://x', auth: 'https://y');

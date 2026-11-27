@@ -7,7 +7,7 @@ import 'package:record/record.dart';
 import '../data/providers.dart';
 import 'neon_backend.dart';
 
-/// Voice notes on the phone: AAC recordings in Moose's private storage,
+/// Voice notes on the phone: AAC recordings in August's private storage,
 /// played back with just_audio.
 class PhoneVoice implements Voice {
   PhoneVoice(this.dir);

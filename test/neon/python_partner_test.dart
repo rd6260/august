@@ -2,32 +2,32 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/chat_theme.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/repositories.dart';
-import 'package:moose/net/config.dart';
-import 'package:moose/net/neon_backend.dart';
-import 'package:moose/net/vault.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/chat_theme.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/repositories.dart';
+import 'package:august/net/config.dart';
+import 'package:august/net/neon_backend.dart';
+import 'package:august/net/vault.dart';
 
 /// The app's network stack (lib/net, no screens) as the phone, against
 /// Aatika emulated in Python (tool/partner/partner.py), through the
 /// deployed backend. The two share no code, so this pins the protocol.
 ///
-///   MOOSE_API_URL=… MOOSE_AUTH_URL=… flutter test test/neon/python_partner_test.dart
+///   AUGUST_API_URL=… AUGUST_AUTH_URL=… flutter test test/neon/python_partner_test.dart
 void main() {
   final env = Platform.environment;
-  final api = env['MOOSE_API_URL'] ?? '';
-  final auth = env['MOOSE_AUTH_URL'] ?? '';
+  final api = env['AUGUST_API_URL'] ?? '';
+  final auth = env['AUGUST_AUTH_URL'] ?? '';
   const py = 'tool/partner/.venv/bin/python';
   final skip = api.isEmpty || auth.isEmpty || !File(py).existsSync()
-      ? 'needs MOOSE_API_URL, MOOSE_AUTH_URL and tool/partner/.venv'
+      ? 'needs AUGUST_API_URL, AUGUST_AUTH_URL and tool/partner/.venv'
       : null;
 
   setUpAll(() => HttpOverrides.global = null);
 
   test('pair and talk with the Python partner', skip: skip, () async {
-    final tmp = await Directory.systemTemp.createTemp('moose-py');
+    final tmp = await Directory.systemTemp.createTemp('august-py');
     addTearDown(() => tmp.delete(recursive: true));
     final codeFile = File('${tmp.path}/code');
     final report = File('${tmp.path}/report.json');

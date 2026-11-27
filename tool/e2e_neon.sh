@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One phone, end to end on Neon and Firebase: Aatika is emulated in Python
-# on this computer (tool/partner/partner.py), Moose runs on the connected
+# on this computer (tool/partner/partner.py), August runs on the connected
 # phone, and they meet only through the deployed backend.
 #
 #   tool/e2e_neon.sh      (needs env.json, backend/.env.local, a phone on adb)
@@ -32,14 +32,14 @@ partner=$!
 for _ in $(seq 120); do [[ -s "$code_file" ]] && break; sleep 1; done
 [[ -s "$code_file" ]] || { echo "Aatika never made a code"; cat build/e2e_partner.log; exit 1; }
 code=$(cat "$code_file")
-echo "· her code: $code. Running Moose on the phone"
+echo "· her code: $code. Running August on the phone"
 
 # Android 13+ asks before showing notifications; a test can't tap the
 # system dialog, so grant it as soon as the build is installed.
 ( for _ in $(seq 600); do
-    adb shell pm grant com.isg32.moose android.permission.POST_NOTIFICATIONS >/dev/null 2>&1 &&
-      adb shell pm grant com.isg32.moose android.permission.RECORD_AUDIO >/dev/null 2>&1 &&
-      adb shell pm grant com.isg32.moose android.permission.CAMERA >/dev/null 2>&1 && break
+    adb shell pm grant com.rd6260.august android.permission.POST_NOTIFICATIONS >/dev/null 2>&1 &&
+      adb shell pm grant com.rd6260.august android.permission.RECORD_AUDIO >/dev/null 2>&1 &&
+      adb shell pm grant com.rd6260.august android.permission.CAMERA >/dev/null 2>&1 && break
     sleep 1
   done ) &
 granter=$!
@@ -50,7 +50,7 @@ flutter drive \
   --target=integration_test/neon_test.dart \
   --dart-define-from-file=env.json \
   --dart-define=PARTNER_CODE="$code" \
-  --dart-define=MOOSE_CHECK_EVERY=15 || phone=$?
+  --dart-define=AUGUST_CHECK_EVERY=15 || phone=$?
 
 # If the phone gave up, Aatika has no one to talk to.
 [[ $phone == 0 ]] || kill "$partner" 2>/dev/null || true

@@ -107,7 +107,7 @@ class NeonAuth {
         n,
         (_) => rnd.nextInt(256).toRadixString(16).padLeft(2, '0'),
       ).join();
-      email = '$label-${hex(12)}@moose.app';
+      email = '$label-${hex(12)}@august.app';
       password = hex(24);
       await vault.write(_kEmail, email);
       await vault.write(_kPassword, password);
@@ -115,7 +115,7 @@ class NeonAuth {
     final res = await _post(fresh ? '/sign-up/email' : '/sign-in/email', {
       'email': email,
       'password': password,
-      if (fresh) 'name': 'moose',
+      if (fresh) 'name': 'august',
     });
     if (!fresh && res.statusCode == 401) {
       // The account is gone from the server: start a new one rather than

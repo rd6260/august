@@ -6,7 +6,7 @@ import '../data/models.dart';
 import '../data/repositories.dart';
 import 'local_store.dart';
 
-/// What Moose keeps on this phone (C38), from the files the conversation
+/// What August keeps on this phone (C38), from the files the conversation
 /// points at; Clear deletes them (the bubbles fall back to stand-in art).
 class PhoneStorage implements StorageRepository {
   PhoneStorage(this.store, this.mediaDir, this.cacheDir);

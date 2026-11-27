@@ -2,10 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/chat/composer.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/chat/composer.dart';
 
 /// Things only a real phone shows: the real keyboard under the composer,
 /// and the moment burst moving (three frames apart).
@@ -20,7 +20,7 @@ void main() {
         .set(c.read(sessionProvider).copyWith(locked: false));
     await binding.convertFlutterSurfaceToImage();
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await t.pump(const Duration(seconds: 1));
 

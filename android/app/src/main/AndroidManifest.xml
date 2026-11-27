@@ -11,18 +11,18 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <!-- The background check (every 6 min while Moose is closed). -->
+    <!-- The background check (every 6 min while August is closed). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
-    <!-- Over-the-air updates: install Moose's own new versions, and once
-         Moose installed itself, skip the confirm step (Android 12+). -->
+    <!-- Over-the-air updates: install August's own new versions, and once
+         August installed itself, skip the confirm step (Android 12+). -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION"/>
     <application
-        android:label="Moose"
+        android:label="August"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

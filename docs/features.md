@@ -1,6 +1,6 @@
 # Features
 
-What Moose does, how each part behaves, and where it lives in the code. Every screen in both inks is in the [gallery](gallery.md). Codes like C15 refer to [`design/SCREENS.md`](../design/SCREENS.md).
+What August does, how each part behaves, and where it lives in the code. Every screen in both inks is in the [gallery](gallery.md). Codes like C15 refer to [`design/SCREENS.md`](../design/SCREENS.md).
 
 - [Pairing](#pairing)
 - [Chat](#chat)
@@ -94,7 +94,7 @@ Code: `features/media/`, `net/phone_media.dart`, `phone_voice.dart`, `phone_roun
 <img src="renders/gifs_night.webp" width="24%" alt="GIFs"> <img src="renders/gifs_paper.webp" width="24%" alt="GIFs, paper">
 
 - **Reddit** memes through meme-api.com, with no key: subreddit chips such as r/wholesomememes.
-- **KLIPY** GIFs, stickers, memes and clips when `MOOSE_KLIPY_KEY` is set: Trending and search.
+- **KLIPY** GIFs, stickers, memes and clips when `AUGUST_KLIPY_KEY` is set: Trending and search.
 - A sent meme carries its link, and the other phone loads it from the source.
 
 Code: `net/web_memes.dart`, `features/stickers/tray.dart` (the GIFs and Memes tabs).
@@ -152,7 +152,7 @@ Code: `features/doodles/` (`doodles_page.dart`, `board_page.dart`, `doodle_sheet
 - **Incoming:** "direct and encrypted", Reply with a message, Decline and Accept.
 - **Voice call:** a timer in Doto, signal bars, and Mute, Speaker, Video, **Send a hug**, End and Chat.
 - **Video call:** your partner full screen, you in a corner, and a control bar (flip, mute, camera off, end). It's always dark and turns to landscape.
-- **Limits:** STUN only, with no TURN. It only rings while your partner's Moose can be reached; otherwise it's "no answer", and they see a missed call. See [Delivery › Calls](delivery.md#calls).
+- **Limits:** STUN only, with no TURN. It only rings while your partner's August can be reached; otherwise it's "no answer", and they see a missed call. See [Delivery › Calls](delivery.md#calls).
 
 ## Shared theme
 
@@ -163,13 +163,13 @@ Code: `features/doodles/` (`doodles_page.dart`, `board_page.dart`, `doodle_sheet
 - **Glass:** how strong the see-through panels are.
 - **Apply for both:** the theme is sent sealed (a photo through storage), last change wins, and a system row records it.
 
-Code: `features/chat/theme_sheet.dart`, `features/common/wallpaper.dart`, `app/moose_theme.dart`, `core/theme/v_palette.dart`.
+Code: `features/chat/theme_sheet.dart`, `features/common/wallpaper.dart`, `app/august_theme.dart`, `core/theme/v_palette.dart`.
 
 ## App lock and decoy
 
 <img src="renders/setpin_night.webp" width="24%" alt="Choose a PIN"> <img src="renders/decoy_night.webp" width="24%" alt="Decoy PIN"> <img src="renders/lock_night.webp" width="24%" alt="Lock screen">
 
-- **PIN:** set and confirm. Moose locks at launch and after a chosen time in the background. Five wrong tries mean a 30-second wait, and a wrong PIN shakes.
+- **PIN:** set and confirm. August locks at launch and after a chosen time in the background. Five wrong tries mean a 30-second wait, and a wrong PIN shakes.
 - **Decoy PIN:** opens an empty chat with a made-up name ("Neha" by default). Every action there is inert.
 - **Hide in recent apps:** `FLAG_SECURE`.
 
@@ -197,13 +197,13 @@ Code: `features/settings/` (`settings_page.dart`, `settings_pages.dart`, `update
 
 ## Updates
 
-On Android, Moose checks the latest GitHub release's `update.json` at launch, on resume every 6 hours, and from Settings › Check for updates. When a newer build is out:
+On Android, August checks the latest GitHub release's `update.json` at launch, on resume every 6 hours, and from Settings › Check for updates. When a newer build is out:
 
 1. A card in Chat (it can be closed for that version) and a row in Settings open the update sheet.
 2. **Update** downloads the APK with progress, resuming if it's interrupted.
-3. Moose checks the **size, SHA-256, signer and versionCode** before installing.
+3. August checks the **size, SHA-256, signer and versionCode** before installing.
 4. **Install** uses a PackageInstaller session. The first time, Android asks to allow installing unknown apps; after that it skips its own confirm screen.
-5. Afterwards there's a quiet "Moose updated" notification, and "What's new" once on the next launch.
+5. Afterwards there's a quiet "August updated" notification, and "What's new" once on the next launch.
 
 Google Play Protect may still ask you to scan each new APK. Details are in [Releases › Over-the-air updates](releases.md#over-the-air-updates).
 
@@ -211,6 +211,6 @@ Google Play Protect may still ask you to scan each new APK. Details are in [Rele
 
 <img src="renders/crash_night.webp" width="24%" alt="Crash report, night"> <img src="renders/crash_paper.webp" width="24%" alt="Crash report, paper">
 
-Uncaught errors (Dart, and native crashes from the last run) open a **"Something broke"** overlay with the full report: version, device, what, where and the stack. You can copy it, save it to Downloads, or go back to Moose. Settings › About › See a test crash report shows one on purpose.
+Uncaught errors (Dart, and native crashes from the last run) open a **"Something broke"** overlay with the full report: version, device, what, where and the stack. You can copy it, save it to Downloads, or go back to August. Settings › About › See a test crash report shows one on purpose.
 
 Code: `features/crash_overlay.dart`, `platform/crash_log.dart`, `CrashFiles.kt`.

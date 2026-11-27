@@ -1,16 +1,16 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/icons/v_icons.dart';
-import 'package:moose/core/theme/v_colors.dart';
-import 'package:moose/core/widgets/v_ink.dart';
-import 'package:moose/data/chat_theme.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/lock/lock_pages.dart';
-import 'package:moose/mock/mock_data.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/icons/v_icons.dart';
+import 'package:august/core/theme/v_colors.dart';
+import 'package:august/core/widgets/v_ink.dart';
+import 'package:august/data/chat_theme.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/lock/lock_pages.dart';
+import 'package:august/mock/mock_data.dart';
 
-/// Opens Moose as a phone would (locked), unlocks it, walks the three
+/// Opens August as a phone would (locked), unlocks it, walks the three
 /// tabs on a dark wallpaper and a light one, and fails on any exception or
 /// overflow.
 void main() {
@@ -40,7 +40,7 @@ void main() {
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
-            child: const MooseApp(),
+            child: const AugustApp(),
           ),
         );
         await frames(tester);

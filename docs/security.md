@@ -1,6 +1,6 @@
 # Security and privacy
 
-Moose is built so that **the server can route your messages but can't read them**, and so that what you've said lives on your two phones and nowhere else.
+August is built so that **the server can route your messages but can't read them**, and so that what you've said lives on your two phones and nowhere else.
 
 ## What the server knows
 
@@ -32,7 +32,7 @@ on wire  = base64(nonce ‖ ciphertext ‖ 16-byte tag)
 - Both phones derive the same key without sending it anywhere. Sorting the public keys makes the salt the same on both sides.
 - XChaCha20's 24-byte random nonces are safe to pick at random for every message.
 - `Channel.open` throws if a box wasn't sealed with the pair's key or was changed on the way, so a tampered or foreign envelope is dropped, not shown.
-- An envelope from a newer Moose that this one can't parse decodes to `null` and is skipped (`lib/net/wire.dart`).
+- An envelope from a newer August that this one can't parse decodes to `null` and is skipped (`lib/net/wire.dart`).
 
 **Limit:** the channel key is static for the life of the pairing. There's no ratchet, so someone who later gets a phone's private key could read mail they had recorded from the server while it was waiting. Mail is deleted on delivery, which narrows that window, but this isn't the forward secrecy a Signal-style protocol gives.
 
@@ -64,7 +64,7 @@ If the server swapped in its own key, the two phones would show different codes.
 | Protection | How |
 | --- | --- |
 | **Private storage** | History in `moose.json` and media files in app-private storage; secrets in the Keystore |
-| **App lock** | A 4–6 digit PIN, kept in the vault. With a PIN set, Moose opens locked and locks again after the chosen time in the background. Five wrong tries mean a 30-second wait |
+| **App lock** | A 4–6 digit PIN, kept in the vault. With a PIN set, August opens locked and locks again after the chosen time in the background. Five wrong tries mean a 30-second wait |
 | **Decoy PIN** | A second PIN that opens an empty chat with a made-up name (default "Neha"). Every action there is inert, and it must differ from the real PIN |
 | **Hide in recent apps** | Sets `FLAG_SECURE`: no thumbnail in Recents, and screenshots and screen recording are blocked |
 | **Notification previews** | Off by default: a message notification just says "New message" |
@@ -72,11 +72,11 @@ If the server swapped in its own key, the two phones would show different codes.
 
 ## Push and the background check
 
-Firebase pushes are **data-only** and carry the sealed envelope (when it's under 3 KB), not plaintext. Google's FCM therefore sees the kind (`msg`, `moment` or `call`), the sender's display name and the time, but not the content. The phone opens it locally to decide what to show, such as "New message" or the moment's name, and the mail stays on the server until Moose opens and acks it. The background check also only **peeks**: it never takes or acks mail. See [Delivery](delivery.md).
+Firebase pushes are **data-only** and carry the sealed envelope (when it's under 3 KB), not plaintext. Google's FCM therefore sees the kind (`msg`, `moment` or `call`), the sender's display name and the time, but not the content. The phone opens it locally to decide what to show, such as "New message" or the moment's name, and the mail stays on the server until August opens and acks it. The background check also only **peeks**: it never takes or acks mail. See [Delivery](delivery.md).
 
 ## Calls
 
-Calls are WebRTC, **peer to peer**, with DTLS-SRTP (WebRTC's built-in encryption). The offer, answer, decline and end messages that set a call up travel as sealed mail, so the server never sees the SDP. Moose uses Google's public STUN servers and **no TURN relay**, so media never passes through a server. The downside is that some strict networks (symmetric NAT, some mobile carriers) can't connect.
+Calls are WebRTC, **peer to peer**, with DTLS-SRTP (WebRTC's built-in encryption). The offer, answer, decline and end messages that set a call up travel as sealed mail, so the server never sees the SDP. August uses Google's public STUN servers and **no TURN relay**, so media never passes through a server. The downside is that some strict networks (symmetric NAT, some mobile carriers) can't connect.
 
 ## Updates
 
@@ -88,11 +88,11 @@ The repo is public, so nothing secret is committed:
 
 - `env.json`, `.env`, `backend/.env.local` and `backend/firebase-sa.json` are git-ignored.
 - The release keystore lives outside the repo and reaches CI as a GitHub secret.
-- `android/app/google-services.json` holds Firebase's client API key, which is public by design. It should be restricted in Google Cloud Console to package `com.isg32.moose` and the release signing SHA-256.
+- `android/app/google-services.json` holds Firebase's client API key, which is public by design. It should be restricted in Google Cloud Console to package `com.rd6260.august` and the release signing SHA-256.
 
 ## Threat model in short
 
-| Against | Moose holds up because |
+| Against | August holds up because |
 | --- | --- |
 | A curious or breached server | It only has ciphertext, public keys, names and timing |
 | A network attacker | TLS to Neon, sealed bodies inside it, DTLS-SRTP for calls, and a security code to catch key swaps |

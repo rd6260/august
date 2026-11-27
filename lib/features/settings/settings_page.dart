@@ -280,7 +280,7 @@ class SettingsPage extends ConsumerWidget {
             ],
             VListRow(
               title: 'Hide in recent apps',
-              subtitle: 'Also blocks screenshots of Moose',
+              subtitle: 'Also blocks screenshots of August',
               trailing: VSwitch(
                 value: settings.hideInRecents,
                 onChanged: (v) => s.update((x) => x.copyWith(hideInRecents: v)),
@@ -331,9 +331,9 @@ class SettingsPage extends ConsumerWidget {
         VListSection(
           children: [
             VListRow(
-              leading: const MooseMark(size: 44),
-              title: 'Moose',
-              subtitle: 'Version $mooseVersion · licences, developer',
+              leading: const AugustMark(size: 44),
+              title: 'August',
+              subtitle: 'Version $augustVersion · licences, developer',
               onTap: () => pushPage<void>(context, (_) => const AboutPage()),
             ),
             if (ref.watch(updaterProvider) is! UpdateUnsupported)
@@ -364,7 +364,7 @@ class _CheckForUpdates extends ConsumerWidget {
         UpdateChecking() => 'Checking GitHub…',
         UpdateUpToDate() => "You're on the latest",
         UpdateFailed(release: null, :final message) => message,
-        _ when s.release != null => 'Moose ${s.release!.version} is out',
+        _ when s.release != null => 'August ${s.release!.version} is out',
         _ => 'Updates come from GitHub, right here',
       },
       trailing: checking ? const VSpinner(size: 20) : null,
@@ -380,7 +380,7 @@ class _CheckForUpdates extends ConsumerWidget {
               if (now.release != null) {
                 await showUpdateSheet(context);
               } else if (now is UpdateUpToDate) {
-                showToast(context, "You're on the latest Moose");
+                showToast(context, "You're on the latest August");
               }
             },
     );

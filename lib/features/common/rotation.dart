@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Lets the phone turn to landscape while [child] is open, and puts Moose
+/// Lets the phone turn to landscape while [child] is open, and puts August
 /// back to portrait when it closes. Only the pages where landscape helps
 /// use it: the media viewer, video calls and the doodle board.
 class AllowRotation extends StatefulWidget {

@@ -110,7 +110,7 @@ class _DoodleStickerSheet extends ConsumerStatefulWidget {
 }
 
 class _DoodleStickerSheetState extends ConsumerState<_DoodleStickerSheet> {
-  /// The mock's "Moose doodles" pack when there is one; else the first
+  /// The mock's "August doodles" pack when there is one; else the first
   /// (on Neon: "Ours").
   late var _pack = () {
     final packs = ref.read(stickersProvider);

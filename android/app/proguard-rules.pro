@@ -1,7 +1,7 @@
 
 # NewPipeExtractor and the Rhino JavaScript engine it runs YouTube's player
 # code in (rules from NewPipe's own proguard-rules.pro).
-# NewPipe ships with obfuscation off; Moose keeps the extractor whole
+# NewPipe ships with obfuscation off; August keeps the extractor whole
 # instead, so nothing it looks up by name is renamed.
 -keep class org.schabi.newpipe.extractor.** { *; }
 -keep class com.grack.nanojson.** { *; }

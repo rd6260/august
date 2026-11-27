@@ -32,7 +32,7 @@ import 'platform/crash_log.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // The Linux desktop build (a second Moose on a laptop) plays audio
+  // The Linux desktop build (a second August on a laptop) plays audio
   // through libmpv.
   final android = Platform.isAndroid;
   if (Platform.isLinux) {
@@ -41,7 +41,7 @@ Future<void> main() async {
   }
   // First, so errors from here on are logged and shown, not lost.
   CrashLog.instance
-    ..appVersion = mooseVersion
+    ..appVersion = augustVersion
     ..install();
   ErrorWidget.builder = quietErrorWidget;
 
@@ -78,7 +78,7 @@ Future<void> main() async {
           dir: await getApplicationSupportDirectory(),
         );
   final songs = backend == null ? null : YouTubeSongs();
-  // Moose's own cache folder: on Linux the "temporary directory" is the
+  // August's own cache folder: on Linux the "temporary directory" is the
   // whole of /tmp, which Storage must never measure or clear.
   final cache = backend == null ? null : await getApplicationCacheDirectory();
   if (backend != null) {
@@ -103,7 +103,7 @@ Future<void> main() async {
     try {
       await Push.init(onWake: () => backend.wake?.call());
     } on Object catch (e) {
-      // Without Firebase, Moose still polls; it just can't be woken.
+      // Without Firebase, August still polls; it just can't be woken.
       CrashLog.instance.add('push off: $e');
     }
   }
@@ -133,7 +133,7 @@ Future<void> main() async {
           ),
         ],
       ],
-      child: const MooseApp(splash: true),
+      child: const AugustApp(splash: true),
     ),
   );
   // A crash on the Android side last time is shown once, now.

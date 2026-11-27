@@ -11,13 +11,13 @@ import '../features/crash_overlay.dart';
 import '../features/lock/lock_pages.dart';
 import '../features/onboarding/onboarding_pages.dart';
 import '../platform/secure_window.dart';
-import 'moose_theme.dart';
+import 'august_theme.dart';
 import 'router.dart';
 
 /// The app root: the shared theme's wallpaper, ink and glass apply
 /// everywhere.
-class MooseApp extends ConsumerStatefulWidget {
-  const MooseApp({super.key, this.initialRoute, this.splash = false});
+class AugustApp extends ConsumerStatefulWidget {
+  const AugustApp({super.key, this.initialRoute, this.splash = false});
 
   /// Where to start (tests and previews); the chat otherwise.
   final String? initialRoute;
@@ -26,10 +26,10 @@ class MooseApp extends ConsumerStatefulWidget {
   final bool splash;
 
   @override
-  ConsumerState<MooseApp> createState() => _MooseAppState();
+  ConsumerState<AugustApp> createState() => _AugustAppState();
 }
 
-class _MooseAppState extends ConsumerState<MooseApp> {
+class _AugustAppState extends ConsumerState<AugustApp> {
   /// Tells the router when pairing changes.
   final _paired = ValueNotifier(true);
 
@@ -58,7 +58,7 @@ class _MooseAppState extends ConsumerState<MooseApp> {
       settingsProvider.select((s) => s.hideInRecents),
       (_, on) => unawaited(SecureWindow.set(on)),
     );
-    // Leaving Moose for longer than "Lock after" locks it (C36).
+    // Leaving August for longer than "Lock after" locks it (C36).
     _life = AppLifecycleListener(
       onHide: () => _left = DateTime.now(),
       onShow: () {
@@ -88,11 +88,11 @@ class _MooseAppState extends ConsumerState<MooseApp> {
     _paired.value = session.paired;
     final locked = session.paired && session.locked && session.pin.isNotEmpty;
     return CupertinoApp.router(
-      title: 'Moose',
+      title: 'August',
       debugShowCheckedModeBanner: false,
       theme: VTheme.of(theme.palette),
       routerConfig: _router,
-      builder: (context, child) => MooseTheme(
+      builder: (context, child) => AugustTheme(
         theme: theme,
         child: VPanels(
           isSolid: ref.watch(settingsProvider.select((s) => s.solidPanels)),

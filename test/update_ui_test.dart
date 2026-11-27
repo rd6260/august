@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/app/router.dart';
-import 'package:moose/data/chat_theme.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/net/updater.dart';
+import 'package:august/app/app.dart';
+import 'package:august/app/router.dart';
+import 'package:august/data/chat_theme.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/net/updater.dart';
 
 /// An updater held at one state, for drawing the card and sheet.
 class _Held extends Updater {
@@ -28,7 +28,7 @@ class _Held extends Updater {
 
 const _release = UpdateRelease(
   version: '0.32.0',
-  notes: ['Moose updates itself', 'Smoother tabs'],
+  notes: ['August updates itself', 'Smoother tabs'],
   url: 'u',
   sha256: 's',
   size: 44 * 1024 * 1024,
@@ -90,15 +90,15 @@ void main() {
             .read(chatThemeProvider.notifier)
             .set(ChatTheme(wallpaper: WallpaperRef.builtin(wallpaper)));
         await t.pumpWidget(
-          UncontrolledProviderScope(container: c, child: const MooseApp()),
+          UncontrolledProviderScope(container: c, child: const AugustApp()),
         );
         await frames(t);
 
         // Chat: the card under the header.
-        expect(find.text('Moose 0.32.0 is out'), findsOneWidget);
-        await t.tap(find.text('Moose 0.32.0 is out'));
+        expect(find.text('August 0.32.0 is out'), findsOneWidget);
+        await t.tap(find.text('August 0.32.0 is out'));
         await frames(t);
-        expect(find.text('Moose 0.32.0'), findsOneWidget);
+        expect(find.text('August 0.32.0'), findsOneWidget);
         expect(find.text('Smoother tabs'), findsOneWidget);
         expect(find.textContaining(button), findsWidgets);
         if (held is UpdateAvailable) {
@@ -135,7 +135,7 @@ void main() {
     await t.pumpWidget(
       UncontrolledProviderScope(
         container: c,
-        child: const MooseApp(initialRoute: Routes.settings),
+        child: const AugustApp(initialRoute: Routes.settings),
       ),
     );
     await frames(t);
@@ -145,7 +145,7 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     // Settings' card, and Chat's (its tab stays alive behind).
-    expect(find.text('Moose 0.32.0 is out'), findsNWidgets(2));
+    expect(find.text('August 0.32.0 is out'), findsNWidgets(2));
     expect(find.text('Check for updates'), findsOneWidget);
     expect(t.takeException(), isNull);
     await t.pumpWidget(const SizedBox.shrink());

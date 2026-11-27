@@ -17,7 +17,7 @@ class Installed {
   /// The phone's preferred ABI (`arm64-v8a` on nearly every phone).
   final String? abi;
 
-  /// Whether Moose may install APKs ("Install unknown apps").
+  /// Whether August may install APKs ("Install unknown apps").
   final bool canInstall;
 }
 
@@ -34,13 +34,13 @@ class ApkCheck {
   final String? package;
   final int versionCode;
 
-  /// Signed with the key the installed Moose was signed with, so Android
+  /// Signed with the key the installed August was signed with, so Android
   /// will let it replace it.
   final bool sameSigner;
 }
 
-/// How an install went: [pendingUser] while Android's "Update Moose?"
-/// screen is up, then [success] (Moose is replaced and closes) or a
+/// How an install went: [pendingUser] while Android's "Update August?"
+/// screen is up, then [success] (August is replaced and closes) or a
 /// failure, [aborted] being "Cancel".
 class InstallResult {
   const InstallResult(this.code, [this.message]);
@@ -67,7 +67,7 @@ abstract interface class UpdatePlatform {
   Stream<InstallResult> get results;
 }
 
-/// [UpdatePlatform] over the `moose/update` channel (Android only).
+/// [UpdatePlatform] over the `august/update` channel (Android only).
 class ChannelUpdatePlatform implements UpdatePlatform {
   ChannelUpdatePlatform() {
     _channel.setMethodCallHandler((call) async {
@@ -80,7 +80,7 @@ class ChannelUpdatePlatform implements UpdatePlatform {
     });
   }
 
-  static const _channel = MethodChannel('moose/update');
+  static const _channel = MethodChannel('august/update');
   final _results = StreamController<InstallResult>.broadcast();
 
   @override

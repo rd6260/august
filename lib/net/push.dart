@@ -17,7 +17,7 @@ import 'wire.dart';
 /// Firebase Cloud Messaging: the API sends a data-only wake-up when mail
 /// lands, and this turns it into a notification. The sealed envelope rides
 /// along, so the notification can say what kind of thing arrived; the mail
-/// stays on the server until Moose opens and takes it.
+/// stays on the server until August opens and takes it.
 abstract final class Push {
   static final _local = FlutterLocalNotificationsPlugin();
 
@@ -36,7 +36,7 @@ abstract final class Push {
   );
 
   /// Sets up Firebase and the notification channels. [onWake] runs when a
-  /// push arrives while Moose is open.
+  /// push arrives while August is open.
   static Future<void> init({required VoidCallback onWake}) async {
     // Local notifications first: they work even where Firebase can't
     // (the Linux desktop build).
@@ -46,7 +46,7 @@ abstract final class Push {
     FirebaseMessaging.onMessage.listen((_) => onWake());
   }
 
-  /// Takes down Moose's notifications.
+  /// Takes down August's notifications.
   static Future<void> clear() => _local.cancelAll();
 
   /// Asks for the notification permission (Android 13+).
@@ -81,7 +81,7 @@ abstract final class Push {
     await _local.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
-        linux: LinuxInitializationSettings(defaultActionName: 'Open Moose'),
+        linux: LinuxInitializationSettings(defaultActionName: 'Open August'),
       ),
     );
     final android = _local
@@ -172,7 +172,7 @@ abstract final class Push {
   );
 }
 
-/// A push while Moose is in the background or closed: its own isolate.
+/// A push while August is in the background or closed: its own isolate.
 @pragma('vm:entry-point')
 Future<void> _background(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();

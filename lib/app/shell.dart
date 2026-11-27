@@ -157,7 +157,7 @@ class _AppShellState extends State<AppShell> {
           ),
           // A call ringing opens the incoming call screen (K2).
           const _CallListener(),
-          // Checks for a newer Moose, and says what's new after an update.
+          // Checks for a newer August, and says what's new after an update.
           const _UpdateListener(),
           // A hug, poke, kiss or miss-you arriving covers everything (C25).
           Consumer(

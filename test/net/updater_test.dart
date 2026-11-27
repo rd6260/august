@@ -6,8 +6,8 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:moose/net/updater.dart';
-import 'package:moose/platform/updater_channel.dart';
+import 'package:august/net/updater.dart';
+import 'package:august/platform/updater_channel.dart';
 
 /// The phone, pretended: what is installed and what installing does.
 class FakePlatform implements UpdatePlatform {
@@ -34,7 +34,7 @@ class FakePlatform implements UpdatePlatform {
   @override
   Future<ApkCheck> check(String path) async => ApkCheck(
     valid: true,
-    package: 'com.isg32.moose',
+    package: 'com.rd6260.august',
     versionCode: apkVersionCode,
     sameSigner: sameSigner,
   );
@@ -72,7 +72,7 @@ class FakeGitHub extends http.BaseClient {
       manifestHits++;
       final body = jsonEncode({
         'version': version,
-        'notes': ['Moose updates itself', 'Smoother tabs'],
+        'notes': ['August updates itself', 'Smoother tabs'],
         'apks': {
           'arm64-v8a': {
             'url': 'https://github.com/x/releases/download/t/app.apk',
@@ -143,7 +143,7 @@ void main() {
   UpdateState state() => c.read(updaterProvider);
 
   setUp(() {
-    dir = Directory.systemTemp.createTempSync('moose-update-');
+    dir = Directory.systemTemp.createTempSync('august-update-');
     phone = FakePlatform();
     github = FakeGitHub(apk);
     now = DateTime(2026, 11, 13, 12);
@@ -267,7 +267,7 @@ void main() {
     final path = (state() as UpdateInstalling).path;
     expect(File(path).existsSync(), isTrue);
 
-    // Moose restarts as the new version.
+    // August restarts as the new version.
     phone.versionCode = 2038;
     c = make();
     final whatsNew = await up().start();

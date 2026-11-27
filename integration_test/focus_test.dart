@@ -2,10 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/icons/v_icons.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/chat/composer.dart';
+import 'package:august/app/app.dart';
+import 'package:august/core/icons/v_icons.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/chat/composer.dart';
 
 /// After every kind of sheet, overlay and page the chat opens, typing in
 /// the composer still lands (real keyboard, real phone).
@@ -19,7 +19,7 @@ void main() {
         .read(sessionProvider.notifier)
         .set(c.read(sessionProvider).copyWith(locked: false));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     Future<void> frames([int ms = 700]) async {
       for (var i = 0; i < ms; i += 50) {

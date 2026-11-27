@@ -28,7 +28,7 @@ import 'composer.dart';
 import 'message_actions.dart';
 import 'theme_sheet.dart';
 
-/// The conversation (C15): everything else in Moose hangs off it.
+/// The conversation (C15): everything else in August hangs off it.
 class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key});
 
@@ -213,7 +213,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
         ? const <Message>[]
         : ref.watch(messagesProvider);
     final online = ref.watch(onlineProvider);
-    // "Moose 0.32 is out", under the header until it's closed.
+    // "August 0.32 is out", under the header until it's closed.
     final update = ref.watch(updaterProvider);
     final showUpdate =
         !session.decoy &&

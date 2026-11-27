@@ -6,36 +6,36 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/core/icons/v_icons.dart';
-import 'package:moose/data/chat_theme.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/chat/chat_page.dart';
-import 'package:moose/features/common/video_frame.dart';
-import 'package:moose/features/media/media_viewer.dart';
-import 'package:moose/features/moments/moment_burst.dart';
-import 'package:moose/features/onboarding/onboarding_pages.dart';
-import 'package:moose/net/config.dart';
-import 'package:moose/net/local_store.dart';
-import 'package:moose/net/background_check.dart';
-import 'package:moose/net/neon_backend.dart';
-import 'package:moose/net/neon_calls.dart';
-import 'package:moose/net/phone_round.dart';
-import 'package:moose/net/phone_songs.dart';
-import 'package:moose/net/phone_storage.dart';
-import 'package:moose/net/web_memes.dart';
-import 'package:moose/features/common/art.dart';
-import 'package:moose/features/stickers/tray.dart' show SearchPill;
+import 'package:august/app/app.dart';
+import 'package:august/core/icons/v_icons.dart';
+import 'package:august/data/chat_theme.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/chat/chat_page.dart';
+import 'package:august/features/common/video_frame.dart';
+import 'package:august/features/media/media_viewer.dart';
+import 'package:august/features/moments/moment_burst.dart';
+import 'package:august/features/onboarding/onboarding_pages.dart';
+import 'package:august/net/config.dart';
+import 'package:august/net/local_store.dart';
+import 'package:august/net/background_check.dart';
+import 'package:august/net/neon_backend.dart';
+import 'package:august/net/neon_calls.dart';
+import 'package:august/net/phone_round.dart';
+import 'package:august/net/phone_songs.dart';
+import 'package:august/net/phone_storage.dart';
+import 'package:august/net/web_memes.dart';
+import 'package:august/features/common/art.dart';
+import 'package:august/features/stickers/tray.dart' show SearchPill;
 import 'package:flutter_riverpod/misc.dart' show Override;
-import 'package:moose/net/phone_media.dart';
-import 'package:moose/net/phone_voice.dart';
-import 'package:moose/net/push.dart';
-import 'package:moose/net/vault.dart';
+import 'package:august/net/phone_media.dart';
+import 'package:august/net/phone_voice.dart';
+import 'package:august/net/push.dart';
+import 'package:august/net/vault.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
-/// Moose on this phone against the real Neon backend and Firebase, with
+/// August on this phone against the real Neon backend and Firebase, with
 /// Aatika emulated in Python on the computer (tool/partner/partner.py).
 /// tool/e2e_neon.sh starts her and passes her code as PARTNER_CODE.
 void main() {
@@ -149,7 +149,7 @@ void main() {
     var c = ProviderContainer(overrides: neon(backend));
     await binding.convertFlutterSurfaceToImage();
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await frames(t, 1000);
 
@@ -663,7 +663,7 @@ void main() {
     await frames(t);
 
     // 8 · Away: Home is pressed, a message comes, Firebase wakes the
-    // phone and a notification shows; then Moose is opened again.
+    // phone and a notification shows; then August is opened again.
     await type(t, 'brb');
     await frames(t, 200);
     if (find.bySemanticsLabel('Send').evaluate().isEmpty) {
@@ -761,9 +761,9 @@ void main() {
     );
     await frames(t);
 
-    // 9½ · Moose is closed: the background check (every 15 s in this
+    // 9½ · August is closed: the background check (every 15 s in this
     // build) finds her message and notifies, without taking it. Opened
-    // again, Moose takes it.
+    // again, August takes it.
     await type(t, 'closing');
     await frames(t, 200);
     await t.tap(find.bySemanticsLabel('Send'));
@@ -798,7 +798,7 @@ void main() {
     );
     c = ProviderContainer(overrides: neon(reopened));
     await t.pumpWidget(
-      UncontrolledProviderScope(container: c, child: const MooseApp()),
+      UncontrolledProviderScope(container: c, child: const AugustApp()),
     );
     await until(
       t,

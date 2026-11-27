@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:moose/net/auth.dart';
-import 'package:moose/net/vault.dart';
+import 'package:august/net/auth.dart';
+import 'package:august/net/vault.dart';
 
 String jwt(String sub, DateTime exp) {
   String part(Map<String, Object?> j) =>
@@ -63,7 +63,7 @@ void main() {
     expect(calls, ['POST /sign-up/email', 'GET /token']);
     expect(
       vault.values['auth.email'],
-      matches(RegExp(r'^p-[0-9a-f]{24}@moose\.app$')),
+      matches(RegExp(r'^p-[0-9a-f]{24}@august\.app$')),
     );
     expect(vault.values['auth.password'], hasLength(48));
     // Cached until it's nearly expired, and shared by concurrent callers.
@@ -87,7 +87,7 @@ void main() {
 
   test('an account gone from the server is made again', () async {
     vault.values
-      ..['auth.email'] = 'p-old@moose.app'
+      ..['auth.email'] = 'p-old@august.app'
       ..['auth.password'] = 'old';
     final seen = <String>[];
     final a = NeonAuth(
@@ -126,7 +126,7 @@ void main() {
     await a.token();
     expect(seen, ['/sign-in/email', '/sign-up/email', '/token']);
     expect(a.userId, 'u2');
-    expect(vault.values['auth.email'], isNot('p-old@moose.app'));
+    expect(vault.values['auth.email'], isNot('p-old@august.app'));
   });
 
   test('no network is a NetError the app can show', () async {

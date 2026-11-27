@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/app/router.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/doodles/board_page.dart';
+import 'package:august/app/app.dart';
+import 'package:august/app/router.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/doodles/board_page.dart';
 
 /// Doodles end to end: make a board, draw, undo and redo, erase, lasso.
 void main() {
@@ -41,7 +41,7 @@ void main() {
     await t.pumpWidget(
       UncontrolledProviderScope(
         container: c,
-        child: const MooseApp(initialRoute: Routes.doodles),
+        child: const AugustApp(initialRoute: Routes.doodles),
       ),
     );
     await frames(t);

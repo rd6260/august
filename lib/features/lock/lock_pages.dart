@@ -58,7 +58,7 @@ class _ShakeState extends State<_Shake> with SingleTickerProviderStateMixin {
   );
 }
 
-/// C13: Moose is locked. The PIN opens it; the decoy PIN opens the empty
+/// C13: August is locked. The PIN opens it; the decoy PIN opens the empty
 /// decoy chat; five wrong tries mean a 30 s wait.
 class LockScreen extends ConsumerStatefulWidget {
   const LockScreen({super.key});
@@ -265,7 +265,7 @@ class _PinEntryPageState extends State<PinEntryPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                "4 to 6 digits. You'll need it every time you open Moose.",
+                "4 to 6 digits. You'll need it every time you open August.",
                 style: VText.inter(14, weight: 300),
               ),
               const SizedBox(height: 40),
@@ -362,7 +362,7 @@ class _DecoyPinPageState extends ConsumerState<DecoyPinPage> {
           eyebrow: 'Optional',
           title: 'A decoy PIN',
           body:
-              'If anyone makes you open Moose, type this one instead. It opens an empty chat '
+              'If anyone makes you open August, type this one instead. It opens an empty chat '
               'that looks real, and nothing in it can be sent.',
           content: [
             const SizedBox(height: 16),

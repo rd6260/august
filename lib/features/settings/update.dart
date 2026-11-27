@@ -27,10 +27,10 @@ String updateLine(UpdateState s) => switch (s) {
   _ => '',
 };
 
-/// Whether [s] is worth a card: there is a newer Moose to get.
+/// Whether [s] is worth a card: there is a newer August to get.
 bool showsUpdate(UpdateState s) => s.release != null;
 
-/// "Moose 0.32.0 is out": in Chat (closable) and in Settings. Tapping it
+/// "August 0.32.0 is out": in Chat (closable) and in Settings. Tapping it
 /// opens [showUpdateSheet].
 class UpdateCard extends ConsumerWidget {
   const UpdateCard({super.key, this.closable = false});
@@ -50,7 +50,7 @@ class UpdateCard extends ConsumerWidget {
         s is UpdateDownloading || (s is UpdateInstalling && !s.confirming);
     return Semantics(
       button: true,
-      label: 'Moose ${release.version} is out. ${updateLine(s)}',
+      label: 'August ${release.version} is out. ${updateLine(s)}',
       excludeSemantics: true,
       child: VTappable(
         onTap: () => showUpdateSheet(context),
@@ -86,7 +86,7 @@ class UpdateCard extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Moose ${release.version} is out',
+                        'August ${release.version} is out',
                         style: VText.inter(14, weight: 600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -146,7 +146,7 @@ class _UpdateSheet extends ConsumerWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
-          s is UpdateFailed ? s.message : "You're on the latest Moose.",
+          s is UpdateFailed ? s.message : "You're on the latest August.",
           style: VText.body,
         ),
       );
@@ -174,7 +174,7 @@ class _UpdateSheet extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Android asks for your OK once, so Moose can install its own '
+            'Android asks for your OK once, so August can install its own '
             'updates. Turn on "Allow from this source", then come back.',
             style: VText.secondary,
           ),
@@ -185,7 +185,7 @@ class _UpdateSheet extends ConsumerWidget {
       UpdateInstalling(:final confirming) => _Progress(
         label: confirming
             ? 'Confirm on the screen Android shows'
-            : 'Installing… Moose closes when it’s done',
+            : 'Installing… August closes when it’s done',
       ),
       UpdateFailed(:final message, :final reinstall) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -216,7 +216,7 @@ class _UpdateSheet extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Moose ${release.version}', style: VText.doto(26, weight: 800)),
+        Text('August ${release.version}', style: VText.doto(26, weight: 800)),
         const SizedBox(height: 4),
         Text(release.sizeLabel, style: VText.secondary),
         if (release.notes.isNotEmpty) ...[
@@ -309,7 +309,7 @@ class _Notes extends StatelessWidget {
   );
 }
 
-/// Once, after Moose updated itself: what changed.
+/// Once, after August updated itself: what changed.
 Future<void> showWhatsNew(BuildContext context, UpdateRelease release) =>
     showVSheet<void>(
       context,
@@ -318,7 +318,7 @@ Future<void> showWhatsNew(BuildContext context, UpdateRelease release) =>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Moose ${release.version}', style: VText.doto(26, weight: 800)),
+          Text('August ${release.version}', style: VText.doto(26, weight: 800)),
           const SizedBox(height: 14),
           if (release.notes.isEmpty)
             Text('Fixes and polish.', style: VText.body)

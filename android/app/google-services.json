@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "173505368247",
-    "project_id": "moose-realtime",
-    "storage_bucket": "moose-realtime.firebasestorage.app"
+    "project_number": "417463021972",
+    "project_id": "august-2b852",
+    "storage_bucket": "august-2b852.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:173505368247:android:ef7a1320a36fd08fa7bd32",
+        "mobilesdk_app_id": "1:417463021972:android:8e4621b578480ad0841f81",
         "android_client_info": {
-          "package_name": "com.isg32.moose"
+          "package_name": "com.rd6260.august"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBpFy3ttZRifKbSYbw5v90nX-uWiE7qCZQ"
+          "current_key": "AIzaSyBEQd4nyXOLr0On0nTQfCJsOn7CP9XbGj0"
         }
       ],
       "services": {

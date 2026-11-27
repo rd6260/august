@@ -10,7 +10,7 @@ import pg from "pg";
 
 const AUTH = process.env.NEON_AUTH_BASE_URL!;
 const API =
-  process.env.MOOSE_API_URL ??
+  process.env.AUGUST_API_URL ??
   `https://${process.env.NEON_BRANCH_ID}-api${process.env.NEON_FUNCTION_HOST_SUFFIX}`;
 // Native apps send no Origin; Managed Auth wants a trusted one on sign-up.
 const ORIGIN = "http://localhost";
@@ -28,7 +28,7 @@ class Phone {
   cookie = "";
   jwt = "";
   id = "";
-  readonly email = `e2e-${randomUUID()}@moose.test`;
+  readonly email = `e2e-${randomUUID()}@august.test`;
   readonly password = randomBytes(24).toString("base64url");
   readonly name: string;
   constructor(name: string) {
@@ -53,7 +53,7 @@ class Phone {
   }
 
   async signUp() {
-    const res = await this.auth("/sign-up/email", { email: this.email, password: this.password, name: "moose" });
+    const res = await this.auth("/sign-up/email", { email: this.email, password: this.password, name: "august" });
     assert.equal(res.status, 200, await res.clone().text());
     this.id = ((await res.json()) as { user: { id: string } }).user.id;
     await this.token();
@@ -81,7 +81,7 @@ const sapan = new Phone("Sapan");
 const aatika = new Phone("Aatika");
 const stranger = new Phone("Neha");
 
-console.log(`Moose e2e against ${new URL(API).host}`);
+console.log(`August e2e against ${new URL(API).host}`);
 try {
   await step("API is up with Realtime and storage", async () => {
     const res = await fetch(API);

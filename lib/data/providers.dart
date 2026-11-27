@@ -206,7 +206,7 @@ final keepCheckingProvider = Provider<Future<bool> Function()>(
 /// When the background check last ran (Neon), or null.
 final backgroundCheckProvider = FutureProvider<DateTime?>((ref) async => null);
 
-/// True when Moose runs on Neon, false on the mock partner.
+/// True when August runs on Neon, false on the mock partner.
 final onNeonProvider = Provider<bool>((ref) => false);
 
 // The shared theme.

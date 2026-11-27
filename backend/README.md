@@ -1,4 +1,4 @@
-# Moose backend (Neon)
+# August backend (Neon)
 
 One Neon branch, declared in `neon.ts`. **The server never sees plaintext**: bodies and blobs are encrypted on the phone, and the API only routes them. See [`docs/delivery.md`](../docs/delivery.md) and [`docs/security.md`](../docs/security.md) for the whole picture.
 
@@ -20,17 +20,17 @@ npm run build                 # type-check
 npm run migrate               # apply db/schema.sql
 npm run deploy                # neon deploy --env .env.local (adds FIREBASE_SA_B64 if firebase-sa.json is here)
 npm test                      # end to end against the deployed branch
-npm run cleanup               # delete the e2e-…@moose.app test accounts
+npm run cleanup               # delete the e2e-…@august.app test accounts
 ```
 
-The Function's URL goes into the app's `env.json` as `MOOSE_API_URL`, and Managed Auth's base URL as `MOOSE_AUTH_URL`.
+The Function's URL goes into the app's `env.json` as `AUGUST_API_URL`, and Managed Auth's base URL as `AUGUST_AUTH_URL`.
 
 **Function environment** (from `neon.ts`):
 
 | Variable | |
 | --- | --- |
 | `REALTIME_URL`, `REALTIME_SECRET` | Realtime, passed under non-reserved names because Functions don't get `NEON_REALTIME_*` |
-| `MOOSE_BUCKET` | `assets` |
+| `AUGUST_BUCKET` | `assets` |
 | `FIREBASE_SA_B64` | Optional: base64 of `firebase-sa.json`. Without it, no push |
 
 Preview branches made by the CLI expire after 7 days.

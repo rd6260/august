@@ -1,14 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:moose/app/app.dart';
-import 'package:moose/app/router.dart';
-import 'package:moose/core/widgets/v_controls.dart';
-import 'package:moose/core/widgets/v_list.dart';
-import 'package:moose/data/models.dart';
-import 'package:moose/data/providers.dart';
-import 'package:moose/features/onboarding/onboarding_pages.dart';
-import 'package:moose/features/settings/settings_pages.dart';
+import 'package:august/app/app.dart';
+import 'package:august/app/router.dart';
+import 'package:august/core/widgets/v_controls.dart';
+import 'package:august/core/widgets/v_list.dart';
+import 'package:august/data/models.dart';
+import 'package:august/data/providers.dart';
+import 'package:august/features/onboarding/onboarding_pages.dart';
+import 'package:august/features/settings/settings_pages.dart';
 
 /// Settings end to end: storage, lock after, About, and unpairing.
 void main() {
@@ -32,7 +32,7 @@ void main() {
     await t.pumpWidget(
       UncontrolledProviderScope(
         container: c,
-        child: const MooseApp(initialRoute: Routes.settings),
+        child: const AugustApp(initialRoute: Routes.settings),
       ),
     );
     await frames(t);
@@ -68,13 +68,13 @@ void main() {
 
     // About: Idris's layout, with the developer.
     await t.scrollUntilVisible(
-      find.text('Version 0.32.3 · licences, developer'),
+      find.text('Version 0.33.0 · licences, developer'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    await t.tap(find.text('Version 0.32.3 · licences, developer'));
+    await t.tap(find.text('Version 0.33.0 · licences, developer'));
     await frames(t);
-    expect(find.text('Moose'), findsWidgets);
+    expect(find.text('August'), findsWidgets);
     await t.scrollUntilVisible(
       find.text('Sapan Gajjar'),
       300,
