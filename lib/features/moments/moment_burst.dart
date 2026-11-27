@@ -5,7 +5,6 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../core/icons/v_icons.dart';
 import '../../core/theme/v_colors.dart';
 import '../../core/theme/v_palette.dart';
 import '../../core/theme/v_text.dart';
@@ -16,6 +15,7 @@ import '../../core/widgets/v_surface.dart';
 extension MomentCopy on VMoment {
   String get word => switch (this) {
     VMoment.missYou => 'MISS YOU',
+    VMoment.angryPoke => 'ANGRY',
     _ => label.toUpperCase(),
   };
 
@@ -24,13 +24,7 @@ extension MomentCopy on VMoment {
     VMoment.hug => 'Hug back',
     VMoment.kiss => 'Kiss back',
     VMoment.missYou => 'Miss you too',
-  };
-
-  VIcon get icon => switch (this) {
-    VMoment.poke => VIcon.poke,
-    VMoment.hug => VIcon.hug,
-    VMoment.kiss => VIcon.kiss,
-    VMoment.missYou => VIcon.missYou,
+    VMoment.angryPoke => 'Poke back',
   };
 
   String get haptic => switch (this) {
@@ -38,6 +32,7 @@ extension MomentCopy on VMoment {
     VMoment.hug => 'One long, soft vibration that swells and fades',
     VMoment.kiss => 'Short, short, then a little flutter',
     VMoment.missYou => 'A slow heartbeat: lub-dub, lub-dub',
+    VMoment.angryPoke => 'Three hard jabs, one after another',
   };
 
   /// The hearts that drift across the screen with it.
@@ -46,6 +41,7 @@ extension MomentCopy on VMoment {
     VMoment.hug => const ['❤️', '💗', '💕', '🩷'],
     VMoment.kiss => const ['❤️', '💋', '💞', '💗'],
     VMoment.missYou => const ['💙', '🤍', '💜', '❤️'],
+    VMoment.angryPoke => const ['💢', '😤', '🔥', '💥'],
   };
 
   /// "Aatika poked you", "You sent a hug" (B10).
@@ -56,6 +52,7 @@ extension MomentCopy on VMoment {
         VMoment.hug => 'You sent a hug',
         VMoment.kiss => 'You sent a kiss',
         VMoment.missYou => 'You miss $partner',
+        VMoment.angryPoke => 'You angrily poked $partner',
       };
     }
     return switch (this) {
@@ -63,6 +60,7 @@ extension MomentCopy on VMoment {
       VMoment.hug => '$partner sent a hug',
       VMoment.kiss => '$partner sent a kiss',
       VMoment.missYou => '$partner misses you',
+      VMoment.angryPoke => '$partner angrily poked you',
     };
   }
 
@@ -92,6 +90,12 @@ extension MomentCopy on VMoment {
           await HapticFeedback.selectionClick();
           await wait(45);
         }
+      case VMoment.angryPoke:
+        for (var i = 0; i < 3; i++) {
+          await HapticFeedback.heavyImpact();
+          await wait(90);
+        }
+        await HapticFeedback.vibrate();
       case VMoment.missYou:
         for (var i = 0; i < 2; i++) {
           await HapticFeedback.heavyImpact();
@@ -349,12 +353,11 @@ class _MomentBurstState extends State<MomentBurst>
                   ),
                 ],
               ),
+              // The moment's own emoji in the beating centre.
               child: Center(
-                child: VIconView(
-                  m.icon,
-                  size: 56,
-                  strokeWidth: 1.2,
-                  color: VColors.black,
+                child: Text(
+                  m.emoji,
+                  style: const TextStyle(fontSize: 60, height: 1),
                 ),
               ),
             ),

@@ -50,6 +50,20 @@ class _PokePickerState extends ConsumerState<PokePicker> {
   Widget build(BuildContext context) {
     ref.watch(momentCooldownProvider);
     final cd = ref.read(momentCooldownProvider.notifier);
+    const all = VMoment.values;
+    final paired = all.take(all.length - all.length % 2);
+    final wide = all.length.isOdd ? all.last : null;
+    Widget tile(VMoment m) => _Tile(
+      moment: m,
+      wait: cd.left(m),
+      onTap: () {
+        if (cd.left(m) > Duration.zero) {
+          HapticFeedback.heavyImpact();
+          return;
+        }
+        Navigator.of(context).pop(m);
+      },
+    );
     final top = MediaQuery.paddingOf(context).top;
     return Stack(
       children: [
@@ -93,21 +107,13 @@ class _PokePickerState extends ConsumerState<PokePicker> {
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     childAspectRatio: 131 / 112,
-                    children: [
-                      for (final m in VMoment.values)
-                        _Tile(
-                          moment: m,
-                          wait: cd.left(m),
-                          onTap: () {
-                            if (cd.left(m) > Duration.zero) {
-                              HapticFeedback.heavyImpact();
-                              return;
-                            }
-                            Navigator.of(context).pop(m);
-                          },
-                        ),
-                    ],
+                    children: [for (final m in paired) tile(m)],
                   ),
+                  // An odd one out (Angry poke) gets a wide tile below.
+                  if (wide != null) ...[
+                    const SizedBox(height: 10),
+                    SizedBox(height: 84, child: tile(wide)),
+                  ],
                   const SizedBox(height: 12),
                   Text(
                     'One of each every 10 seconds, so they stay special.',

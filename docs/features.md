@@ -109,8 +109,9 @@ Code: `net/web_memes.dart`, `features/stickers/tray.dart` (the GIFs and Memes ta
 | Hug | 🫂 | `#FF8FA3` | One long swell that fades |
 | Kiss | 💋 | `#FF5C7A` | Short, short, flutter |
 | Miss you | 🥺 | `#9DB2FF` | Slow heartbeat |
+| Angry poke | 😤 | `#FF6B3D` | Three hard jabs |
 
-- **Send:** tap the poke button for a Poke, or long-press it for the picker. Each moment has a **10-second cooldown**, shown faded with its seconds left.
+- **Send:** tap the poke button for a Poke, or long-press it for the picker (four tiles, and Angry poke as a wide one below). Each moment has a **10-second cooldown**, shown faded with its seconds left.
 - **Burst:** it takes the keyboard down (and gives it back when closed), blurs the chat behind it, and shows a radial wash in the moment's colour, three rings (the outer one dashed and rippling), a centre circle that **beats like a heart**, the word in Doto, and "Hug back" / "Close". Hearts drift up across the screen and the moment's emoji floats through the middle.
 - **Closed app:** a heads-up notification on the "Pokes and hugs" channel.
 

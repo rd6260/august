@@ -19,7 +19,7 @@ This is the spec the Flutter code follows. It is distilled from the **August Scr
 | `Bubbles` | B1–B12, both inks |
 | `Onboarding`, `Pairing`, `Lock` | C1–C14 |
 | `Chat`, `Composer`, `Attach`, `ChatSheets`, `MemeMusic` | C15–C28, B13, C44 |
-| `Moments` | C25: Hug, Poke, Kiss, Miss you |
+| `Moments` | C25: Hug, Poke, Kiss, Miss you (Angry poke came later, in code) |
 | `Calls` | K1–K5 |
 | `Doodles` | C29–C35 |
 | `Settings` | C36–C41 (About is copied from Idris) |
@@ -66,6 +66,7 @@ A blur is never put inside an opacity or a fade, because it pops. Renders of the
 | Hug | 🫂 | `#FF8FA3` | `#FF8FA3` @ 0.55 | One long swell that fades |
 | Kiss | 💋 | `#FF5C7A` | `#FF5C7A` @ 0.55 | Short, short, flutter |
 | Miss you | 🥺 | `#9DB2FF` | `#9DB2FF` @ 0.50 | Slow heartbeat |
+| Angry poke | 😤 | `#FF6B3D` | `#FF6B3D` @ 0.60 | Three hard jabs |
 
 **Burst (C25):**
 - Layout: a radial wash in the moment colour over the scrim, then three rings in the colour. The outer ring is dashed and ripples outward (2.4 s); the middle ring is at 0.45; the inner ring is solid.

@@ -452,6 +452,7 @@ class NotificationsPage extends ConsumerWidget {
       VMoment.hug: 'Warm hum',
       VMoment.kiss: 'Smooch',
       VMoment.missYou: 'Soft chime',
+      VMoment.angryPoke: 'Thud',
     };
     return VDetailPage(
       backLabel: 'Settings',
