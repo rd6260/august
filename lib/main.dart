@@ -107,13 +107,26 @@ Future<void> _start() async {
           vault: backend.vault,
           store: backend.store,
         );
-        if (n != null) await Push.show(n, id: n.moment ? 2 : 1);
+        if (n != null) {
+          await Push.show(
+            n,
+            id: n.moment ? 2 : 1,
+            key: data['id'] as String?,
+            store: backend.store,
+          );
+        }
       }
       ..askNotifications = Push.ask
       ..pushToken = Push.token;
     if (android) BackgroundCheck.init();
     try {
       await Push.init(onWake: () => backend.wake?.call());
+      // Paired but not allowed to notify (a reinstall drops the permission,
+      // and onboarding, which asks, is behind us): ask again. Android shows
+      // its prompt until it's allowed or turned down for good.
+      if (android && backend.store.paired && !await Push.allowed()) {
+        unawaited(Push.ask());
+      }
     } on Object catch (e) {
       // Without Firebase, August still polls; it just can't be woken.
       CrashLog.instance.add('push off: $e');
@@ -132,6 +145,9 @@ Future<void> _start() async {
           songPlayerProvider.overrideWithValue(songs),
           // Memes from Reddit (and KLIPY with a key).
           memeRepositoryProvider.overrideWithValue(WebMemes()),
+          notificationsAllowedProvider.overrideWith((ref) => Push.allowed()),
+          notificationSettingsProvider.overrideWithValue(Push.openSettings),
+          clearNotificationsProvider.overrideWithValue(Push.clear),
           keepCheckingProvider.overrideWithValue(
             () => BackgroundCheck.keepGoing(paired: backend.store.paired),
           ),

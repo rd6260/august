@@ -94,7 +94,7 @@ flowchart LR
 | --- | --- |
 | Messages (`messages`, high) | "New message", or a preview when you've turned them on |
 | Pokes and hugs (`moments`, max) | Moments, and incoming calls while August is closed |
-| Background check (`background`) | The quiet ongoing notification the foreground service needs |
+| Background check (`checking`, minimum importance) | The ongoing notification the foreground service needs: in the Silent section, no status bar icon, not on the lock screen; "Keeping in touch with Aatika · Checks every 8 min while August is closed · last 14:32". It replaced the louder `background` channel, which is deleted |
 | Updates (Kotlin, `Updater.kt`) | "August updated to X", after an over-the-air install |
 
 ## Calls

@@ -47,6 +47,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- The background check's ongoing notification: August's bubble. -->
+        <meta-data
+            android:name="com.rd6260.august.CHECK_ICON"
+            android:resource="@drawable/ic_notification" />
         <!-- The home screen widget: the doodle you both picked. -->
         <receiver
             android:name=".DoodleWidget"

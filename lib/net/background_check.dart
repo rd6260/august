@@ -9,6 +9,7 @@ import 'config.dart';
 import 'local_store.dart';
 import 'neon_backend.dart';
 import 'push.dart';
+import '../core/theme/v_colors.dart';
 import '../platform/data_home.dart';
 import 'widget_refresh.dart';
 
@@ -26,11 +27,20 @@ abstract final class BackgroundCheck {
 
   static const _file = 'background-check.json';
 
+  /// The ongoing notification Android requires while the check runs: as
+  /// quiet as Android allows (the Silent section; no status bar icon, no
+  /// sound, not on the lock screen). A new channel, since an app can't
+  /// lower an existing one; [Push.ready] removes the old "background".
+  static const channel = 'checking';
+
   static void init() => FlutterForegroundTask.init(
     androidNotificationOptions: AndroidNotificationOptions(
-      channelId: 'background',
+      channelId: channel,
       channelName: 'Background check',
       channelDescription: 'Quietly looks for messages while August is closed',
+      channelImportance: NotificationChannelImportance.MIN,
+      priority: NotificationPriority.MIN,
+      visibility: NotificationVisibility.VISIBILITY_SECRET,
       onlyAlertOnce: true,
     ),
     iosNotificationOptions: const IOSNotificationOptions(),
@@ -54,15 +64,32 @@ abstract final class BackgroundCheck {
     return ok;
   }
 
+  /// August's bubble, from the manifest's meta-data.
+  static const icon = NotificationIcon(
+    metaDataName: 'com.rd6260.august.CHECK_ICON',
+    backgroundColor: VColors.notifyAccent,
+  );
+
+  static String get _every =>
+      every.inMinutes > 0 ? '${every.inMinutes} min' : '${every.inSeconds} s';
+
+  /// "Checks every 8 min while August is closed", and when it last did.
+  static String line([DateTime? last]) {
+    final at = last == null
+        ? ''
+        : ' · last ${last.hour.toString().padLeft(2, '0')}:'
+              '${last.minute.toString().padLeft(2, '0')}';
+    return 'Checks every $_every while August is closed$at';
+  }
+
   static Future<void> start() async {
     if (await running) return;
     await FlutterForegroundTask.startService(
       serviceId: 600,
       serviceTypes: [ForegroundServiceTypes.remoteMessaging],
-      notificationTitle: 'August',
-      notificationText:
-          'Checking for messages every '
-          '${every.inMinutes > 0 ? '${every.inMinutes} min' : '${every.inSeconds} s'}',
+      notificationTitle: 'Keeping in touch',
+      notificationText: line(),
+      notificationIcon: icon,
       callback: backgroundCheckMain,
     );
   }
@@ -127,7 +154,9 @@ class _Check extends TaskHandler {
           vault: b.vault,
           store: store,
         );
-        if (n != null) await Push.show(n, id: n.moment ? 2 : 1, tag: 'bg');
+        if (n != null) {
+          await Push.show(n, id: n.moment ? 2 : 1, key: m.id, store: store);
+        }
       }
       // Doodle changes waiting: the home screen widget catches up (a
       // safety net for a wake push that didn't get through).
@@ -147,10 +176,13 @@ class _Check extends TaskHandler {
       final at = DateTime.now();
       await File('${b.dir.path}/${BackgroundCheck._file}')
           .writeAsString(jsonEncode({'at': at.toIso8601String()}));
+      final partner = store.partner?.name ?? '';
       await FlutterForegroundTask.updateService(
-        notificationText:
-            'Last checked ${at.hour.toString().padLeft(2, '0')}:'
-            '${at.minute.toString().padLeft(2, '0')}',
+        notificationTitle: partner.isEmpty
+            ? 'Keeping in touch'
+            : 'Keeping in touch with $partner',
+        notificationText: BackgroundCheck.line(at),
+        notificationIcon: BackgroundCheck.icon,
       );
     } finally {
       _busy = false;

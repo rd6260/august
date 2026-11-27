@@ -47,6 +47,14 @@ class MainActivity : FlutterActivity() {
                         }
                         result.success(null)
                     }
+                    // Settings › Notifications › Turn on, once Android
+                    // stops asking: August's own notification settings.
+                    "notificationSettings" -> {
+                        val intent = android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                            .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName)
+                        startActivity(intent)
+                        result.success(null)
+                    }
                     else -> result.notImplemented()
                 }
             }

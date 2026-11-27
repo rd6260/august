@@ -455,10 +455,33 @@ class NotificationsPage extends ConsumerWidget {
       VMoment.angryPoke: 'Thud',
       VMoment.brokenHeart: 'Low sigh',
     };
+    final allowed = ref.watch(notificationsAllowedProvider).value ?? true;
     return VDetailPage(
       backLabel: 'Settings',
       title: 'Notifications',
       children: [
+        // Android isn't letting August notify: nothing below shows until
+        // it does.
+        if (!allowed)
+          VListGroup(
+            children: [
+              VListRow(
+                leading: const VIconView(VIcon.warning, size: 20),
+                title: 'Notifications are off',
+                subtitle: "Android won't show $partner's messages or pokes",
+                trailing: VPill(
+                  'Turn on',
+                  fill: VFill.filled,
+                  onTap: () async {
+                    final ok = await ref.read(askNotificationsProvider)();
+                    // Turned down for good: only the phone's settings can.
+                    if (!ok) await ref.read(notificationSettingsProvider)();
+                    ref.invalidate(notificationsAllowedProvider);
+                  },
+                ),
+              ),
+            ],
+          ),
         VListGroup(
           label: 'Messages',
           children: [

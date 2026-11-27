@@ -14,6 +14,12 @@ abstract final class VColors {
   static const Color white = Color(0xFFFFFFFF);
   static const Color transparent = Color(0x00000000);
 
+  /// System notifications (outside the app's two-ink rule: Android's
+  /// shade): the accent on a message's, and the round behind a partner's
+  /// initial when they have no photo.
+  static const Color notifyAccent = Color(0xFF9DB2FF);
+  static const Color notifyAvatar = Color(0xFF24344F);
+
   /// Floating tab bar: white at 10 %.
   static const Color glassBar = Color(0x1AFFFFFF);
 

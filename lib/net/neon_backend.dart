@@ -566,7 +566,9 @@ class NeonChatRepository implements ChatRepository {
           final message = _arrived(sent);
           delivered.add(message.id);
           if (!b.isOpen()) {
-            unawaited(b.notifyAway?.call({'kind': m.kind, 'body': m.body}));
+            unawaited(
+              b.notifyAway?.call({'kind': m.kind, 'body': m.body, 'id': m.id}),
+            );
           }
           _emit(Incoming(message));
           _fetchMedia(message);

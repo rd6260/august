@@ -1,9 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    hide Message, Person;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as notify
+    show Message, Person;
 
 import '../core/theme/v_colors.dart';
 import '../data/models.dart';
@@ -16,6 +24,10 @@ import 'vault.dart';
 import 'widget_refresh.dart';
 import '../platform/data_home.dart';
 import 'wire.dart';
+
+/// What a notification says: who, what, whether it's a moment (the loud
+/// channel), and its colour ([tint], ARGB; a moment's own).
+typedef Notice = ({String title, String body, bool moment, int? tint});
 
 /// Firebase Cloud Messaging: the API sends a data-only wake-up when mail
 /// lands, and this turns it into a notification. The sealed envelope rides
@@ -49,9 +61,6 @@ abstract final class Push {
     FirebaseMessaging.onMessage.listen((_) => onWake());
   }
 
-  /// Takes down August's notifications.
-  static Future<void> clear() => _local.cancelAll();
-
   /// Asks for the notification permission (Android 13+).
   static Future<bool> ask() async {
     try {
@@ -61,6 +70,29 @@ abstract final class Push {
       // No Firebase (the Linux desktop build): local notifications need
       // no permission there.
       return true;
+    }
+  }
+
+  /// Whether Android lets August show notifications. Runtime permissions
+  /// go with an uninstall, so a reinstall (the dev flavor's, which skips
+  /// onboarding) starts without it.
+  static Future<bool> allowed() async {
+    try {
+      final s = await FirebaseMessaging.instance.getNotificationSettings();
+      return s.authorizationStatus == AuthorizationStatus.authorized;
+    } on Object {
+      return true; // No Firebase: nothing to allow.
+    }
+  }
+
+  static const _window = MethodChannel('august/window');
+
+  /// Opens August's notification settings (when Android won't ask again).
+  static Future<void> openSettings() async {
+    try {
+      await _window.invokeMethod<void>('notificationSettings');
+    } on Object {
+      // Not on Android.
     }
   }
 
@@ -83,7 +115,7 @@ abstract final class Push {
   static Future<void> ready() async {
     await _local.initialize(
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('ic_notification'),
         linux: LinuxInitializationSettings(defaultActionName: 'Open August'),
       ),
     );
@@ -93,10 +125,12 @@ abstract final class Push {
         >();
     await android?.createNotificationChannel(messages);
     await android?.createNotificationChannel(moments);
+    // The background check's old, louder channel (it's "checking" now).
+    await android?.deleteNotificationChannel(channelId: 'background');
   }
 
   /// What the notification says for a push; null shows nothing.
-  static Future<({String title, String body, bool moment})?> describe(
+  static Future<Notice?> describe(
     Map<String, dynamic> data, {
     required Vault vault,
     required LocalStore store,
@@ -125,11 +159,13 @@ abstract final class Push {
           title: name,
           body: '${moment.emoji} ${moment.row(fromMe: false, partner: name)}',
           moment: true,
+          tint: moment.color.toARGB32(),
         ),
         CallBody(:final video) => (
           title: name,
           body: video ? 'Video call' : 'Voice call',
           moment: true,
+          tint: null,
         ),
         // The text only with "Show message text" on (Settings ›
         // Notifications); otherwise just that something came.
@@ -137,46 +173,191 @@ abstract final class Push {
           title: name,
           body: text,
           moment: false,
+          tint: null,
         ),
-        _ => (title: name, body: 'New message', moment: false),
+        _ => (title: name, body: 'New message', moment: false, tint: null),
       };
     }
     return switch (kind) {
-      'moment' => (title: name, body: 'Sent you something 💗', moment: true),
-      'call' => (title: name, body: 'Calling you', moment: true),
-      'msg' => (title: name, body: 'New message', moment: false),
+      'moment' => (
+        title: name,
+        body: 'Sent you something 💗',
+        moment: true,
+        tint: VMoment.hug.color.toARGB32(),
+      ),
+      'call' => (title: name, body: 'Calling you', moment: true, tint: null),
+      'msg' => (title: name, body: 'New message', moment: false, tint: null),
       _ => null,
     };
   }
 
-  /// [tag] groups notifications (one per tag and id); the background
-  /// check uses its own.
+  /// Shows [n] in the conversation style: the partner's picture and name
+  /// over their message. Messages that arrive while August is closed stack
+  /// in one notification (the last few, each once, by its mail [key]);
+  /// opening August clears them ([clear]). Moments go on their own loud
+  /// channel, in their colour.
   static Future<void> show(
-    ({String title, String body, bool moment}) n, {
+    Notice n, {
     required int id,
-    String? tag,
-  }) => _local.show(
-    id: id,
-    title: n.title,
-    body: n.body,
-    notificationDetails: NotificationDetails(
-      android: AndroidNotificationDetails(
-        n.moment ? moments.id : messages.id,
-        n.moment ? moments.name : messages.name,
-        channelDescription: n.moment
-            ? moments.description
-            : messages.description,
-        importance: n.moment ? Importance.max : Importance.high,
-        priority: Priority.high,
-        category: n.moment
-            ? AndroidNotificationCategory.social
-            : AndroidNotificationCategory.message,
-        color: n.moment ? VMoment.hug.color : null,
-        // One notification per kind: a stream of messages stacks into one.
-        tag: tag ?? (n.moment ? 'moment' : 'messages'),
+    String? key,
+    LocalStore? store,
+  }) async {
+    final dir = await DataHome.dir();
+    final avatar = await _avatar(n.title, store?.partnerPhoto, dir);
+    final them = notify.Person(
+      key: 'partner',
+      name: n.title,
+      important: true,
+      icon: avatar == null ? null : BitmapFilePathAndroidIcon(avatar),
+    );
+    final StyleInformation style;
+    if (n.moment) {
+      style = BigTextStyleInformation(n.body);
+    } else {
+      final pending = await _remember(dir, key: key, text: n.body);
+      // Already shown (a push and the background check both found it).
+      if (pending == null) return;
+      style = MessagingStyleInformation(
+        const notify.Person(key: 'me', name: 'You'),
+        groupConversation: false,
+        messages: [for (final p in pending) notify.Message(p.text, p.at, them)],
+      );
+    }
+    await _local.show(
+      id: id,
+      title: n.title,
+      body: n.body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          n.moment ? moments.id : messages.id,
+          n.moment ? moments.name : messages.name,
+          channelDescription: n.moment
+              ? moments.description
+              : messages.description,
+          icon: 'ic_notification',
+          importance: n.moment ? Importance.max : Importance.high,
+          priority: Priority.high,
+          category: n.moment
+              ? AndroidNotificationCategory.social
+              : AndroidNotificationCategory.message,
+          color: n.tint == null ? VColors.notifyAccent : VPenColors.of(n.tint!),
+          largeIcon: avatar == null ? null : FilePathAndroidBitmap(avatar),
+          styleInformation: style,
+          when: DateTime.now().millisecondsSinceEpoch,
+          // One notification per kind: messages grow into a conversation.
+          tag: n.moment ? 'moment' : 'messages',
+        ),
       ),
-    ),
-  );
+    );
+  }
+
+  static File _pendingFile(Directory dir) => File('${dir.path}/notified.json');
+
+  /// Adds a message to the ones shown since August was last open, and
+  /// returns them (the last few, oldest first), or null when [key] was
+  /// shown already.
+  static Future<List<({String text, DateTime at})>?> _remember(
+    Directory dir, {
+    required String? key,
+    required String text,
+  }) async {
+    final f = _pendingFile(dir);
+    var list = <Map<String, Object?>>[];
+    try {
+      if (f.existsSync()) {
+        list = [
+          for (final e in jsonDecode(await f.readAsString()) as List)
+            (e as Map).cast<String, Object?>(),
+        ];
+      }
+    } on Object {
+      list = [];
+    }
+    if (key != null && list.any((e) => e['key'] == key)) return null;
+    list = [
+      ...list,
+      {'key': key, 'text': text, 'at': DateTime.now().toIso8601String()},
+    ];
+    if (list.length > 6) list = list.sublist(list.length - 6);
+    try {
+      await f.writeAsString(jsonEncode(list), flush: true);
+    } on Object {
+      // Can't write: it shows just this one.
+    }
+    return [
+      for (final e in list)
+        (
+          text: e['text']! as String,
+          at: DateTime.tryParse(e['at'] as String? ?? '') ?? DateTime.now(),
+        ),
+    ];
+  }
+
+  /// The partner's picture for the notification: their photo, or their
+  /// initial drawn as August does (Doto on a dark round), as a file.
+  static Future<String?> _avatar(
+    String name,
+    String? photo,
+    Directory dir,
+  ) async {
+    if (photo != null && File(photo).existsSync()) return photo;
+    final letter = name.isEmpty ? '?' : name.characters.first.toUpperCase();
+    final f = File(
+      '${dir.path}/notify-avatar-${letter.codeUnits.join('-')}.png',
+    );
+    if (f.existsSync()) return f.path;
+    try {
+      const size = 192.0;
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      canvas.drawCircle(
+        const Offset(size / 2, size / 2),
+        size / 2,
+        Paint()..color = VColors.notifyAvatar,
+      );
+      final pb =
+          ui.ParagraphBuilder(
+              ui.ParagraphStyle(
+                textAlign: TextAlign.center,
+                fontFamily: 'Doto',
+              ),
+            )
+            ..pushStyle(
+              ui.TextStyle(
+                color: VColors.white,
+                fontSize: 104,
+                fontFamily: 'Doto',
+                fontWeight: FontWeight.w900,
+              ),
+            )
+            ..addText(letter);
+      final para = pb.build()
+        ..layout(const ui.ParagraphConstraints(width: size));
+      canvas.drawParagraph(para, Offset(0, (size - para.height) / 2));
+      final image = await recorder.endRecording().toImage(
+        size.toInt(),
+        size.toInt(),
+      );
+      final png = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
+      await f.writeAsBytes(png!.buffer.asUint8List(), flush: true);
+      return f.path;
+    } on Object {
+      return null; // Android's default look, then.
+    }
+  }
+
+  /// Takes down August's notifications and forgets the stacked messages
+  /// (August is open: they're being read).
+  static Future<void> clear() async {
+    try {
+      await _local.cancelAll();
+      final f = _pendingFile(await DataHome.dir());
+      if (f.existsSync()) await f.delete();
+    } on Object {
+      // Nothing to clear.
+    }
+  }
 }
 
 /// A push while August is in the background or closed: its own isolate.
@@ -213,5 +394,12 @@ Future<void> _background(RemoteMessage message) async {
     vault: await DataHome.vault(),
     store: store,
   );
-  if (n != null) await Push.show(n, id: n.moment ? 2 : 1);
+  if (n != null) {
+    await Push.show(
+      n,
+      id: n.moment ? 2 : 1,
+      key: message.data['id'] as String?,
+      store: store,
+    );
+  }
 }

@@ -206,6 +206,21 @@ final keepCheckingProvider = Provider<Future<bool> Function()>(
 /// When the background check last ran (Neon), or null.
 final backgroundCheckProvider = FutureProvider<DateTime?>((ref) async => null);
 
+/// Whether notifications may show (Android's permission); true off Neon.
+final notificationsAllowedProvider = FutureProvider<bool>((ref) async => true);
+
+/// Takes down August's notifications (it's open: they're being read).
+final clearNotificationsProvider = Provider<Future<void> Function()>(
+  (ref) =>
+      () async {},
+);
+
+/// Opens the phone's notification settings for August.
+final notificationSettingsProvider = Provider<Future<void> Function()>(
+  (ref) =>
+      () async {},
+);
+
 /// True when August runs on Neon, false on the mock partner.
 final onNeonProvider = Provider<bool>((ref) => false);
 

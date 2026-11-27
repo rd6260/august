@@ -60,6 +60,8 @@ class _AugustAppState extends ConsumerState<AugustApp> {
       settingsProvider.select((s) => s.hideInRecents),
       (_, on) => unawaited(SecureWindow.set(on)),
     );
+    // Open: what the notifications said is on screen now.
+    unawaited(ref.read(clearNotificationsProvider)());
     // The home screen widget follows the picked doodle.
     doodleWidgetSync = _widget;
     unawaited(_widget.start());
@@ -69,6 +71,9 @@ class _AugustAppState extends ConsumerState<AugustApp> {
       onShow: () {
         // A widget may have been added or removed meanwhile.
         unawaited(_widget.placed());
+        // So may notifications have been allowed, in the phone's settings.
+        ref.invalidate(notificationsAllowedProvider);
+        unawaited(ref.read(clearNotificationsProvider)());
         final left = _left;
         _left = null;
         if (left == null) return;
