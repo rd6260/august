@@ -395,6 +395,7 @@ abstract final class Wire {
       'name': name,
     },
     DoodleDeleted(:final id) => {'op': 'delete', 'id': id},
+    DoodlePinned(:final id) => {'op': 'pin', 'id': id ?? ''},
     DoodlePresence(:final id, :final here) => {
       'op': 'here',
       'id': id,
@@ -423,6 +424,7 @@ abstract final class Wire {
       'set' => StrokesSet(id, strokes()),
       'rename' => DoodleRenamed(id, j['name'] as String),
       'delete' => DoodleDeleted(id),
+      'pin' => DoodlePinned(id.isEmpty ? null : id),
       _ => DoodlePresence(id, j['here'] as bool? ?? false),
     };
   }

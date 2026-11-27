@@ -54,6 +54,27 @@ void main() {
     expect(n.moment, isTrue);
   });
 
+  test('mail that is not a message stays quiet', () async {
+    final doodle = await fromAatika.sealJson(
+      const DoodleEnvelope(DoodleRenamed('d1', 'Our wall')).toJson(),
+    );
+    final typing = await fromAatika.sealJson(
+      const TypingEnvelope(true).toJson(),
+    );
+    for (final data in [
+      {'kind': 'doodle', 'body': doodle},
+      {'kind': 'typing', 'body': typing},
+      {'kind': 'wake'},
+      {'kind': 'receipt'},
+    ]) {
+      expect(
+        await Push.describe(data, vault: mine, store: store),
+        isNull,
+        reason: '${data['kind']}',
+      );
+    }
+  });
+
   test('too big to ride along: said from the kind alone', () async {
     final n = await Push.describe({'kind': 'call'}, vault: mine, store: store);
     expect(n!.body, 'Calling you');

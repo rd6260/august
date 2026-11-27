@@ -9,9 +9,12 @@ import 'package:path_provider/path_provider.dart';
 import '../core/theme/v_colors.dart';
 import '../data/models.dart';
 import '../features/moments/moment_burst.dart' show MomentCopy;
+import 'config.dart';
 import 'crypto.dart';
 import 'local_store.dart';
+import 'neon_backend.dart';
 import 'vault.dart';
+import 'widget_refresh.dart';
 import 'wire.dart';
 
 /// Firebase Cloud Messaging: the API sends a data-only wake-up when mail
@@ -113,6 +116,9 @@ abstract final class Push {
         return null;
       }
     }
+    // Receipts, typing, doodle changes, the theme and the like are mail
+    // too, but nothing a person needs a notification for.
+    if (env != null && env is! MessageEnvelope) return null;
     if (env case MessageEnvelope(:final message)) {
       return switch (message.body) {
         MomentBody(:final moment) => (
@@ -138,7 +144,8 @@ abstract final class Push {
     return switch (kind) {
       'moment' => (title: name, body: 'Sent you something 💗', moment: true),
       'call' => (title: name, body: 'Calling you', moment: true),
-      _ => (title: name, body: 'New message', moment: false),
+      'msg' => (title: name, body: 'New message', moment: false),
+      _ => null,
     };
   }
 
@@ -177,8 +184,30 @@ abstract final class Push {
 Future<void> _background(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  final dir = await getApplicationSupportDirectory();
+  // The widget's doodle changed on the other phone: redraw it, quietly.
+  if (message.data['kind'] == 'wake') {
+    final config = NeonConfig.fromEnvironment;
+    if (config == null) return;
+    final b = await NeonBackend.open(
+      config,
+      vault: const SecureVault(),
+      dir: dir,
+    );
+    try {
+      await refreshWidgetInBackground(
+        api: b.api,
+        identity: b.identity,
+        store: await LocalStore.open(dir),
+        dir: dir,
+      );
+    } on Object {
+      // Offline: the background check or the app will redraw it.
+    }
+    return;
+  }
   await Push.ready();
-  final store = await LocalStore.open(await getApplicationSupportDirectory());
+  final store = await LocalStore.open(dir);
   final n = await Push.describe(
     message.data,
     vault: const SecureVault(),

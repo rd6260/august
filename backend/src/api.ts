@@ -147,7 +147,14 @@ app.get("/v1/me", async (c) => {
 });
 
 app.put("/v1/me", async (c) => {
-  const { name, pubkey, fcm } = await body<{ name?: unknown; pubkey?: unknown; fcm?: unknown }>(c);
+  const { name, pubkey, fcm, widget } = await body<{
+    name?: unknown;
+    pubkey?: unknown;
+    fcm?: unknown;
+    widget?: unknown;
+  }>(c);
+  if (widget !== undefined && typeof widget !== "boolean")
+    throw new HTTPException(400, { message: "widget" });
   if (fcm !== undefined && (typeof fcm !== "string" || fcm.length > 4096))
     throw new HTTPException(400, { message: "fcm" });
   if (name !== undefined && (typeof name !== "string" || name.length > 40))
@@ -157,9 +164,10 @@ app.put("/v1/me", async (c) => {
   await me(c);
   const { rows } = await q<Member>(
     `update members set name = coalesce($2, name), pubkey = coalesce($3, pubkey),
-       fcm_token = case when $4::text is null then fcm_token else nullif($4, '') end
+       fcm_token = case when $4::text is null then fcm_token else nullif($4, '') end,
+       widget = coalesce($5, widget)
      where user_id = $1 returning user_id, name, pubkey, couple_id, joined_at`,
-    [c.get("user"), name ?? null, pubkey ?? null, fcm ?? null],
+    [c.get("user"), name ?? null, pubkey ?? null, fcm ?? null, widget ?? null],
   );
   return c.json(view(rows[0]!, await partnerOf(rows[0]!)));
 });
@@ -286,7 +294,27 @@ app.post("/v1/mail", async (c) => {
   return c.json({ kind: "committed", txid: sent.txid, pushed });
 });
 
-// The background check (every 6 min) and the open app's fallback.
+// The home screen widget: the pinned doodle changed on this phone, so wake
+// the partner's phone (silently) to redraw its widget. Only a phone that
+// said it has a widget is woken (older versions would show "New message"),
+// and the sender already bunches its calls.
+app.post("/v1/wake", async (c) => {
+  const m = await me(c);
+  const p = await partnerOf(m);
+  if (!p) throw new HTTPException(409, { message: "not paired" });
+  const { rows } = await q<{ token: string | null; widget: boolean }>(
+    "select fcm_token as token, widget from members where user_id = $1",
+    [p.user_id],
+  );
+  const them = rows[0];
+  if (!them?.widget) return c.json({ pushed: "no-widget" });
+  const pushed = await push(them.token, { kind: "wake" }, { ttl: "120s", collapse: "wake" });
+  if (pushed === "unregistered")
+    await q("update members set fcm_token = null where user_id = $1", [p.user_id]);
+  return c.json({ pushed });
+});
+
+// The background check (every 8 min) and the open app's fallback.
 app.get("/v1/mail", async (c) => {
   const { rows } = await q<Mail>(
     "select id, sender, kind, body, created_at from mailbox where recipient = $1 order by created_at limit 500",

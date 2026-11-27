@@ -42,7 +42,7 @@ Each bubble comes in outgoing and incoming. States: pending (clock), sent ✓, d
 1. **Splash:** the wordmark over the progressive blur.
 2. **Welcome:** wordmark, one-line pitch, primary 'Start', and secondary 'I have a code'.
 3. **Your name:** title, text field, avatar picker (initial or photo), and Continue.
-4. **Background permission explainer:** why the 6-min check needs a foreground service, the notification preview, and Allow notifications / battery optimisation buttons, each showing a ✓ once done.
+4. **Background permission explainer:** why the 8-min check needs a foreground service, the notification preview, and Allow notifications / battery optimisation buttons, each showing a ✓ once done.
 5. **Create pair:** the 6-char invite code (large Doto), QR, Share and Copy buttons, a 'Waiting for your person…' spinner, and the expiry countdown.
 6. **Enter code:** code boxes, a 'Scan QR' button, error state, and Join.
 7. **QR scanner:** camera view, frame, and close.

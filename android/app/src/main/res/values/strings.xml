@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="doodle_widget_name">Our doodle</string>
+    <string name="doodle_widget_description">The doodle you both picked, as either of you draws on it</string>
+    <string name="doodle_widget_empty">In August, long-press a doodle and pick “Show on home screen”</string>
+</resources>

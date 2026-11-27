@@ -40,11 +40,12 @@ class UpdateRelease {
   final int versionCode;
 
   /// The release in an `update.json` for [abi], or null when it has no APK
-  /// for it (or isn't readable).
+  /// for it (or isn't readable). Releases carry arm64 only, so a 32-bit phone
+  /// is offered nothing rather than an APK it can't install.
   static UpdateRelease? fromManifest(Map<String, Object?> j, String? abi) {
     final apks = j['apks'];
     if (apks is! Map) return null;
-    final apk = apks[abi ?? 'arm64-v8a'] ?? apks['arm64-v8a'];
+    final apk = apks[abi ?? 'arm64-v8a'];
     if (apk is! Map) return null;
     final url = apk['url'], sha = apk['sha256'];
     final size = apk['size'], code = apk['versionCode'];

@@ -295,7 +295,7 @@ class _BackgroundPageState extends ConsumerState<BackgroundPage> {
       eyebrow: 'Step 2 of 3',
       title: 'Staying in touch',
       body:
-          "August checks for new messages and pokes every 6 minutes, even when it's "
+          "August checks for new messages and pokes every 8 minutes, even when it's "
           'closed. Android asks for a small, quiet notification while it does.',
       step: 1,
       content: [
@@ -399,7 +399,8 @@ String pairQr(String code) => 'august:$code';
 
 /// The code in a scanned QR (or a code typed straight in), or null.
 String? codeFromQr(String raw) {
-  final m = RegExp(r'^(?:(?:august|moose):)?([A-Za-z2-9]{6})$').firstMatch(raw.trim());
+  final m = RegExp(r'^(?:(?:august|moose):)?([A-Za-z2-9]{6})$')
+      .firstMatch(raw.trim());
   return m?[1]?.toUpperCase();
 }
 
@@ -516,14 +517,17 @@ class _CreatePairPageState extends ConsumerState<CreatePairPage> {
             onError: (Object _) {
               if (mounted) {
                 setState(
-                  () => _error = "Couldn't reach August's server. Tap to retry.",
+                  () =>
+                      _error = "Couldn't reach August's server. Tap to retry.",
                 );
               }
             },
           );
     } on Object {
       if (mounted) {
-        setState(() => _error = "Couldn't reach August's server. Tap to retry.");
+        setState(
+          () => _error = "Couldn't reach August's server. Tap to retry.",
+        );
       }
     }
   }
@@ -1195,7 +1199,7 @@ class _RepairWaitingPageState extends ConsumerState<RepairWaitingPage> {
       eyebrow: 'Welcome back',
       title: 'Ask $me to approve',
       body:
-          "We've sent a request to $me's phone. It reaches him within about 6 minutes, "
+          "We've sent a request to $me's phone. It reaches him within about 8 minutes, "
           'or straight away if August is open.',
       content: [
         const SizedBox(height: 16),

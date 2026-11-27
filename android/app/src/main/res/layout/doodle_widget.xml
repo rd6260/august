@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The doodle widget (DoodleWidget.kt): the picture, a caption on it, or
+     how to pick one. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/doodle_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/doodle_widget_bg"
+    android:clipToOutline="true">
+
+    <ImageView
+        android:id="@+id/doodle_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/doodle_widget_name"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/doodle_caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="10dp"
+        android:background="@drawable/doodle_widget_caption"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="9dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="9dp"
+        android:paddingBottom="3dp"
+        android:textColor="#FFFFFFFF"
+        android:textSize="11sp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/doodle_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="@string/doodle_widget_empty"
+        android:textColor="#CCFFFFFF"
+        android:textSize="13sp" />
+</FrameLayout>

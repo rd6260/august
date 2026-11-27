@@ -49,7 +49,8 @@ erDiagram
             text pubkey "X25519, base64"
             uuid couple_id FK
             timestamptz joined_at
-            text fcm_token }
+            text fcm_token
+            bool widget }
   invites { text code PK
             text creator FK
             timestamptz expires_at }
@@ -72,11 +73,12 @@ Everything under `/v1` needs `Authorization: Bearer <jwt>`, or `?token=<jwt>` on
 | --- | --- | --- |
 | `GET` | `/` | Health check |
 | `GET` | `/v1/me` | You and your partner: name, public key, couple and paired-since date |
-| `PUT` | `/v1/me` | Set any of `name` (≤ 40), `pubkey` and `fcm` (the push token; `''` forgets it) |
+| `PUT` | `/v1/me` | Set any of `name` (≤ 40), `pubkey`, `fcm` (the push token; `''` forgets it) and `widget` (this phone has a home screen widget) |
 | `POST` | `/v1/invites` | A fresh six-character code, live for 10 minutes |
 | `GET` | `/v1/invites/:code` | Who made the code (name and public key) without joining it, used to check a re-pair |
 | `POST` | `/v1/join` | Join a code. If you're already paired, the code's creator takes your old phone's place (re-pair). 404 when it expired or was used |
 | `POST` | `/v1/unpair` | Leave the couple |
+| `POST` | `/v1/wake` | A silent push to the partner to redraw their home screen widget, only if they have one. Returns `{pushed}` (`no-widget` when they don't) |
 | `POST` | `/v1/mail` | `{id, kind, body}` to your partner. Idempotent on `id`. Pushes for `msg`, `moment` and `call` |
 | `GET` | `/v1/mail` | Up to 500 waiting envelopes, oldest first (catch-up and the background check) |
 | `POST` | `/v1/mail/ack` | `{ids}`: delete delivered envelopes. Also drops anything over 30 days old |

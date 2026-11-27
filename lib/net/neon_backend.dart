@@ -249,6 +249,16 @@ class _StoredDoodles implements DoodleRepository {
       ..doodles = doodles
       ..changed();
   }
+
+  @override
+  String? loadPinned() => _store.widgetDoodle;
+
+  @override
+  void savePinned(String? id) {
+    _store
+      ..widgetDoodle = id
+      ..changed();
+  }
 }
 
 /// The sticker library: yours, and the ones you saved from your person.
@@ -822,6 +832,13 @@ class NeonChatRepository implements ChatRepository {
   @override
   void shareDoodle(DoodleOp op) =>
       unawaited(_post(MailKind.doodle, DoodleEnvelope(op)));
+
+  @override
+  void wakeWidget() => unawaited(b.api.wake().catchError((Object _) {}));
+
+  @override
+  void hasWidget(bool yes) =>
+      unawaited(b.api.setMe(widget: yes).then((_) {}).catchError((_) {}));
 
   @override
   void shareTheme(ChatTheme theme) => unawaited(() async {

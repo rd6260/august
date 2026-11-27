@@ -54,11 +54,20 @@ class StepPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pad = MediaQuery.paddingOf(context);
+    // With the keyboard up (typing a code or a name), the buttons ride just
+    // above it, without the step dots, so Join stays in reach.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+    final typing = keyboard > 0;
     return Stack(
       fit: StackFit.expand,
       children: [
         SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20, pad.top + top, 20, 200 + pad.bottom),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            pad.top + top,
+            20,
+            200 + (typing ? keyboard : pad.bottom),
+          ),
           child: Column(
             crossAxisAlignment: center
                 ? CrossAxisAlignment.center
@@ -110,11 +119,11 @@ class StepPage extends StatelessWidget {
         Positioned(
           left: 24,
           right: 24,
-          bottom: pad.bottom + 40,
+          bottom: typing ? keyboard + 16 : pad.bottom + 40,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (step != null) ...[
+              if (step != null && !typing) ...[
                 StepDots(index: step!, count: steps),
                 const SizedBox(height: 18),
               ],

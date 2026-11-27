@@ -190,6 +190,17 @@ try {
     await sapan.api("POST", "/v1/mail/ack", { ids: [t1, t2] });
   });
 
+  await step("Widget: a wake reaches only a phone with a widget", async () => {
+    assert.equal((await aatika.api("POST", "/v1/wake")).pushed, "no-widget");
+    await sapan.api("PUT", "/v1/me", { widget: "yes" }, 400);
+    await sapan.api("PUT", "/v1/me", { widget: true, fcm: "not-a-real-token" });
+    const woke = await aatika.api("POST", "/v1/wake");
+    assert.ok(pushOn ? ["unregistered", "failed"].includes(woke.pushed) : woke.pushed === "disabled", woke.pushed);
+    await stranger.api("POST", "/v1/wake", undefined, 409);
+    await sapan.api("PUT", "/v1/me", { widget: false, fcm: "" });
+    assert.equal((await aatika.api("POST", "/v1/wake")).pushed, "no-widget");
+  });
+
   await step("Mail: the background check lists it, the ack deletes it", async () => {
     const box = await sapan.api<{ id: string }[]>("GET", "/v1/mail");
     assert.equal(box.length, 1);

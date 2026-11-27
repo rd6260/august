@@ -150,6 +150,14 @@ abstract interface class ChatRepository {
   /// You changed a doodle board.
   void shareDoodle(DoodleOp op);
 
+  /// The widget's doodle changed here: wake the partner's phone to redraw
+  /// its widget (it bunches calls itself).
+  void wakeWidget();
+
+  /// Tells the server whether this phone has a home screen widget, so it
+  /// only wakes phones that do.
+  void hasWidget(bool yes);
+
   /// The conversation changed; keep it on this phone.
   void store(List<Message> messages);
 
@@ -161,6 +169,11 @@ abstract interface class DoodleRepository {
 
   /// The boards changed; keep them on this phone.
   void save(List<Doodle> doodles);
+
+  /// The board on the home screen widget, or null.
+  String? loadPinned();
+
+  void savePinned(String? id);
 }
 
 abstract interface class StickerRepository {

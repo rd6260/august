@@ -132,16 +132,27 @@ Code: `features/stickers/` (`tray.dart`, `sticker_maker.dart`, `cutout.dart`), `
 
 <img src="renders/gallery_doodles_night.webp" width="24%" alt="Doodle gallery"> <img src="renders/board_night.webp" width="24%" alt="A board"> <img src="renders/tooloptions_night.webp" width="24%" alt="Tool options"> <img src="renders/colour_night.webp" width="24%" alt="Colour">
 
-- **Gallery:** board cards with a thumbnail, name, who edited last and when, and a **live dot** when your partner has it open. Long-press to rename, delete or send to the chat.
+- **Gallery:** board cards with a thumbnail, name, who edited last and when, and a **live dot** when your partner has it open. Long-press to put it on the home screen, rename, delete or send to the chat. The board on the home screen has a small house in its corner.
 - **New doodle:** a name, and a plain, dotted or lined background, or the chat wallpaper.
 - **Board:** pan and zoom, your partner's live cursor, undo and redo, and more (export, send to chat, clear). It turns to landscape.
 - **Nine tools:** fine liner, marker, brush, pencil, calligraphy, neon, highlighter, eraser and lasso.
 - **Tool options:** size with a live stroke preview, opacity, smoothing, pressure, and the nib angle for calligraphy.
 - **Colour:** a wheel with brightness, recent colours, presets and hex.
 - **Lasso:** move, recolour, duplicate, delete, or make a sticker.
-- **Sync:** each change is a sealed `doodle` envelope: create, strokes added, the whole board after an undo, erase or lasso, rename, delete and presence.
+- **Sync:** each change is a sealed `doodle` envelope: create, strokes added, the whole board after an undo, erase or lasso, rename, delete, presence, and the home screen pick.
 
 Code: `features/doodles/` (`doodles_page.dart`, `board_page.dart`, `doodle_sheets.dart`, `paper.dart`), `features/common/strokes.dart`.
+
+### Home screen widget (Android)
+
+One doodle you both picked, on both home screens, changing as either of you draws.
+
+- **Pick:** long-press a board › **Show on home screen** (or **Remove from home screen**). The pick syncs, so both widgets show the same board, and either of you can change it at any time. Without a widget yet, August offers to add one (the launcher's own "Add widget"); otherwise add **Our doodle** from the widget list.
+- **Look:** the board's paper fills the widget and the drawing is fitted to the middle, with a caption such as "Aatika · 14:32" (a clock time, since the widget only redraws when the doodle changes). Resizable; tapping it opens the board. With nothing picked, it says how to pick one.
+- **Staying current:** while August is open, it redraws within a second of a change. When the other phone's doodle changes, it asks the server for a silent wake-up, bunched: one 3 s after drawing pauses, and at least one every 15 s while it goes on. The woken phone peeks at the waiting doodle changes (it doesn't take them, like a notification), applies them to a copy of the board and redraws. The background check also redraws it every 8 minutes if a wake-up didn't get through.
+- **Only phones with a widget are woken:** each phone tells the server whether it has one (`PUT /v1/me {"widget": …}`), and older versions never do, so they never get a wake-up they'd show as "New message".
+
+Code: `platform/doodle_widget.dart` (drawing it, and the bridge through `home_widget`), `app/widget_sync.dart` (while open), `net/widget_refresh.dart` (in the background), `android/…/DoodleWidget.kt` and `res/layout/doodle_widget.xml`.
 
 ## Calls
 

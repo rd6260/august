@@ -76,15 +76,17 @@ The live socket keeps running for a while. When mail arrives, `notifyAway` turns
 flowchart LR
   M[New mail] --> P{FCM push<br/>gets through?}
   P -- yes --> W[Background isolate:<br/>open envelope, notify]
-  P -- no --> B[Background check<br/>every 6 min]
+  P -- no --> B[Background check<br/>every 8 min]
   B --> PEEK[GET /v1/mail<br/>peek only] --> W
   W --> O[August opens later:<br/>takes and acks the mail]
 ```
 
 - **Push** (`lib/net/push.dart`): a background handler opens the sealed body with the vault's key, and shows "New message" (previews are off by default) or the moment on its own channel. It never acks.
-- **The background check** (`lib/net/background_check.dart`): a quiet `flutter_foreground_task` service looks for mail **every 6 minutes**, chosen to keep Neon's compute within the free plan. It notifies about new mail but never takes it. August asks to skip battery optimisation so the check runs on time. Settings › Notifications shows when it last ran.
+- **The background check** (`lib/net/background_check.dart`): a quiet `flutter_foreground_task` service looks for mail **every 8 minutes**, chosen to keep Neon's compute within the free plan. It notifies about new mail but never takes it. August asks to skip battery optimisation so the check runs on time. Settings › Notifications shows when it last ran.
   - `--dart-define=AUGUST_CHECK_EVERY=<seconds>` shortens the interval for tests.
 - **Taking the mail:** only the open app applies and acks, so nothing is lost if a notification is swiped away.
+- **Only what a person would want to know notifies:** messages, moments and calls. Receipts, typing, doodle changes and the theme are mail too, but stay quiet.
+- **Widget wake-ups** (`kind: "wake"`, data only, no body, kept for 2 minutes and collapsed): the doodle on the home screen widget changed on the other phone. The phone redraws its widget from the boards it has plus the doodle mail still waiting, which it only peeks at. See [Features › Home screen widget](features.md#home-screen-widget-android).
 
 ## Notification channels
 
@@ -116,7 +118,7 @@ sequenceDiagram
 - Each SDP carries its ICE candidates, so a call needs just **two messages** to connect (no trickle ICE).
 - Signalling is ordinary sealed mail, so it works over the same socket and push as everything else.
 - **STUN only:** Google's public STUN servers, and no TURN, so some networks can't connect.
-- **A call rings only while the partner's August can be reached.** Otherwise it shows as "no answer", and the partner sees a missed call at their next check (up to 6 minutes).
+- **A call rings only while the partner's August can be reached.** Otherwise it shows as "no answer", and the partner sees a missed call at their next check (up to 8 minutes).
 - The **caller** writes the call's row in the chat (done, missed, or no answer) for both phones.
 
 Code: `lib/net/neon_calls.dart` (`NeonCalls`, flutter_webrtc) and `lib/features/calls/call_page.dart`.

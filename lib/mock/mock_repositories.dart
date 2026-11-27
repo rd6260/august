@@ -154,6 +154,12 @@ class MockChatRepository implements ChatRepository {
   void shareDoodle(DoodleOp op) {}
 
   @override
+  void wakeWidget() {}
+
+  @override
+  void hasWidget(bool yes) {}
+
+  @override
   void store(List<Message> messages) {}
 
   @override
@@ -171,6 +177,14 @@ class MockDoodleRepository implements DoodleRepository {
 
   @override
   void save(List<Doodle> doodles) {}
+
+  String? _pinned;
+
+  @override
+  String? loadPinned() => _pinned;
+
+  @override
+  void savePinned(String? id) => _pinned = id;
 }
 
 class MockStickerRepository implements StickerRepository {

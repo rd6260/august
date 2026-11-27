@@ -48,7 +48,7 @@ Other build-time defines:
 | Define | Default | Does |
 | --- | --- | --- |
 | `AUGUST_UPDATE_URL` | The latest GitHub release's `update.json` | Where the updater looks |
-| `AUGUST_CHECK_EVERY` | 360 (seconds) | The background check's interval |
+| `AUGUST_CHECK_EVERY` | 480 (seconds) | The background check's interval |
 
 ### Firebase
 

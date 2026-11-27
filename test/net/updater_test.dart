@@ -172,6 +172,17 @@ void main() {
     expect(UpdateRelease.fromManifest({'apks': {}}, 'x86_64'), isNull);
   });
 
+  test('an arm64-only release offers nothing to a 32-bit phone', () {
+    final m = {
+      'version': '0.33.1',
+      'apks': {
+        'arm64-v8a': {'url': 'u', 'sha256': 'ab', 'size': 1, 'versionCode': 2044},
+      },
+    };
+    expect(UpdateRelease.fromManifest(m, 'armeabi-v7a'), isNull);
+    expect(UpdateRelease.fromManifest(m, null)!.versionCode, 2044);
+  });
+
   test('nothing newer: up to date', () async {
     phone.versionCode = 2038;
     await up().check(manual: true);

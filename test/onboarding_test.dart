@@ -96,6 +96,33 @@ void main() {
     await close(t);
   });
 
+  testWidgets('Join rides above the keyboard while typing the code', (
+    t,
+  ) async {
+    await open(t);
+    await t.tap(find.text('I have a code'));
+    await frames(t);
+    await t.tap(find.text('Continue'));
+    await frames(t);
+    await t.tap(find.text('Allow'));
+    await frames(t, 200);
+    await t.tap(find.text('Continue'));
+    await frames(t);
+    final ratio = t.view.devicePixelRatio;
+    final screen = t.view.physicalSize.height / ratio;
+    const keyboard = 300.0;
+    t.view.viewInsets = FakeViewPadding(bottom: keyboard * ratio);
+    addTearDown(t.view.resetViewInsets);
+    await frames(t, 100);
+    final join = t.getRect(find.text('Join'));
+    expect(join.bottom, lessThan(screen - keyboard));
+    t.view.resetViewInsets();
+    await frames(t, 100);
+    expect(t.getRect(find.text('Join')).bottom, greaterThan(screen - keyboard));
+    expect(t.takeException(), isNull);
+    await close(t);
+  });
+
   testWidgets('the decoy PIN opens the decoy chat', (t) async {
     await open(t, paired: true, locked: true);
     expect(find.byType(LockScreen), findsOneWidget);

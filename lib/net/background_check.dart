@@ -11,17 +11,18 @@ import 'local_store.dart';
 import 'neon_backend.dart';
 import 'push.dart';
 import 'vault.dart';
+import 'widget_refresh.dart';
 
 /// The background check: a quiet foreground service that looks for sealed
-/// mail every 6 minutes while August is closed, so a message still makes a
+/// mail every 8 minutes while August is closed, so a message still makes a
 /// notification when Firebase can't wake the phone. It only peeks; August
 /// takes the mail (and acks it) when it opens.
 abstract final class BackgroundCheck {
-  /// Every 6 minutes (the user's choice: it keeps Neon's compute within
+  /// Every 8 minutes (the user's choice: it keeps Neon's compute within
   /// the free plan). `--dart-define=AUGUST_CHECK_EVERY=<seconds>` shortens
   /// it for tests.
   static const every = Duration(
-    seconds: int.fromEnvironment('AUGUST_CHECK_EVERY', defaultValue: 360),
+    seconds: int.fromEnvironment('AUGUST_CHECK_EVERY', defaultValue: 480),
   );
 
   static const _file = 'background-check.json';
@@ -128,6 +129,21 @@ class _Check extends TaskHandler {
           store: store,
         );
         if (n != null) await Push.show(n, id: n.moment ? 2 : 1, tag: 'bg');
+      }
+      // Doodle changes waiting: the home screen widget catches up (a
+      // safety net for a wake push that didn't get through).
+      if (mail.any((m) => m.kind == 'doodle')) {
+        try {
+          await refreshWidgetInBackground(
+            api: b.api,
+            identity: b.identity,
+            store: store,
+            dir: b.dir,
+            mail: mail,
+          );
+        } on Object {
+          // Next time.
+        }
       }
       final at = DateTime.now();
       await File('${b.dir.path}/${BackgroundCheck._file}')

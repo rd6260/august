@@ -625,11 +625,77 @@ class DoodleDeleted extends DoodleOp {
   final String id;
 }
 
+/// The board on both home screen widgets is now [id] (null: none). Either
+/// of you can change it; the last pick wins. Older versions read it as a
+/// presence change and ignore it.
+class DoodlePinned extends DoodleOp {
+  const DoodlePinned(this.id);
+  final String? id;
+}
+
 /// The partner opened ([here]) or left the board [id] (the "live" dot).
 class DoodlePresence extends DoodleOp {
   const DoodlePresence(this.id, this.here);
   final String id;
   final bool here;
+}
+
+/// [boards] after the partner's [op] (from [partner], at [at]). Pure, so the
+/// open app and the background widget redraw agree. A pin leaves the boards
+/// as they are.
+List<Doodle> applyDoodleOp(
+  List<Doodle> boards,
+  DoodleOp op, {
+  required String partner,
+  DateTime? at,
+}) {
+  final when = at ?? DateTime.now();
+  Doodle edited(Doodle d, List<Stroke> strokes) =>
+      d.copyWith(strokes: strokes, editedBy: partner, editedAt: when);
+  return switch (op) {
+    DoodleCreated(:final doodle) when boards.any((d) => d.id == doodle.id) =>
+      boards,
+    DoodleCreated(:final doodle) => [
+      Doodle(
+        id: doodle.id,
+        name: doodle.name,
+        strokes: const [],
+        editedBy: partner,
+        editedAt: doodle.editedAt,
+        paper: doodle.paper,
+      ),
+      ...boards,
+    ],
+    StrokesAdded(:final id, :final strokes) => [
+      for (final d in boards)
+        d.id == id ? edited(d, [...d.strokes, ...strokes]) : d,
+    ],
+    StrokesSet(:final id, :final strokes) => [
+      for (final d in boards) d.id == id ? edited(d, strokes) : d,
+    ],
+    DoodleRenamed(:final id, :final name) => [
+      for (final d in boards) d.id == id ? d.copyWith(name: name) : d,
+    ],
+    DoodleDeleted(:final id) => [
+      for (final d in boards)
+        if (d.id != id) d,
+    ],
+    DoodlePresence(:final id, :final here) => [
+      for (final d in boards)
+        d.id == id
+            ? Doodle(
+                id: d.id,
+                name: d.name,
+                strokes: d.strokes,
+                editedBy: d.editedBy,
+                editedAt: d.editedAt,
+                paper: d.paper,
+                partnerHere: here,
+              )
+            : d,
+    ],
+    DoodlePinned() => boards,
+  };
 }
 
 /// What one kind of media uses on this phone (C38).

@@ -40,7 +40,7 @@ There are no accounts, phone numbers or contact lists. You pair once, with a six
 | 📞 **Calls** | Peer-to-peer voice and video over WebRTC, set up through sealed messages. |
 | 🎨 **Shared theme** | Eight palettes or your own photo, with dim and blur. Either of you can change it for both. |
 | 🔒 **App lock** | A PIN, plus a decoy PIN that opens an empty chat with someone else. |
-| 🔔 **Delivery** | Live WebSocket while open, Firebase push when not, and a 6-minute background check as a safety net. |
+| 🔔 **Delivery** | Live WebSocket while open, Firebase push when not, and a 8-minute background check as a safety net. |
 | ⬆️ **Updates** | August updates itself from GitHub Releases, verifying size, SHA-256 and signer first. |
 
 Every screen comes in both inks: white on dark wallpapers and black on light ones. See the **[gallery](docs/gallery.md)** for all of them.
@@ -75,7 +75,7 @@ flowchart LR
 2. **Pairing** swaps public keys through the server. Both phones show the same 60-digit security code, so you can check nobody is in the middle.
 3. Every message is a **sealed box** (XChaCha20-Poly1305). The server stores it in `mailbox`, pushes it over Realtime, and deletes it once the other phone acks it.
 4. **Media** is encrypted with a fresh key, uploaded to a private bucket, and its key travels inside a sealed message. The receiver downloads it, then deletes it.
-5. When the app is closed, a **data-only Firebase push** wakes it, and a **quiet foreground service** checks every 6 minutes in case push doesn't get through.
+5. When the app is closed, a **data-only Firebase push** wakes it, and a **quiet foreground service** checks every 8 minutes in case push doesn't get through.
 
 There's more in [Architecture](docs/architecture.md), [Security and privacy](docs/security.md) and [Delivery](docs/delivery.md).
 
@@ -135,7 +135,7 @@ All 18 boards are in the [gallery](docs/gallery.md#design-boards).
 | Crypto | `cryptography`: X25519, XChaCha20-Poly1305, SHA-256 |
 | Backend | Neon: Managed Auth, Postgres, Realtime, Object Storage, and a Function (Hono, TypeScript) |
 | Push | Firebase Cloud Messaging (data-only) and flutter_local_notifications |
-| Background | flutter_foreground_task (6-minute check) |
+| Background | flutter_foreground_task (8-minute check) |
 | Calls | flutter_webrtc, STUN only |
 | Media | camera, image_picker, record, just_audio, video_player, media_kit on Linux |
 | Songs | youtube_explode_dart, and NewPipe Extractor through a Kotlin channel |

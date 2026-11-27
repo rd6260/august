@@ -103,4 +103,4 @@ A blur is never put inside an opacity or a fade, because it pops. Renders of the
 - Pokes have a 10 s cooldown per variant. In the picker, a variant on cooldown shows faded with its seconds left.
 - Delivery ticks: a clock while sending, ✓ sent, ✓✓ delivered, a bold ✓✓ when seen, and a dashed bubble with Retry when it failed.
 - Media say where they come from: 'from Aatika's phone' when direct (P2P), and the size with 'cloud' on the fallback.
-- **Calls ring only while the partner's August is open.** Otherwise the call shows as 'no answer', and she gets a missed call at her next background check (up to 6 min).
+- **Calls ring only while the partner's August is open.** Otherwise the call shows as 'no answer', and she gets a missed call at her next background check (up to 8 min).

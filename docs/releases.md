@@ -14,13 +14,9 @@ Bump the version **on every push to main**, in three places:
 
 `test/version_test.dart` checks that they agree.
 
-**versionCodes:** `--split-per-abi` adds 1000 × the ABI index to the build number, so build 41 becomes:
+**Only arm64** (`arm64-v8a`) is built and released: 64-bit ARM phones. 32-bit phones and x86 emulators get no APK, and the updater offers them nothing.
 
-| ABI | versionCode |
-| --- | --- |
-| armeabi-v7a | 1041 |
-| arm64-v8a | 2041 |
-| x86_64 | 4041 |
+**versionCodes:** the build keeps `--split-per-abi` (with `--target-platform android-arm64`) because it adds 2000 to the build number for arm64, so build 41 becomes **2041**. Don't drop the flag: the versionCode would fall to 41, below every installed copy, and no phone would take the update.
 
 CI **fails on purpose** if the arm64 versionCode isn't above the last release's, because a release no phone can install would sit there as "latest" and offer nothing.
 
@@ -37,10 +33,10 @@ flowchart TB
   C --> D[flutter test]
   D --> E[Write env.json from secrets with jq]
   E --> F[Fetch Gradle via aria2 mirrors<br/>and lower Gradle's heap]
-  F --> G[flutter build apk --release --split-per-abi<br/>retried up to 3 times]
+  F --> G[flutter build apk --release --split-per-abi<br/>--target-platform android-arm64<br/>retried up to 3 times]
   G --> H{Signed with the<br/>debug key?}
   H -- yes --> X[Fail]
-  H -- no --> I[Write update.json:<br/>URL, size, SHA-256, versionCode per ABI]
+  H -- no --> I[Write update.json:<br/>URL, size, SHA-256, versionCode for arm64]
   I --> J{arm64 versionCode<br/>went up?}
   J -- no --> X
   J -- yes --> K[Remove keystore and env.json]
@@ -81,15 +77,13 @@ Published with every release, at `https://github.com/rd6260/august/releases/late
   "published": "2026-11-14T…Z",
   "notes": ["Keep covered setup steps alive, so a scanned QR pairs", "…"],
   "apks": {
-    "arm64-v8a":   {"url": "https://github.com/rd6260/august/releases/download/v0.32.2-63a4ad8/app-arm64-v8a-release.apk",
-                    "sha256": "…", "size": 0, "versionCode": 2041},
-    "armeabi-v7a": {"…": "…"},
-    "x86_64":      {"…": "…"}
+    "arm64-v8a": {"url": "https://github.com/rd6260/august/releases/download/v0.32.2-63a4ad8/app-arm64-v8a-release.apk",
+                  "sha256": "…", "size": 0, "versionCode": 2041}
   }
 }
 ```
 
-The versionCode is read from each APK with `aapt2 dump badging`, not computed.
+The versionCode is read from the APK with `aapt2 dump badging`, not computed.
 
 ## Over-the-air updates
 

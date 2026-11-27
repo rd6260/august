@@ -83,14 +83,22 @@ class AugustApi {
   Future<Me> me() async => Me.fromJson(await _call('GET', '/v1/me'));
 
   /// [fcm] is this phone's push token ('' forgets it).
-  Future<Me> setMe({String? name, String? pubkey, String? fcm}) async =>
-      Me.fromJson(
-        await _call('PUT', '/v1/me', {
-          'name': ?name,
-          'pubkey': ?pubkey,
-          'fcm': ?fcm,
-        }),
-      );
+  Future<Me> setMe({
+    String? name,
+    String? pubkey,
+    String? fcm,
+    bool? widget,
+  }) async => Me.fromJson(
+    await _call('PUT', '/v1/me', {
+      'name': ?name,
+      'pubkey': ?pubkey,
+      'fcm': ?fcm,
+      'widget': ?widget,
+    }),
+  );
+
+  /// Wakes the partner's phone to redraw its home screen widget.
+  Future<void> wake() => _call('POST', '/v1/wake');
 
   /// A fresh six-character code, good for 10 minutes.
   Future<({String code, Duration expiresIn})> invite() async {

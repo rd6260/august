@@ -20,6 +20,8 @@ import '../common/parts.dart';
 import '../common/strokes.dart';
 import '../common/toast.dart';
 import '../stickers/sticker_maker.dart';
+import '../../app/widget_sync.dart';
+import '../../platform/doodle_widget.dart';
 import 'board_page.dart';
 import 'doodle_sheets.dart';
 import 'paper.dart';
@@ -39,20 +41,59 @@ class DoodlesPage extends ConsumerWidget {
     await openBoard(context, d.id);
   }
 
+  /// Puts [d] on both home screen widgets (or takes it off), and offers to
+  /// add the widget when this phone doesn't have one yet.
+  Future<void> _pin(
+    BuildContext context,
+    WidgetRef ref,
+    Doodle d, {
+    required bool pinned,
+  }) async {
+    ref.read(widgetDoodleProvider.notifier).pin(pinned ? null : d.id);
+    if (pinned) {
+      showToast(context, 'Off the home screen');
+      return;
+    }
+    showToast(context, 'On the home screen for both of you');
+    final sync = doodleWidgetSync;
+    if (sync == null || await DoodleWidget.placed() || !context.mounted) {
+      return;
+    }
+    final add = await showConfirm(
+      context,
+      title: 'Add the widget?',
+      body:
+          'Put ${d.name} on your home screen. It changes as either of you '
+          'draws. ${ref.read(pairingProvider).partner.name} adds it on theirs '
+          'the same way.',
+      yes: 'Add',
+      no: 'Not now',
+    );
+    if (add == true) await sync.add();
+  }
+
   Future<void> _hold(BuildContext context, WidgetRef ref, Doodle d) async {
     unawaited(HapticFeedback.mediumImpact());
+    final pinned = ref.read(widgetDoodleProvider) == d.id;
     final a = await showChoiceSheet<String>(
       context,
       title: d.name,
-      choices: const [
-        Choice('rename', 'Rename', icon: VIcon.doodle),
-        Choice('send', 'Send to chat', icon: VIcon.send),
-        Choice('delete', 'Delete for both', icon: VIcon.trash),
+      choices: [
+        Choice(
+          'pin',
+          pinned ? 'Remove from home screen' : 'Show on home screen',
+          icon: VIcon.home,
+        ),
+        const Choice('rename', 'Rename', icon: VIcon.doodle),
+        const Choice('send', 'Send to chat', icon: VIcon.send),
+        const Choice('delete', 'Delete for both', icon: VIcon.trash),
       ],
     );
     if (!context.mounted || a == null) return;
     final n = ref.read(doodlesProvider.notifier);
     switch (a) {
+      case 'pin':
+        await _pin(context, ref, d, pinned: pinned);
       case 'rename':
         final name = await showRename(context, d.name);
         if (name != null && name.trim().isNotEmpty) n.rename(d.id, name.trim());
@@ -83,6 +124,7 @@ class DoodlesPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final doodles = ref.watch(doodlesProvider);
     final partner = ref.watch(pairingProvider).partner.name;
+    final pinned = ref.watch(widgetDoodleProvider);
     return VTabPage(
       title: 'Doodles',
       header: Padding(
@@ -143,6 +185,7 @@ class DoodlesPage extends ConsumerWidget {
                 _Card(
                   d,
                   partner: partner,
+                  pinned: d.id == pinned,
                   onTap: () => openBoard(context, d.id),
                   onHold: () => _hold(context, ref, d),
                 ),
@@ -163,10 +206,14 @@ class _Card extends StatelessWidget {
     required this.partner,
     required this.onTap,
     required this.onHold,
+    this.pinned = false,
   });
 
   final Doodle d;
   final String partner;
+
+  /// On the home screen widget: a small house in the corner.
+  final bool pinned;
   final VoidCallback onTap;
   final VoidCallback onHold;
 
@@ -214,6 +261,29 @@ class _Card extends StatelessWidget {
                           padding: const EdgeInsets.all(8),
                           child: StrokesView(d.strokes, space: boardSpace),
                         ),
+                        if (pinned)
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Semantics(
+                              label: 'On the home screen',
+                              child: Container(
+                                width: 24,
+                                height: 24,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: ink,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: VIconView(
+                                  VIcon.home,
+                                  size: 14,
+                                  strokeWidth: 1.8,
+                                  color: paper,
+                                ),
+                              ),
+                            ),
+                          ),
                         if (d.partnerHere)
                           Positioned(
                             left: 8,

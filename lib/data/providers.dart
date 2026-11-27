@@ -635,58 +635,15 @@ class DoodlesNotifier extends Notifier<List<Doodle>> {
 
   /// A change from the partner's phone.
   void applyRemote(DoodleOp op) {
-    final partner = ref.read(pairingProvider).partner.name;
-    Doodle edited(Doodle d, List<Stroke> strokes) => d.copyWith(
-      strokes: strokes,
-      editedBy: partner,
-      editedAt: DateTime.now(),
-    );
-    switch (op) {
-      case DoodleCreated(:final doodle):
-        if (state.any((d) => d.id == doodle.id)) return;
-        state = [
-          Doodle(
-            id: doodle.id,
-            name: doodle.name,
-            strokes: const [],
-            editedBy: partner,
-            editedAt: doodle.editedAt,
-            paper: doodle.paper,
-          ),
-          ...state,
-        ];
-      case StrokesAdded(:final id, :final strokes):
-        state = [
-          for (final d in state)
-            d.id == id ? edited(d, [...d.strokes, ...strokes]) : d,
-        ];
-      case StrokesSet(:final id, :final strokes):
-        state = [for (final d in state) d.id == id ? edited(d, strokes) : d];
-      case DoodleRenamed(:final id, :final name):
-        state = [
-          for (final d in state) d.id == id ? d.copyWith(name: name) : d,
-        ];
-      case DoodleDeleted(:final id):
-        state = [
-          for (final d in state)
-            if (d.id != id) d,
-        ];
-      case DoodlePresence(:final id, :final here):
-        state = [
-          for (final d in state)
-            d.id == id
-                ? Doodle(
-                    id: d.id,
-                    name: d.name,
-                    strokes: d.strokes,
-                    editedBy: d.editedBy,
-                    editedAt: d.editedAt,
-                    paper: d.paper,
-                    partnerHere: here,
-                  )
-                : d,
-        ];
+    if (op case DoodlePinned(:final id)) {
+      ref.read(widgetDoodleProvider.notifier).applyRemote(id);
+      return;
     }
+    state = applyDoodleOp(
+      state,
+      op,
+      partner: ref.read(pairingProvider).partner.name,
+    );
   }
 
   /// You opened ([here]) or left board [id]: the partner sees the live dot.
@@ -706,6 +663,10 @@ class DoodlesNotifier extends Notifier<List<Doodle>> {
     _share(DoodleCreated(d));
     return d;
   }
+
+  /// The home screen widget shows [id]: wake the partner's to redraw.
+  void _touched(String id) =>
+      ref.read(widgetDoodleProvider.notifier).touched(id);
 
   void setStrokes(String id, List<Stroke> strokes) {
     final before = state.where((d) => d.id == id).firstOrNull?.strokes;
@@ -731,11 +692,13 @@ class DoodlesNotifier extends Notifier<List<Doodle>> {
           ? StrokesAdded(id, strokes.sublist(before.length))
           : StrokesSet(id, strokes),
     );
+    _touched(id);
   }
 
   void rename(String id, String name) {
     state = [for (final d in state) d.id == id ? d.copyWith(name: name) : d];
     _share(DoodleRenamed(id, name));
+    _touched(id);
   }
 
   void delete(String id) {
@@ -744,6 +707,65 @@ class DoodlesNotifier extends Notifier<List<Doodle>> {
         if (d.id != id) d,
     ];
     _share(DoodleDeleted(id));
+    _touched(id);
+  }
+}
+
+// The home screen widget.
+
+/// The doodle both home screen widgets show (C29), or null. Either of you
+/// picks it; the pick syncs, and the last one wins.
+final widgetDoodleProvider = NotifierProvider<WidgetDoodleNotifier, String?>(
+  WidgetDoodleNotifier.new,
+);
+
+class WidgetDoodleNotifier extends Notifier<String?> {
+  /// Wakes are bunched: one 3 s after drawing pauses, and at least one every
+  /// 15 s while it goes on, so the partner's widget keeps up without a push
+  /// per stroke.
+  static const pause = Duration(seconds: 3);
+  static const atMost = Duration(seconds: 15);
+
+  Timer? _wake;
+  DateTime? _first;
+
+  /// The time, for the bunching (tests move it along with their timers).
+  static DateTime Function() now = DateTime.now;
+
+  @override
+  String? build() {
+    final repo = ref.read(doodleRepositoryProvider);
+    listenSelf((_, next) => repo.savePinned(next));
+    ref.onDispose(() => _wake?.cancel());
+    return repo.loadPinned();
+  }
+
+  /// Puts [id] on both widgets (null takes it off).
+  void pin(String? id) {
+    state = id;
+    ref.read(chatRepositoryProvider).shareDoodle(DoodlePinned(id));
+    _bunch();
+  }
+
+  void applyRemote(String? id) => state = id;
+
+  /// Board [id] changed on this phone.
+  void touched(String id) {
+    if (id == state) _bunch();
+  }
+
+  void _bunch() {
+    final at = now();
+    final first = _first ??= at;
+    final left = atMost - at.difference(first);
+    _wake?.cancel();
+    _wake = Timer(
+      left < pause ? (left.isNegative ? Duration.zero : left) : pause,
+      () {
+        _first = null;
+        ref.read(chatRepositoryProvider).wakeWidget();
+      },
+    );
   }
 }
 

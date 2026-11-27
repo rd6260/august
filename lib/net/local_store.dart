@@ -28,6 +28,9 @@ class LocalStore {
   AppSettings settings = const AppSettings();
   List<Doodle> doodles = const [];
 
+  /// The doodle on the home screen widget (shared by both phones).
+  String? widgetDoodle;
+
   /// The sticker library (null until first saved: August starts it empty).
   List<StickerPack>? stickers;
 
@@ -65,6 +68,7 @@ class LocalStore {
       for (final d in (j['doodles'] as List?) ?? const [])
         _doodle((d as Map).cast<String, Object?>()),
     ];
+    widgetDoodle = j['widgetDoodle'] as String?;
     final packs = j['stickers'] as List?;
     stickers = packs == null
         ? null
@@ -121,6 +125,7 @@ class LocalStore {
           'strokes': [for (final s in d.strokes) Wire.stroke(s)],
         },
     ],
+    'widgetDoodle': ?widgetDoodle,
     'messages': [for (final m in messages) _stored(m)],
   };
 

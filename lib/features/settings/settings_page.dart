@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/version.dart';
 import '../../core/icons/v_icons.dart';
-import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
 import '../../core/widgets/v_controls.dart';
 import '../../core/widgets/v_glass.dart';
@@ -32,10 +31,10 @@ class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   static String checkLine({required bool neon, DateTime? last}) {
-    if (!neon) return 'Every 6 min · last 2 min ago';
-    if (last == null) return 'Every 6 min · not yet';
+    if (!neon) return 'Every 8 min · last 2 min ago';
+    if (last == null) return 'Every 8 min · not yet';
     final m = DateTime.now().difference(last).inMinutes;
-    return 'Every 6 min · last ${m < 1 ? 'just now' : '$m min ago'}';
+    return 'Every 8 min · last ${m < 1 ? 'just now' : '$m min ago'}';
   }
 
   /// Your name, your picture, or back to your initial.
@@ -144,7 +143,8 @@ class SettingsPage extends ConsumerWidget {
       title: 'Settings',
       veil: true,
       children: [
-        VListSection(
+        VListGroup(
+          dividerIndent: 72,
           children: [
             VListRow(
               leading: Avatar(pairing.me, size: 44, filled: true),
@@ -152,13 +152,8 @@ class SettingsPage extends ConsumerWidget {
               subtitle: 'Your name and picture',
               onTap: () => _you(context, ref),
             ),
-          ],
-        ),
-        const VEyebrow('Partner'),
-        VListSection(
-          children: [
             VListRow(
-              leading: Avatar(pairing.partner, size: 32),
+              leading: Avatar(pairing.partner, size: 44),
               title: pairing.partner.name,
               subtitle:
                   'Paired since ${since.day} ${months[since.month - 1]} ${since.year}',
@@ -166,8 +161,8 @@ class SettingsPage extends ConsumerWidget {
             ),
           ],
         ),
-        const VEyebrow('Chat'),
-        VListSection(
+        VListGroup(
+          label: 'Chat',
           children: [
             VListRow(
               title: 'Enter sends',
@@ -197,16 +192,11 @@ class SettingsPage extends ConsumerWidget {
                 if (v != null) s.update((x) => x.copyWith(autoDownload: v));
               },
             ),
-          ],
-        ),
-        const VEyebrow('Look'),
-        VListSection(
-          children: [
             VListRow(
               title: 'Solid panels',
               subtitle: settings.solidPanels
                   ? 'Cards and the composer are solid'
-                  : 'Cards and the composer let the wallpaper through',
+                  : 'The wallpaper shows through cards',
               trailing: VSwitch(
                 value: settings.solidPanels,
                 onChanged: (v) => s.update((x) => x.copyWith(solidPanels: v)),
@@ -214,8 +204,8 @@ class SettingsPage extends ConsumerWidget {
             ),
           ],
         ),
-        const VEyebrow('Notifications'),
-        VListSection(
+        VListGroup(
+          label: 'Notifications',
           children: [
             VListRow(
               title: 'Pokes and messages',
@@ -233,8 +223,8 @@ class SettingsPage extends ConsumerWidget {
             ),
           ],
         ),
-        const VEyebrow('Privacy'),
-        VListSection(
+        VListGroup(
+          label: 'Privacy',
           children: [
             VListRow(
               title: 'App lock',
@@ -258,14 +248,7 @@ class SettingsPage extends ConsumerWidget {
               ),
               VListRow(
                 title: 'Lock after',
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(settings.lockAfter.label, style: VText.doto(15)),
-                    const SizedBox(width: 4),
-                    const VIconView(VIcon.chevron, size: 18),
-                  ],
-                ),
+                value: settings.lockAfter.label,
                 onTap: () async {
                   final v = await showChoiceSheet<LockAfter>(
                     context,
@@ -288,9 +271,14 @@ class SettingsPage extends ConsumerWidget {
             ),
           ],
         ),
-        const VEyebrow('Stickers'),
-        VListSection(
+        VListGroup(
+          label: 'Storage',
           children: [
+            VListRow(
+              title: 'Media on this phone',
+              value: bytes(used),
+              onTap: () => pushPage<void>(context, (_) => const StoragePage()),
+            ),
             VListRow(
               title: 'Your stickers',
               value:
@@ -298,27 +286,11 @@ class SettingsPage extends ConsumerWidget {
               onTap: () =>
                   pushPage<void>(context, (_) => const StickerLibraryPage()),
             ),
-          ],
-        ),
-        const VEyebrow('Storage'),
-        VListSection(
-          children: [
-            VListRow(
-              title: 'Media on this phone',
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(bytes(used), style: VText.doto(15)),
-                  const SizedBox(width: 4),
-                  const VIconView(VIcon.chevron, size: 18),
-                ],
-              ),
-              onTap: () => pushPage<void>(context, (_) => const StoragePage()),
-            ),
             VListRow(
               title: 'Clear cache',
               subtitle: 'Meme and song previews',
-              trailing: Text(bytes(cache), style: VText.doto(15)),
+              value: bytes(cache),
+              chevron: false,
               onTap: () async {
                 unawaited(HapticFeedback.selectionClick());
                 await ref.read(storageRepositoryProvider).clearCache();
@@ -328,7 +300,9 @@ class SettingsPage extends ConsumerWidget {
           ],
         ),
         if (showsUpdate(ref.watch(updaterProvider))) const UpdateCard(),
-        VListSection(
+        VListGroup(
+          dividerIndent: 72,
+          note: "Your chats live on your phones. The server only holds sealed messages until they're delivered.",
           children: [
             VListRow(
               leading: const AugustMark(size: 44),
@@ -339,10 +313,6 @@ class SettingsPage extends ConsumerWidget {
             if (ref.watch(updaterProvider) is! UpdateUnsupported)
               const _CheckForUpdates(),
           ],
-        ),
-        const VFootnote(
-          "Your chats live on your phones. The server only holds sealed messages until they're delivered.",
-          center: true,
         ),
       ],
     );

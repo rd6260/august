@@ -39,14 +39,22 @@ export const pushEnabled = sa !== null;
 export type PushResult = "sent" | "disabled" | "no-token" | "unregistered" | "failed";
 
 /// Sends a wake-up to [token]. "unregistered" means the token is dead.
-export async function push(token: string | null, data: Record<string, string>): Promise<PushResult> {
+/// [ttl] is how long FCM keeps it for an offline phone; [collapse] keeps
+/// only the newest of a kind waiting (a redraw needs just the last one).
+export async function push(
+  token: string | null,
+  data: Record<string, string>,
+  { ttl = "86400s", collapse }: { ttl?: string; collapse?: string } = {},
+): Promise<PushResult> {
   if (!sa) return "disabled";
   if (!token) return "no-token";
   try {
     const res = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
       method: "POST",
       headers: { authorization: `Bearer ${await accessToken()}`, "content-type": "application/json" },
-      body: JSON.stringify({ message: { token, data, android: { priority: "high", ttl: "86400s" } } }),
+      body: JSON.stringify({
+        message: { token, data, android: { priority: "high", ttl, ...(collapse ? { collapse_key: collapse } : {}) } },
+      }),
       signal: AbortSignal.timeout(5000),
     });
     if (res.ok) return "sent";

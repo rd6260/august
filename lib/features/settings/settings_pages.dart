@@ -14,6 +14,7 @@ import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
 import '../../core/widgets/v_controls.dart';
 import '../../core/widgets/v_glass.dart';
+import '../../core/widgets/v_ink.dart';
 import '../../core/widgets/v_list.dart';
 import '../../core/widgets/v_page.dart';
 import '../../core/widgets/v_progress.dart';
@@ -134,7 +135,7 @@ class PartnerPage extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        VListSection(
+        VListGroup(
           children: [
             VListRow(
               title: 'Last seen',
@@ -152,24 +153,20 @@ class PartnerPage extends ConsumerWidget {
             VListRow(
               title: 'Messages waiting',
               subtitle: 'Sealed on the server for ${p.partner.name}',
-              trailing: Text('${p.waitingOnServer}', style: VText.doto(15)),
+              value: '${p.waitingOnServer}',
             ),
           ],
         ),
-        VCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('SECURITY CODE', style: VText.eyebrow),
-              const SizedBox(height: 12),
-              SecurityCode(p.securityCode),
-              const SizedBox(height: 12),
-              Text(
-                "Matches ${p.partner.name}'s screen? Then only you two can read your chat.",
-                style: VText.secondary,
-              ),
-            ],
-          ),
+        VListGroup(
+          label: 'Security code',
+          note:
+              "Matches ${p.partner.name}'s screen? Then only you two can read your chat.",
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SecurityCode(p.securityCode),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         _DashedAction(VIcon.unlink, 'Unpair', () => showUnpair(context, ref)),
@@ -394,7 +391,9 @@ class StoragePage extends ConsumerWidget {
             ],
           ),
         ),
-        VListSection(
+        VListGroup(
+          note:
+              'Clearing only removes it from this phone. $partner keeps her copy, and can send it again if her phone is on.',
           children: [
             for (final u in use)
               Padding(
@@ -408,7 +407,12 @@ class StoragePage extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(child: Text(u.label, style: VText.rowTitle)),
-                        Text(bytes(u.bytes), style: VText.doto(14)),
+                        Text(
+                          bytes(u.bytes),
+                          style: VText.inter(14).copyWith(
+                            color: VInk.of(context).withValues(alpha: 0.55),
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         VPill(
                           'Clear',
@@ -429,9 +433,6 @@ class StoragePage extends ConsumerWidget {
                 ),
               ),
           ],
-        ),
-        VFootnote(
-          'Clearing only removes it from this phone. $partner keeps her copy, and can send it again if her phone is on.',
         ),
       ],
     );
@@ -456,8 +457,8 @@ class NotificationsPage extends ConsumerWidget {
       backLabel: 'Settings',
       title: 'Notifications',
       children: [
-        const VEyebrow('Messages'),
-        VListSection(
+        VListGroup(
+          label: 'Messages',
           children: [
             VListRow(
               title: 'Show message text',
@@ -471,8 +472,9 @@ class NotificationsPage extends ConsumerWidget {
             ),
           ],
         ),
-        const VEyebrow('Pokes'),
-        VListSection(
+        VListGroup(
+          label: 'Pokes',
+          dividerIndent: 62,
           children: [
             for (final m in VMoment.values)
               VListRow(
@@ -496,8 +498,8 @@ class NotificationsPage extends ConsumerWidget {
               ),
           ],
         ),
-        const VEyebrow('Background check'),
-        VListSection(
+        VListGroup(
+          label: 'Background check',
           children: [
             VListRow(
               leading: Container(
@@ -514,44 +516,47 @@ class NotificationsPage extends ConsumerWidget {
                 last: ref.watch(backgroundCheckProvider).value,
               ),
             ),
-          ],
-        ),
-        VCard(
-          outline: VOutline.dashed,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              const VIconView(VIcon.warning, size: 18),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('If Android stops it', style: VText.rowTitle),
-                    Text(
-                      'Pokes would wait until you open August',
-                      style: VText.secondary,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  const VIconView(VIcon.warning, size: 18),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('If Android stops it', style: VText.rowTitle),
+                        Text(
+                          'Pokes would wait until you open August',
+                          style: VText.secondary.copyWith(
+                            color: VInk.of(context).withValues(alpha: 0.62),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  VPill(
+                    'Fix',
+                    fill: VFill.filled,
+                    onTap: () async {
+                      unawaited(HapticFeedback.selectionClick());
+                      final ok = await ref.read(keepCheckingProvider)();
+                      ref.invalidate(backgroundCheckProvider);
+                      if (context.mounted) {
+                        showToast(
+                          context,
+                          ok
+                              ? 'August can check in the background'
+                              : 'Not allowed',
+                        );
+                      }
+                    },
+                  ),
+                ],
               ),
-              VPill(
-                'Fix',
-                fill: VFill.filled,
-                onTap: () async {
-                  unawaited(HapticFeedback.selectionClick());
-                  final ok = await ref.read(keepCheckingProvider)();
-                  ref.invalidate(backgroundCheckProvider);
-                  if (context.mounted) {
-                    showToast(
-                      context,
-                      ok ? 'August can check in the background' : 'Not allowed',
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
@@ -603,15 +608,15 @@ class AboutPage extends StatelessWidget {
             ],
           ),
         ),
-        VListSection(
-          header: const VEyebrow('Licences'),
+        VListGroup(
+          label: 'Licences',
           children: [
             for (final (name, licence) in _licences)
               VListRow(title: name, value: licence, chevron: false),
           ],
         ),
-        VListSection(
-          header: const VEyebrow('Developer'),
+        VListGroup(
+          label: 'Developer',
           children: [
             VListRow(
               leading: ClipOval(
@@ -647,8 +652,11 @@ class AboutPage extends StatelessWidget {
               ),
           ],
         ),
-        VListSection(
-          header: const VEyebrow('Help'),
+        VListGroup(
+          label: 'Help',
+          note:
+              'Your chats live on your two phones. The server only holds sealed messages '
+              "until they're delivered, then wipes them. Nothing is collected.",
           children: [
             VListRow(
               title: 'See a test crash report',
@@ -656,10 +664,6 @@ class AboutPage extends StatelessWidget {
               onTap: CrashLog.instance.test,
             ),
           ],
-        ),
-        const VFootnote(
-          'Your chats live on your two phones. The server only holds sealed messages '
-          "until they're delivered, then wipes them. Nothing is collected.",
         ),
       ],
     );

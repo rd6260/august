@@ -13,6 +13,7 @@ import '../features/onboarding/onboarding_pages.dart';
 import '../platform/secure_window.dart';
 import 'august_theme.dart';
 import 'router.dart';
+import 'widget_sync.dart';
 
 /// The app root: the shared theme's wallpaper, ink and glass apply
 /// everywhere.
@@ -41,6 +42,7 @@ class _AugustAppState extends ConsumerState<AugustApp> {
 
   late bool _splash = widget.splash;
   late final AppLifecycleListener _life;
+  late final _widget = DoodleWidgetSync(ref, _router);
   DateTime? _left;
 
   @override
@@ -58,10 +60,15 @@ class _AugustAppState extends ConsumerState<AugustApp> {
       settingsProvider.select((s) => s.hideInRecents),
       (_, on) => unawaited(SecureWindow.set(on)),
     );
+    // The home screen widget follows the picked doodle.
+    doodleWidgetSync = _widget;
+    unawaited(_widget.start());
     // Leaving August for longer than "Lock after" locks it (C36).
     _life = AppLifecycleListener(
       onHide: () => _left = DateTime.now(),
       onShow: () {
+        // A widget may have been added or removed meanwhile.
+        unawaited(_widget.placed());
         final left = _left;
         _left = null;
         if (left == null) return;
@@ -75,6 +82,8 @@ class _AugustAppState extends ConsumerState<AugustApp> {
 
   @override
   void dispose() {
+    _widget.dispose();
+    if (identical(doodleWidgetSync, _widget)) doodleWidgetSync = null;
     _life.dispose();
     _router.dispose();
     _paired.dispose();

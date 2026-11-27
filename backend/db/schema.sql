@@ -19,6 +19,8 @@ create table if not exists members (
 create index if not exists members_couple on members(couple_id);
 -- Firebase Cloud Messaging token: where to send the wake-up.
 alter table members add column if not exists fcm_token text;
+-- The phone has an August home screen widget: wake it to redraw (doodles).
+alter table members add column if not exists widget boolean not null default false;
 
 create table if not exists invites (
   code text primary key,
