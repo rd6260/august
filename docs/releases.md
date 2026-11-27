@@ -33,7 +33,7 @@ flowchart TB
   C --> D[flutter test]
   D --> E[Write env.json from secrets with jq]
   E --> F[Fetch Gradle via aria2 mirrors<br/>and lower Gradle's heap]
-  F --> G[flutter build apk --release --split-per-abi<br/>--target-platform android-arm64<br/>retried up to 3 times]
+  F --> G[flutter build apk --release --split-per-abi<br/>--flavor prod --target-platform android-arm64<br/>retried up to 3 times]
   G --> H{Signed with the<br/>debug key?}
   H -- yes --> X[Fail]
   H -- no --> I[Write update.json:<br/>URL, size, SHA-256, versionCode for arm64]
@@ -118,7 +118,7 @@ stateDiagram-v2
 # A Range-capable static server with update.json and the APK in it
 python3 -m http.server 8765        # or any server that supports Range
 adb reverse tcp:8765 tcp:8765
-flutter build apk --release --split-per-abi --target-platform android-arm64 \
+flutter build apk --release --split-per-abi --flavor prod --target-platform android-arm64 \
   --dart-define-from-file=env.json --dart-define=AUGUST_UPDATE_URL=http://127.0.0.1:8765/update.json
 ```
 

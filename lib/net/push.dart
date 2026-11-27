@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../core/theme/v_colors.dart';
 import '../data/models.dart';
@@ -15,6 +14,7 @@ import 'local_store.dart';
 import 'neon_backend.dart';
 import 'vault.dart';
 import 'widget_refresh.dart';
+import '../platform/data_home.dart';
 import 'wire.dart';
 
 /// Firebase Cloud Messaging: the API sends a data-only wake-up when mail
@@ -184,14 +184,14 @@ abstract final class Push {
 Future<void> _background(RemoteMessage message) async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final dir = await getApplicationSupportDirectory();
+  final dir = await DataHome.dir();
   // The widget's doodle changed on the other phone: redraw it, quietly.
   if (message.data['kind'] == 'wake') {
     final config = NeonConfig.fromEnvironment;
     if (config == null) return;
     final b = await NeonBackend.open(
       config,
-      vault: const SecureVault(),
+      vault: await DataHome.vault(),
       dir: dir,
     );
     try {
@@ -210,7 +210,7 @@ Future<void> _background(RemoteMessage message) async {
   final store = await LocalStore.open(dir);
   final n = await Push.describe(
     message.data,
-    vault: const SecureVault(),
+    vault: await DataHome.vault(),
     store: store,
   );
   if (n != null) await Push.show(n, id: n.moment ? 2 : 1);

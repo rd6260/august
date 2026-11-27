@@ -148,8 +148,14 @@ jobs:
           AUGUST_KEY_ALIAS: ${{ secrets.AUGUST_KEY_ALIAS }}
         # Retried, since a download can time out on a cold cache.
         run: |
+          # The prod flavor (dev is for local builds); it comes out as
+          # app-arm64-v8a-prod-release.apk, renamed to the name releases use.
+          OUT=build/app/outputs/flutter-apk
           for attempt in 1 2 3; do
-            flutter build apk --release --split-per-abi --target-platform android-arm64 --dart-define-from-file=env.json && exit 0
+            if flutter build apk --release --split-per-abi --flavor prod --target-platform android-arm64 --dart-define-from-file=env.json; then
+              mv "$OUT/app-arm64-v8a-prod-release.apk" "$OUT/app-arm64-v8a-release.apk"
+              exit 0
+            fi
             echo "Build attempt $attempt failed; retrying in 30 s" >&2
             sleep 30
           done

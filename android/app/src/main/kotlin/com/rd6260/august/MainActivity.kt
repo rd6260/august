@@ -20,6 +20,8 @@ class MainActivity : FlutterActivity() {
         YouTubeChannel.register(flutterEngine.dartExecutor.binaryMessenger)
         // Over-the-air updates from GitHub Releases (lib/net/updater.dart).
         Updater.register(this, flutterEngine.dartExecutor.binaryMessenger)
+        // The dev flavor's storage permission and profile restarts.
+        DevStorage.register(this, flutterEngine.dartExecutor.binaryMessenger)
         // "Hide in recent apps" (C36): FLAG_SECURE blanks August in the
         // app switcher and blocks screenshots of it.
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "august/window")

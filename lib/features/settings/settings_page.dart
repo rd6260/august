@@ -14,7 +14,9 @@ import '../../core/widgets/v_page.dart';
 import '../../core/widgets/v_progress.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
+import '../../platform/data_home.dart';
 import '../common/avatar.dart';
+import '../dev/dev_pages.dart';
 import '../common/choice_sheet.dart';
 import '../common/overlay.dart';
 import '../common/parts.dart';
@@ -299,6 +301,22 @@ class SettingsPage extends ConsumerWidget {
             ),
           ],
         ),
+        // The dev flavor: which profile this is, and switching.
+        if (isDev)
+          VListGroup(
+            label: 'Developer',
+            children: [
+              CurrentProfileName(
+                builder: (context, name) => VListRow(
+                  title: 'Profile',
+                  subtitle: 'Its own pairing and chat, kept in phone storage',
+                  value: name,
+                  onTap: () =>
+                      pushPage<void>(context, (_) => const ProfilesPage()),
+                ),
+              ),
+            ],
+          ),
         if (showsUpdate(ref.watch(updaterProvider))) const UpdateCard(),
         VListGroup(
           dividerIndent: 72,

@@ -48,6 +48,7 @@ phone=0
 flutter drive \
   --driver=test_driver/integration_test.dart \
   --target=integration_test/neon_test.dart \
+  --flavor prod \
   --dart-define-from-file=env.json \
   --dart-define=PARTNER_CODE="$code" \
   --dart-define=AUGUST_CHECK_EVERY=15 || phone=$?

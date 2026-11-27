@@ -41,7 +41,7 @@ On the mock, PIN `1402` opens August and `2580` opens the decoy chat. Invite `K7
    }
    ```
 
-3. Build with it: `flutter run --dart-define-from-file=env.json`.
+3. Build with it: `flutter run --flavor dev --dart-define-from-file=env.json` on Android (see [On the phone](#on-the-phone)), or without `--flavor` on Linux.
 
 Other build-time defines:
 
@@ -56,16 +56,47 @@ Push needs `android/app/google-services.json` (committed; the client key is publ
 
 ## On the phone
 
-Use a **release-signed** build, as CI makes, so it installs over a release without wiping data:
+Android builds have two flavors with **one app ID** (`com.rd6260.august`), so only one is installed at a time. Every Android build names one:
+
+| | `--flavor prod` | `--flavor dev` |
+| --- | --- | --- |
+| Who | CI and GitHub releases | Local builds while developing |
+| Label | August | August Dev |
+| Data | The app's private folder; secrets in the Keystore | The phone's own storage: `August/profiles/<profile>/` at the top of Internal storage, secrets in a plain `vault.json` beside the data |
+| Survives an uninstall | No: uninstalling wipes the identity and the chat | **Yes**: a reinstall finds the same identity, pairing and history |
+| Profiles | One | Several (Settings › Developer › Profile), each with its own account, identity, pairing and chat |
+| In-app updates | From GitHub releases | Off (a release would replace it with a build that can't see its data) |
+
+### Dev builds
 
 ```bash
-export AUGUST_KEYSTORE_FILE=/path/to/release-key.jks \
-       AUGUST_KEYSTORE_PASSWORD=… AUGUST_KEY_PASSWORD=… AUGUST_KEY_ALIAS=upload
-flutter build apk --release --split-per-abi --target-platform android-arm64 --dart-define-from-file=env.json
-adb install -r build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+flutter run --flavor dev --dart-define-from-file=env.json --android-skip-build-dependency-validation
 ```
 
-- `adb install -r` keeps the app's data, so pairing and history survive. **Uninstalling wipes the identity**, and the phone has to pair again.
+- **Hot reload, any signing key:** if Android refuses the install (a different key, a lower version), `flutter run` uninstalls and reinstalls. That's fine in dev: the data is in phone storage, not the app.
+- **"All files access":** dev asks for it at start, and again after every reinstall (Android drops it on uninstall). Until it's on, August shows a screen with **Open settings**.
+- **Profiles:** each is a folder under `August/profiles/`, and `August/current.json` names the one in use. A new profile starts at Welcome, so it can pair with someone else (a second phone, the Linux build, `tool/partner/`, or another profile on the same phone: make a code, switch, join). Switching restarts August. Only the current profile is checked in the background and woken by pushes.
+- **Not private:** any app with storage access can read `August/`. Dev only; prod never uses it.
+- **Back it up** now and then: `adb pull /storage/emulated/0/August`.
+
+### Moving from prod to dev
+
+The first dev run moves a prod install's chat, media and secrets into the profile **Main** (and points stored media paths at the new folder). That only works if the dev build installs **over** prod without an uninstall, so make that first one with the release key:
+
+```bash
+. ~/.android/august-release.env   # the AUGUST_KEYSTORE_* variables
+flutter run --release --flavor dev --dart-define-from-file=env.json --android-skip-build-dependency-validation
+```
+
+### Prod builds by hand
+
+```bash
+. ~/.android/august-release.env
+flutter build apk --release --split-per-abi --flavor prod --target-platform android-arm64 --dart-define-from-file=env.json
+adb install -r build/app/outputs/flutter-apk/app-arm64-v8a-prod-release.apk
+```
+
+- `adb install -r` keeps the app's data. **Never `flutter install`**: it uninstalls first.
 - Without the `AUGUST_*` signing variables, Gradle signs with the debug key, which can't be installed over a release-key install.
 - Screenshots: `adb exec-out screencap -p > shot.png`.
 

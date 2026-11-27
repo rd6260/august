@@ -83,7 +83,7 @@ There's more in [Architecture](docs/architecture.md), [Security and privacy](doc
 
 ```bash
 flutter pub get
-flutter run                     # mock mode: a fake partner, no server needed
+flutter run --flavor dev        # mock mode: a fake partner, no server needed (no --flavor on Linux)
 ```
 
 Without `env.json`, August runs on **mocks**: a pretend Aatika who types, replies, sends moments and answers calls. Every widget test runs this way.
@@ -91,7 +91,7 @@ Without `env.json`, August runs on **mocks**: a pretend Aatika who types, replie
 To run against a real backend, copy `env.example.json` to `env.json`, fill in your Neon URLs, and build with it:
 
 ```bash
-flutter run --dart-define-from-file=env.json
+flutter run --flavor dev --dart-define-from-file=env.json
 ```
 
 The full setup is in [Development](docs/development.md): the backend, the phone, the Linux build, signing and tests.

@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../core/icons/v_icons.dart';
 import '../../core/theme/v_colors.dart';
@@ -22,6 +21,7 @@ import '../../data/chat_theme.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../../mock/mock_data.dart';
+import '../../platform/data_home.dart';
 import '../common/art.dart';
 import '../common/overlay.dart';
 import '../common/wallpaper.dart';
@@ -383,7 +383,7 @@ class _WallpaperCropState extends State<WallpaperCrop> {
         .buffer
         .asUint8List();
     final dir = Directory(
-      '${(await getApplicationSupportDirectory()).path}/media',
+      '${(await DataHome.dir()).path}/media',
     );
     await dir.create(recursive: true);
     final stamp = DateTime.now().microsecondsSinceEpoch;

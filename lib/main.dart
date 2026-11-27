@@ -27,8 +27,9 @@ import 'net/web_memes.dart';
 import 'net/phone_voice.dart';
 import 'net/push.dart';
 import 'net/updater.dart';
-import 'net/vault.dart';
+import 'features/dev/dev_pages.dart';
 import 'platform/crash_log.dart';
+import 'platform/data_home.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,6 +64,21 @@ Future<void> main() async {
     }
   });
 
+  // The dev flavor keeps everything in the phone's own storage, which
+  // needs "All files access" first (again after every reinstall).
+  if (isDev && android && !await Profiles.allowed()) {
+    runApp(const DevStorageGate(onAllowed: _start));
+    return;
+  }
+  await _start();
+}
+
+/// Opens this run's data (the current profile's, in dev) and starts August.
+Future<void> _start() async {
+  final android = Platform.isAndroid;
+  // The first dev run carries a prod install's chat into "main".
+  if (isDev && android) await Profiles.moveInPrivateData();
+
   // On Neon when the build has a backend (env.json); the mock partner
   // otherwise.
   final config = NeonConfig.fromEnvironment;
@@ -70,12 +86,8 @@ Future<void> main() async {
       ? null
       : await NeonBackend.open(
           config,
-          vault: android
-              ? const SecureVault()
-              : FileVault(
-                  '${(await getApplicationSupportDirectory()).path}/vault.json',
-                ),
-          dir: await getApplicationSupportDirectory(),
+          vault: await DataHome.vault(),
+          dir: await DataHome.dir(),
         );
   final songs = backend == null ? null : YouTubeSongs();
   // August's own cache folder: on Linux the "temporary directory" is the
@@ -123,8 +135,11 @@ Future<void> main() async {
           keepCheckingProvider.overrideWithValue(
             () => BackgroundCheck.keepGoing(paired: backend.store.paired),
           ),
-          // Over-the-air updates from GitHub Releases (Android only).
-          if (android) updateDepsProvider.overrideWithValue(phoneUpdateDeps()),
+          // Over-the-air updates from GitHub Releases (Android, prod only:
+          // a release would replace a dev build with one that can't see
+          // its data).
+          if (android && !isDev)
+            updateDepsProvider.overrideWithValue(phoneUpdateDeps()),
           // Round videos need the phone's camera plugin (Android only).
           if (android)
             roundCameraProvider.overrideWithValue(PhoneRound(backend.mediaDir)),

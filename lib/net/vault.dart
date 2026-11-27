@@ -5,6 +5,19 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// Small secrets that stay on this phone: the hidden account, the session
 /// cookie and the identity key. Android Keystore-backed in the app.
+/// Every key August keeps in a vault (auth.dart, crypto.dart and
+/// neon_backend.dart), for moving a prod install's secrets into a dev
+/// profile (data_home.dart).
+const vaultKeys = [
+  'identity.x25519',
+  'auth.email',
+  'auth.password',
+  'auth.cookie',
+  'lock.pin',
+  'lock.decoy',
+  'lock.decoyName',
+];
+
 abstract interface class Vault {
   Future<String?> read(String key);
   Future<void> write(String key, String? value);

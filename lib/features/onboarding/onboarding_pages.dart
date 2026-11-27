@@ -28,6 +28,8 @@ import '../common/keypad.dart';
 import '../common/overlay.dart';
 import '../common/parts.dart';
 import '../common/toast.dart';
+import '../../platform/data_home.dart';
+import '../dev/dev_pages.dart';
 import 'pair_card.dart';
 import 'step_page.dart';
 
@@ -111,6 +113,20 @@ class WelcomePage extends StatelessWidget {
             'I have a code',
             onPressed: () => context.push('${OnboardingRoutes.name}?join=1'),
           ),
+          // The dev flavor: a new profile starts here; switch back from it.
+          if (isDev) ...[
+            const SizedBox(height: 14),
+            Center(
+              child: CurrentProfileName(
+                builder: (context, name) => VLink(
+                  'Profile: $name · switch',
+                  style: VText.inter(13),
+                  onTap: () =>
+                      pushPage<void>(context, (_) => const ProfilesPage()),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

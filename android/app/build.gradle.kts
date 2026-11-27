@@ -43,6 +43,25 @@ android {
         versionName = flutter.versionName
     }
 
+    // Two flavors, one app ID: "prod" (what GitHub releases; private storage
+    // and the Keystore) and "dev" (local builds: everything in the phone's
+    // own storage, under August/, so it survives a reinstall; with
+    // profiles). Build with --flavor prod or --flavor dev.
+    buildFeatures {
+        resValues = true
+    }
+    flavorDimensions += "env"
+    productFlavors {
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "August")
+        }
+        create("dev") {
+            dimension = "env"
+            resValue("string", "app_name", "August Dev")
+        }
+    }
+
     signingConfigs {
         create("release") {
             keyAlias = releaseKeyAlias

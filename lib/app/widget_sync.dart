@@ -4,11 +4,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:home_widget/home_widget.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../data/models.dart';
 import '../data/providers.dart';
 import '../features/doodles/doodles_page.dart';
+import '../platform/data_home.dart';
 import '../platform/doodle_widget.dart';
 import 'router.dart';
 
@@ -77,7 +77,7 @@ class DoodleWidgetSync {
         await DoodleWidget.show(
           doodle: ref.read(_pinnedDoodle),
           theme: ref.read(chatThemeProvider),
-          dir: await getApplicationSupportDirectory(),
+          dir: await DataHome.dir(),
         );
       } on Object {
         // The widget can wait for the next change.

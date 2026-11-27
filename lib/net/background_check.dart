@@ -3,14 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'api.dart';
 import 'config.dart';
 import 'local_store.dart';
 import 'neon_backend.dart';
 import 'push.dart';
-import 'vault.dart';
+import '../platform/data_home.dart';
 import 'widget_refresh.dart';
 
 /// The background check: a quiet foreground service that looks for sealed
@@ -73,7 +72,7 @@ abstract final class BackgroundCheck {
   /// When the last check ran, from any isolate.
   static Future<DateTime?> lastCheck() async {
     try {
-      final f = File('${(await getApplicationSupportDirectory()).path}/$_file');
+      final f = File('${(await DataHome.dir()).path}/$_file');
       if (!f.existsSync()) return null;
       final j = jsonDecode(await f.readAsString()) as Map;
       return DateTime.tryParse(j['at'] as String? ?? '');
@@ -98,8 +97,8 @@ class _Check extends TaskHandler {
     await Push.ready();
     _b = await NeonBackend.open(
       config,
-      vault: const SecureVault(),
-      dir: await getApplicationSupportDirectory(),
+      vault: await DataHome.vault(),
+      dir: await DataHome.dir(),
     );
     await _check();
   }
