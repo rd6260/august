@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +22,9 @@ import '../common/choice_sheet.dart';
 import '../common/dot_loader.dart';
 import '../common/overlay.dart';
 import '../common/parts.dart';
+import '../../platform/whatsapp_stickers.dart';
 import '../common/sticker_view.dart';
+import '../common/toast.dart';
 import 'sticker_maker.dart';
 
 enum TrayTab { stickers, gifs, memes }
@@ -67,48 +70,44 @@ class _TrayState extends ConsumerState<Tray> {
             tint: VPalette.of(context).glassSheet,
             blur: 14,
             border: false,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: VInk.of(context))),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: VInk.of(context),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: VInk.of(context).withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    VSegmented<TrayTab>(
-                      segments: const {
-                        TrayTab.stickers: 'Stickers',
-                        TrayTab.gifs: 'GIFs',
-                        TrayTab.memes: 'Memes',
-                      },
-                      value: _tab,
-                      onChanged: (t) => setState(() => _tab = t),
-                    ),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: _tab == TrayTab.stickers
-                          ? const _Stickers()
-                          : _Memes(
-                              key: ValueKey(_tab),
-                              kind: _tab == TrayTab.gifs
-                                  ? MemeKind.gif
-                                  : MemeKind.meme,
-                            ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 14),
+                  VSegmented<TrayTab>(
+                    quiet: true,
+                    segments: const {
+                      TrayTab.stickers: 'Stickers',
+                      TrayTab.gifs: 'GIFs',
+                      TrayTab.memes: 'Memes',
+                    },
+                    value: _tab,
+                    onChanged: (t) => setState(() => _tab = t),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: _tab == TrayTab.stickers
+                        ? const _Stickers()
+                        : _Memes(
+                            key: ValueKey(_tab),
+                            kind: _tab == TrayTab.gifs
+                                ? MemeKind.gif
+                                : MemeKind.meme,
+                          ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -126,6 +125,7 @@ class SearchPill extends StatelessWidget {
     required this.placeholder,
     this.onChanged,
     this.autofocus = false,
+    this.quiet = false,
   });
 
   final TextEditingController controller;
@@ -133,52 +133,68 @@ class SearchPill extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final bool autofocus;
 
+  /// The clean look (the sticker tray): a soft fill, no outline, a muted
+  /// placeholder.
+  final bool quiet;
+
   @override
   Widget build(BuildContext context) {
     final ink = VInk.of(context);
-    return VOutlined(
-      radius: 999,
-      child: Row(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 16),
-            child: VIconView(VIcon.search, size: 18),
+    final row = Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: VIconView(
+            VIcon.search,
+            size: 18,
+            color: quiet ? ink.withValues(alpha: 0.6) : null,
           ),
-          Expanded(
-            child: CupertinoTextField(
-              controller: controller,
-              autofocus: autofocus,
-              onChanged: onChanged,
-              placeholder: placeholder,
-              placeholderStyle: VText.inter(15).copyWith(color: ink),
-              style: VText.inter(15).copyWith(color: ink),
-              cursorColor: ink,
-              padding: const EdgeInsets.fromLTRB(10, 12, 6, 12),
-              decoration: const BoxDecoration(color: VColors.transparent),
-            ),
+        ),
+        Expanded(
+          child: CupertinoTextField(
+            controller: controller,
+            autofocus: autofocus,
+            onChanged: onChanged,
+            placeholder: placeholder,
+            placeholderStyle: VText.inter(15)
+                .copyWith(color: quiet ? ink.withValues(alpha: 0.5) : ink),
+            style: VText.inter(15).copyWith(color: ink),
+            cursorColor: ink,
+            padding: const EdgeInsets.fromLTRB(10, 12, 6, 12),
+            decoration: const BoxDecoration(color: VColors.transparent),
           ),
-          ValueListenableBuilder(
-            valueListenable: controller,
-            builder: (context, v, _) => v.text.isEmpty
-                ? const SizedBox(width: 12)
-                : Semantics(
-                    button: true,
-                    label: 'Clear',
-                    child: VTappable(
-                      onTap: () {
-                        controller.clear();
-                        onChanged?.call('');
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.fromLTRB(6, 10, 16, 10),
-                        child: VIconView(VIcon.close, size: 18),
-                      ),
+        ),
+        ValueListenableBuilder(
+          valueListenable: controller,
+          builder: (context, v, _) => v.text.isEmpty
+              ? const SizedBox(width: 12)
+              : Semantics(
+                  button: true,
+                  label: 'Clear',
+                  child: VTappable(
+                    onTap: () {
+                      controller.clear();
+                      onChanged?.call('');
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.fromLTRB(6, 10, 16, 10),
+                      child: VIconView(VIcon.close, size: 18),
                     ),
                   ),
-          ),
-        ],
-      ),
+                ),
+        ),
+      ],
     );
+    if (quiet) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: ink.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: row,
+      );
+    }
+    return VOutlined(radius: 999, child: row);
   }
 }
 
@@ -196,6 +212,9 @@ class _StickersState extends ConsumerState<_Stickers> {
   /// null = favourites, '' = recent, else a pack id.
   /// Favourites (null) when there are any, else Recent (''), so a new
   /// library never opens on an empty page.
+  /// The WhatsApp tab is showing.
+  var _whatsApp = false;
+
   late String? _pack =
       ref.read(stickersProvider).any((p) => p.stickers.any((s) => s.favourite))
       ? null
@@ -207,43 +226,87 @@ class _StickersState extends ConsumerState<_Stickers> {
     super.dispose();
   }
 
+  /// Sends [s], and puts it first in Recent.
+  void _send(Sticker s) {
+    ref.read(recentStickersProvider.notifier).used(s);
+    Navigator.of(context).pop(StickerBody(s));
+  }
+
   Future<void> _make() async {
     final made = await makeSticker(context, ref);
-    if (made != null && mounted) Navigator.of(context).pop(StickerBody(made));
+    if (made != null && mounted) _send(made);
   }
 
   Future<void> _hold(Sticker s) async {
     unawaited(HapticFeedback.mediumImpact());
-    final fav = await showChoiceSheet<String>(
+    final packs = ref.read(stickersProvider);
+    // The library's own copy (with its favourite), if it's in one.
+    final owned = [for (final p in packs) ...p.stickers]
+        .where((x) => x.id == s.id)
+        .firstOrNull;
+    final recent = !_whatsApp && _pack == '';
+    final what = await showChoiceSheet<String>(
       context,
       title: 'Sticker',
       choices: [
-        Choice(
-          'fav',
-          s.favourite ? 'Remove from favourites' : 'Add to favourites',
-          icon: VIcon.star,
-        ),
-        const Choice('remove', 'Remove sticker', icon: VIcon.trash),
+        if (owned != null) ...[
+          Choice(
+            'fav',
+            owned.favourite ? 'Remove from favourites' : 'Add to favourites',
+            icon: VIcon.star,
+          ),
+          const Choice('remove', 'Remove sticker', icon: VIcon.trash),
+        ] else
+          const Choice('keep', 'Keep in your stickers', icon: VIcon.star),
+        if (recent)
+          const Choice('forget', 'Remove from recent', icon: VIcon.close),
       ],
     );
     if (!mounted) return;
     final n = ref.read(stickersProvider.notifier);
-    if (fav == 'fav') n.toggleFavourite(s.id);
-    if (fav == 'remove') n.remove(s.id);
+    switch (what) {
+      case 'fav':
+        n.toggleFavourite(s.id);
+      case 'remove':
+        n.remove(s.id);
+      case 'keep' when packs.isNotEmpty:
+        // Into "Saved" (the Neon library has it), else the first pack.
+        final pack = packs.any((p) => p.id == 'saved')
+            ? 'saved'
+            : packs.first.id;
+        n.add(pack, s);
+        showToast(context, 'In your stickers');
+      case 'forget':
+        ref.read(recentStickersProvider.notifier).forget(s.id);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final ink = VInk.of(context);
     final packs = ref.watch(stickersProvider);
     final all = [for (final p in packs) ...p.stickers];
     final List<Sticker> shown;
     final String label;
-    if (_pack == null) {
+    final (String, String) empty;
+    if (_whatsApp) {
+      shown = const [];
+      label = 'From WhatsApp';
+      empty = ('', '');
+    } else if (_pack == null) {
       shown = all.where((s) => s.favourite).toList();
       label = 'Favourites';
+      empty = (
+        'No favourites yet',
+        'Long-press a sticker to make it a favourite.',
+      );
     } else if (_pack!.isEmpty) {
-      shown = all.take(8).toList();
+      shown = ref.watch(recentStickersProvider);
       label = 'Recent';
+      empty = (
+        'Nothing sent yet',
+        'Stickers you send show up here, WhatsApp ones too.',
+      );
     } else {
       final p = packs.firstWhere(
         (p) => p.id == _pack,
@@ -251,76 +314,119 @@ class _StickersState extends ConsumerState<_Stickers> {
       );
       shown = p.stickers;
       label = p.name;
+      empty = ('No stickers yet', 'Make one from a photo or a doodle with +.');
     }
+    void pick(String? pack) => setState(() {
+      _whatsApp = false;
+      _pack = pack;
+    });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SearchPill(controller: _search, placeholder: 'Search your stickers'),
-        const SizedBox(height: 10),
+        SearchPill(
+          controller: _search,
+          placeholder: 'Search your stickers',
+          quiet: true,
+        ),
+        const SizedBox(height: 12),
         SizedBox(
-          height: 44,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
+          height: 40,
+          child: Row(
             children: [
-              _PackTab(
-                selected: _pack == '',
-                label: 'Recent',
-                onTap: () => setState(() => _pack = ''),
-                child: const VIconView(VIcon.pending, size: 20),
-              ),
-              _PackTab(
-                selected: _pack == null,
-                label: 'Favourites',
-                onTap: () => setState(() => _pack = null),
-                child: const VIconView(VIcon.star, size: 20),
-              ),
-              for (final p in packs)
-                _PackTab(
-                  selected: _pack == p.id,
-                  label: 'Pack: ${p.name}',
-                  onTap: () => setState(() => _pack = p.id),
-                  child: p.stickers.isEmpty
-                      ? const SizedBox.shrink()
-                      : StickerView(
-                          p.stickers.first,
-                          size: 28,
-                          border: 2,
-                          shadow: false,
-                        ),
+              Expanded(
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _PackTab(
+                      selected: !_whatsApp && _pack == '',
+                      label: 'Recent',
+                      onTap: () => pick(''),
+                      child: const VIconView(VIcon.pending, size: 20),
+                    ),
+                    _PackTab(
+                      selected: !_whatsApp && _pack == null,
+                      label: 'Favourites',
+                      onTap: () => pick(null),
+                      child: const VIconView(VIcon.star, size: 20),
+                    ),
+                    for (final p in packs)
+                      _PackTab(
+                        selected: !_whatsApp && _pack == p.id,
+                        label: 'Pack: ${p.name}',
+                        onTap: () => pick(p.id),
+                        child: p.stickers.isEmpty
+                            ? Text(
+                                p.name.isEmpty
+                                    ? '?'
+                                    : p.name.characters.first.toUpperCase(),
+                                style: VText.inter(15, weight: 600),
+                              )
+                            : StickerView(
+                                p.stickers.first,
+                                size: 26,
+                                border: 2,
+                                shadow: false,
+                              ),
+                      ),
+                    _PackTab(
+                      selected: false,
+                      label: 'Make a sticker',
+                      onTap: _make,
+                      child: const VIconView(VIcon.plus, size: 20),
+                    ),
+                  ],
                 ),
-              Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Semantics(
+              ),
+              // WhatsApp's own stickers, on the right, outside the scroll.
+              if (WhatsAppStickers.supported) ...[
+                const SizedBox(width: 6),
+                Semantics(
                   button: true,
-                  label: 'Make a sticker',
+                  selected: _whatsApp,
+                  label: 'Stickers from WhatsApp',
                   child: VTappable(
-                    onTap: _make,
-                    child: const SizedBox.square(
-                      dimension: 40,
-                      child: VOutlined(
-                        radius: 12,
-                        outline: VOutline.dashed,
-                        child: Center(child: VIconView(VIcon.plus, size: 20)),
+                    onTap: () => setState(() => _whatsApp = true),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      height: 40,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: _whatsApp ? ink : ink.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'WhatsApp',
+                        style: VText.inter(13, weight: 600).copyWith(
+                          color: _whatsApp ? VColors.onColor(ink) : ink,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
-        const SizedBox(height: 6),
-        const VDivider(),
-        const SizedBox(height: 12),
-        Text(label.toUpperCase(), style: VText.eyebrow),
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.only(left: 4),
+          child: Text(
+            label.toUpperCase(),
+            style: VText.eyebrow.copyWith(color: ink.withValues(alpha: 0.55)),
+          ),
+        ),
         const SizedBox(height: 10),
         Expanded(
-          child: shown.isEmpty
-              ? const Align(
+          child: _whatsApp
+              ? _WhatsApp(onSend: _send)
+              : shown.isEmpty
+              ? Align(
                   alignment: Alignment.topCenter,
                   child: EmptyCard(
-                    title: 'No stickers yet',
-                    body: 'Make one from a photo or a doodle with +.',
+                    quiet: true,
+                    title: empty.$1,
+                    body: empty.$2,
                   ),
                 )
               : GridView.count(
@@ -336,8 +442,7 @@ class _StickersState extends ConsumerState<_Stickers> {
                         child: GestureDetector(
                           onLongPress: () => _hold(s),
                           child: VTappable(
-                            onTap: () =>
-                                Navigator.of(context).pop(StickerBody(s)),
+                            onTap: () => _send(s),
                             child: Center(
                               child: StickerView(
                                 s,
@@ -355,14 +460,139 @@ class _StickersState extends ConsumerState<_Stickers> {
         Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.paddingOf(context).bottom + 8,
+            top: 4,
           ),
           child: Text(
-            'Long-press a sticker to favourite or remove it',
-            style: VText.secondary,
+            _whatsApp
+                ? 'Tap to send · long-press to keep it in your stickers'
+                : 'Long-press a sticker to favourite or remove it',
+            style: VText.secondary.copyWith(color: ink.withValues(alpha: 0.5)),
             textAlign: TextAlign.center,
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The WhatsApp tab: the stickers WhatsApp keeps on this phone, newest
+/// first, read live from its folder (picked once).
+class _WhatsApp extends ConsumerStatefulWidget {
+  const _WhatsApp({required this.onSend});
+
+  final void Function(Sticker s) onSend;
+
+  @override
+  ConsumerState<_WhatsApp> createState() => _WhatsAppState();
+}
+
+class _WhatsAppState extends ConsumerState<_WhatsApp> {
+  late Future<List<File>?> _load = _read();
+
+  /// null when the folder hasn't been picked yet.
+  Future<List<File>?> _read() async {
+    if (!await WhatsAppStickers.hasFolder()) return null;
+    return WhatsAppStickers.list();
+  }
+
+  Future<void> _pick() async {
+    if (await WhatsAppStickers.pickFolder()) {
+      setState(() {
+        _load = _read();
+      });
+    }
+  }
+
+  Future<void> _send(File f) async =>
+      widget.onSend(await WhatsAppStickers.sticker(f));
+
+  Future<void> _keep(File f) async {
+    unawaited(HapticFeedback.mediumImpact());
+    final s = await WhatsAppStickers.sticker(f);
+    final packs = ref.read(stickersProvider);
+    if (!mounted || packs.isEmpty) return;
+    if (packs.any((p) => p.stickers.any((x) => x.id == s.id))) {
+      showToast(context, 'Already in your stickers');
+      return;
+    }
+    // Into "Saved" (the Neon library has it), else the first pack.
+    final pack = packs.any((p) => p.id == 'saved') ? 'saved' : packs.first.id;
+    ref.read(stickersProvider.notifier).add(pack, s);
+    showToast(context, 'In your stickers');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _load,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Center(child: DotLoader());
+        }
+        if (snap.hasError) {
+          return Align(
+            alignment: Alignment.topCenter,
+            child: EmptyCard(
+              quiet: true,
+              title: "Couldn't read WhatsApp's stickers",
+              body: 'Pick its sticker folder again.',
+              action: 'Choose folder',
+              onAction: _pick,
+            ),
+          );
+        }
+        final files = snap.data;
+        if (files == null) {
+          return Align(
+            alignment: Alignment.topCenter,
+            child: EmptyCard(
+              quiet: true,
+              title: 'Your WhatsApp stickers',
+              body:
+                  'Android asks once which folder August may read. It opens '
+                  'at WhatsApp Stickers: tap “Use this folder”, then Allow.',
+              action: 'Choose folder',
+              onAction: _pick,
+            ),
+          );
+        }
+        if (files.isEmpty) {
+          return const Align(
+            alignment: Alignment.topCenter,
+            child: EmptyCard(
+              quiet: true,
+              title: 'No WhatsApp stickers yet',
+              body: 'Stickers you send or get on WhatsApp show up here.',
+            ),
+          );
+        }
+        return GridView.count(
+          crossAxisCount: 4,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          padding: const EdgeInsets.only(bottom: 30),
+          children: [
+            for (final f in files)
+              Semantics(
+                button: true,
+                label: 'WhatsApp sticker',
+                child: GestureDetector(
+                  onLongPress: () => _keep(f),
+                  child: VTappable(
+                    onTap: () => _send(f),
+                    child: Image.file(
+                      f,
+                      fit: BoxFit.contain,
+                      cacheWidth: 210,
+                      gaplessPlayback: true,
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -381,31 +611,31 @@ class _PackTab extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 6),
-    child: Semantics(
-      button: true,
-      selected: selected,
-      label: label,
-      child: VTappable(
-        onTap: onTap,
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: selected ? VInk.of(context) : null,
-            borderRadius: BorderRadius.circular(12),
+  Widget build(BuildContext context) {
+    final ink = VInk.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        child: VTappable(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: ink.withValues(alpha: selected ? 0.18 : 0.06),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            alignment: Alignment.center,
+            child: child,
           ),
-          alignment: Alignment.center,
-          // On the filled (selected) tab, icons take the paper colour so
-          // they show.
-          child: selected
-              ? VInkScope(ink: VInk.surfaceOf(context), child: child)
-              : child,
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// C26: GIFs and memes from KLIPY or Reddit, searchable.
@@ -448,38 +678,45 @@ class _MemesState extends ConsumerState<_Memes> {
             SearchPill(
               controller: _search,
               placeholder: 'Search memes',
+              quiet: true,
               onChanged: (q) => setState(() => _query = q),
             ),
-            const SizedBox(height: 10),
-            VSegmented<MemeSource>(
-              segments: const {
-                MemeSource.klipy: 'KLIPY',
-                MemeSource.reddit: 'Reddit',
-              },
-              value: _source,
-              onChanged: (s) => setState(() => _source = s),
-            ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
+            // What kind, then where from (compact, on the right).
             SizedBox(
-              height: 32,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
+              height: 34,
+              child: Row(
                 children: [
-                  for (final (k, label) in [
-                    (null, 'Trending'),
-                    (MemeKind.gif, 'GIFs'),
-                    (MemeKind.sticker, 'Stickers'),
-                    (MemeKind.meme, 'Memes'),
-                    (MemeKind.clip, 'Clips'),
-                  ])
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: VPill(
-                        label,
-                        fill: _kind == k ? VFill.filled : VFill.outline,
-                        onTap: () => setState(() => _kind = k),
-                      ),
+                  Expanded(
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        for (final (k, label) in [
+                          (null, 'Trending'),
+                          (MemeKind.gif, 'GIFs'),
+                          (MemeKind.sticker, 'Stickers'),
+                          (MemeKind.meme, 'Memes'),
+                          (MemeKind.clip, 'Clips'),
+                        ])
+                          _Chip(
+                            label,
+                            selected: _kind == k,
+                            onTap: () => setState(() => _kind = k),
+                          ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(width: 6),
+                  VSegmented<MemeSource>(
+                    quiet: true,
+                    compact: true,
+                    segments: const {
+                      MemeSource.klipy: 'KLIPY',
+                      MemeSource.reddit: 'Reddit',
+                    },
+                    value: _source,
+                    onChanged: (s) => setState(() => _source = s),
+                  ),
                 ],
               ),
             ),
@@ -503,6 +740,7 @@ class _MemesState extends ConsumerState<_Memes> {
                     ? Align(
                         alignment: Alignment.topCenter,
                         child: EmptyCard(
+                          quiet: true,
                           title: 'Nothing for "$_query"',
                           body: 'Check the spelling, or try fewer words.',
                         ),
@@ -684,7 +922,12 @@ class _ErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final name = source == MemeSource.klipy ? 'KLIPY' : 'Reddit';
     final other = source == MemeSource.klipy ? 'Reddit' : 'KLIPY';
-    return VCard(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: VInk.of(context).withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -700,6 +943,48 @@ class _ErrorCard extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A soft category chip: filled when chosen, a faint fill otherwise.
+class _Chip extends StatelessWidget {
+  const _Chip(this.label, {required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ink = VInk.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 6),
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        excludeSemantics: true,
+        child: VTappable(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? ink : ink.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              label,
+              style: VText.inter(
+                13,
+                weight: selected ? 600 : 500,
+              ).copyWith(color: selected ? VColors.onColor(ink) : ink),
+            ),
+          ),
+        ),
       ),
     );
   }

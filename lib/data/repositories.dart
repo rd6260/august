@@ -181,6 +181,11 @@ abstract interface class StickerRepository {
 
   /// The library changed; keep it on this phone.
   void save(List<StickerPack> packs);
+
+  /// Stickers sent lately, newest first (the tray's Recent).
+  List<Sticker> loadRecent();
+
+  void saveRecent(List<Sticker> recent);
 }
 
 abstract interface class MemeRepository {

@@ -28,6 +28,9 @@ class LocalStore {
   AppSettings settings = const AppSettings();
   List<Doodle> doodles = const [];
 
+  /// Stickers sent lately, newest first (the tray's Recent).
+  List<Sticker> recentStickers = const [];
+
   /// The doodle on the home screen widget (shared by both phones).
   String? widgetDoodle;
 
@@ -69,6 +72,13 @@ class LocalStore {
         _doodle((d as Map).cast<String, Object?>()),
     ];
     widgetDoodle = j['widgetDoodle'] as String?;
+    recentStickers = [
+      for (final raw in (j['recentStickers'] as List?) ?? const [])
+        if (Wire.toBody((raw as Map).cast<String, Object?>()) case StickerBody(
+          :final sticker,
+        ))
+          _owned(sticker, raw['from'] as String?, raw['fav'] as bool?),
+    ];
     final packs = j['stickers'] as List?;
     stickers = packs == null
         ? null
@@ -126,6 +136,14 @@ class LocalStore {
         },
     ],
     'widgetDoodle': ?widgetDoodle,
+    'recentStickers': [
+      for (final s in recentStickers)
+        {
+          'from': s.from,
+          'fav': s.favourite,
+          ...Wire.body(StickerBody(s), local: true),
+        },
+    ],
     'messages': [for (final m in messages) _stored(m)],
   };
 

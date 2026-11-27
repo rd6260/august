@@ -13,6 +13,13 @@ class MainActivity : FlutterActivity() {
         super.onCreate(savedInstanceState)
     }
 
+    @Deprecated("The folder picker still answers here")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        if (WhatsAppStickers.onResult(this, requestCode, resultCode, data)) return
+        @Suppress("DEPRECATION")
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         CrashFiles.register(this, flutterEngine.dartExecutor.binaryMessenger)
@@ -22,6 +29,8 @@ class MainActivity : FlutterActivity() {
         Updater.register(this, flutterEngine.dartExecutor.binaryMessenger)
         // The dev flavor's storage permission and profile restarts.
         DevStorage.register(this, flutterEngine.dartExecutor.binaryMessenger)
+        // The sticker tray's WhatsApp tab: WhatsApp's sticker folder.
+        WhatsAppStickers.register(this, flutterEngine.dartExecutor.binaryMessenger)
         // "Hide in recent apps" (C36): FLAG_SECURE blanks August in the
         // app switcher and blocks screenshots of it.
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "august/window")

@@ -239,6 +239,7 @@ class EmptyCard extends StatelessWidget {
     required this.body,
     this.action,
     this.onAction,
+    this.quiet = false,
   });
 
   final String title;
@@ -246,8 +247,47 @@ class EmptyCard extends StatelessWidget {
   final String? action;
   final VoidCallback? onAction;
 
+  /// The clean look (the sticker tray): a soft fill, no dashed outline.
+  final bool quiet;
+
   @override
   Widget build(BuildContext context) {
+    if (quiet) {
+      final ink = VInk.of(context);
+      // Full width, and only as tall as what it says.
+      return Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: ink.withValues(alpha: 0.07),
+          borderRadius: BorderRadius.circular(VRadius.card),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: VText.inter(16, weight: 600),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                body,
+                style: VText.secondary.copyWith(
+                  color: ink.withValues(alpha: 0.65),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (action != null) ...[
+                const SizedBox(height: 14),
+                VPill(action!, fill: VFill.filled, onTap: onAction),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
     final card = VCard(
       outline: VOutline.dashed,
       padding: const EdgeInsets.all(22),

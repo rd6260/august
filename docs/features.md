@@ -122,7 +122,8 @@ Code: `features/moments/` (`moment_burst.dart`, `moment_flight.dart`, `poke_pick
 
 <img src="renders/tray_night.webp" width="24%" alt="Sticker tray"> <img src="renders/photosticker_night.webp" width="24%" alt="Sticker from a photo"> <img src="renders/doodlesticker_night.webp" width="24%" alt="Sticker from a doodle"> <img src="renders/library_paper.webp" width="24%" alt="Sticker library">
 
-- **Tray:** a Stickers / GIFs / Memes switch, search, pack tabs (Recent, Favourites, each pack, + make) and a four-column grid. Long-press to favourite or remove.
+- **Tray:** a Stickers / GIFs / Memes switch, search, pack tabs (Recent, Favourites, each pack, + make) and a four-column grid. Long-press to favourite or remove. Soft filled controls, no outlines (like Settings); on GIFs and Memes, kind chips with a compact KLIPY / Reddit switch on their right.
+- **WhatsApp (Android):** a **WhatsApp** button on the right of the pack tabs shows the stickers WhatsApp keeps on the phone (`Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Stickers`), newest first, read live. Android only lets August read that folder after it's picked once in the folder picker (it opens there; the access is kept). Tap to send (it's copied into August as a cut-out, animated ones included); long-press to keep it in your stickers. Code: `platform/whatsapp_stickers.dart`, `WhatsAppStickers.kt`.
 - **From a photo:** ML Kit subject segmentation cuts the subject out automatically (`cutout.dart`; Android only). Then Erase, Restore, Text and Outline. Photo cut-outs get a thin white ring with nothing white under the subject.
 - **From a doodle:** draw it, or lasso part of a board and choose Sticker. Doodle stickers are kept as strokes and **drawn exactly as drawn**, with no white rim.
 - **Received stickers:** add to favourites, save one, or save the whole pack.

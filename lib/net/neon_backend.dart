@@ -290,6 +290,16 @@ class _StoredStickers implements StickerRepository {
       ..stickers = packs
       ..changed();
   }
+
+  @override
+  List<Sticker> loadRecent() => _store.recentStickers;
+
+  @override
+  void saveRecent(List<Sticker> recent) {
+    _store
+      ..recentStickers = recent
+      ..changed();
+  }
 }
 
 /// Local settings, kept with the conversation.

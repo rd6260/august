@@ -771,6 +771,35 @@ class WidgetDoodleNotifier extends Notifier<String?> {
 
 // Stickers.
 
+/// Stickers sent lately, newest first, from any tab of the tray (a pack,
+/// one just made, or WhatsApp's): the tray's Recent.
+final recentStickersProvider =
+    NotifierProvider<RecentStickersNotifier, List<Sticker>>(
+      RecentStickersNotifier.new,
+    );
+
+class RecentStickersNotifier extends Notifier<List<Sticker>> {
+  static const keep = 24;
+
+  @override
+  List<Sticker> build() {
+    final repo = ref.read(stickerRepositoryProvider);
+    listenSelf((_, next) => repo.saveRecent(next));
+    return repo.loadRecent();
+  }
+
+  /// [s] was just sent: first, once.
+  void used(Sticker s) => state = [
+    s,
+    ...state.where((x) => x.id != s.id),
+  ].take(keep).toList();
+
+  void forget(String id) => state = [
+    for (final s in state)
+      if (s.id != id) s,
+  ];
+}
+
 final stickersProvider = NotifierProvider<StickersNotifier, List<StickerPack>>(
   StickersNotifier.new,
 );

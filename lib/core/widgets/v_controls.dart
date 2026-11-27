@@ -74,12 +74,16 @@ class VSegmented<T> extends StatelessWidget {
     required this.value,
     this.onChanged,
     this.compact = false,
+    this.quiet = false,
   });
 
   final Map<T, String> segments;
   final T value;
   final ValueChanged<T>? onChanged;
   final bool compact;
+
+  /// The clean look (the sticker tray): a soft filled track, no outline.
+  final bool quiet;
 
   @override
   Widget build(BuildContext context) {
@@ -120,22 +124,27 @@ class VSegmented<T> extends StatelessWidget {
       );
     }
 
-    return VOutlined(
-      radius: VRadius.pill,
-      child: Padding(
-        padding: EdgeInsets.all(compact ? 2 : 3),
-        child: compact
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [for (final e in entries) segment(e)],
-              )
-            : Row(
-                children: [
-                  for (final e in entries) Expanded(child: segment(e)),
-                ],
-              ),
-      ),
+    final row = Padding(
+      padding: EdgeInsets.all(compact ? 2 : 3),
+      child: compact
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [for (final e in entries) segment(e)],
+            )
+          : Row(
+              children: [for (final e in entries) Expanded(child: segment(e))],
+            ),
     );
+    if (quiet) {
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: ink.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(VRadius.pill),
+        ),
+        child: row,
+      );
+    }
+    return VOutlined(radius: VRadius.pill, child: row);
   }
 }
 

@@ -193,6 +193,17 @@ class MockStickerRepository implements StickerRepository {
 
   @override
   void save(List<StickerPack> packs) {}
+
+  // The mock opens with a few of its stickers as if sent lately.
+  late List<Sticker> _recent = [
+    for (final p in MockData.stickerPacks()) ...p.stickers,
+  ].take(8).toList();
+
+  @override
+  List<Sticker> loadRecent() => _recent;
+
+  @override
+  void saveRecent(List<Sticker> recent) => _recent = recent;
 }
 
 class MockMemeRepository implements MemeRepository {

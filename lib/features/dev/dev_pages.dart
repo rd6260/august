@@ -144,7 +144,9 @@ class _ProfilesPageState extends State<ProfilesPage> {
         );
         if (sure != true) return;
         await Profiles.delete(p.id);
-        setState(() => _load = _read());
+        setState(() {
+          _load = _read();
+        });
     }
   }
 
