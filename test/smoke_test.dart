@@ -28,6 +28,7 @@ import 'package:august/features/onboarding/onboarding_pages.dart';
 import 'package:august/features/settings/settings_page.dart';
 import 'package:august/features/settings/settings_pages.dart';
 import 'package:august/features/stickers/sticker_maker.dart';
+import 'package:august/features/stickers/sticker_menu.dart';
 import 'package:august/features/stickers/tray.dart';
 import 'package:august/mock/mock_data.dart';
 
@@ -115,8 +116,12 @@ void main() {
     'New doodle': (c, r) async => showNewDoodle(c, partner: 'Aatika'),
     'Doodle sticker': (c, r) async =>
         showDoodleStickerSheet(c, r, MockData.sundayPlans()),
-    'Received sticker': (c, r) async =>
-        showReceivedSticker(c, r, MockData.stickerPacks()[2].stickers.first),
+    'Received sticker': (c, r) async => showStickerMenu(
+      c,
+      MockData.stickerPacks()[2].stickers.first,
+      from: 'From Aatika',
+      chat: true,
+    ),
     'Unpair': (c, r) async => showUnpair(c, r),
     'Voice call': (c, r) async => pushPage<void>(
       c,

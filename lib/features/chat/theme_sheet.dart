@@ -382,9 +382,7 @@ class _WallpaperCropState extends State<WallpaperCrop> {
     final png = (await framed.toByteData(format: ui.ImageByteFormat.png))!
         .buffer
         .asUint8List();
-    final dir = Directory(
-      '${(await DataHome.dir()).path}/media',
-    );
+    final dir = Directory('${(await DataHome.dir()).path}/media');
     await dir.create(recursive: true);
     final stamp = DateTime.now().microsecondsSinceEpoch;
     try {

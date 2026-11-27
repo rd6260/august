@@ -77,7 +77,7 @@ class VGlass extends StatelessWidget {
             ? (tint ?? VPalette.of(context).glassBar)
             : fill(context, tint),
         borderRadius: shape,
-        border: border
+        border: border && !VQuiet.of(context)
             ? Border.all(color: VInk.of(context), width: VSpace.hairline)
             : null,
       ),
@@ -550,35 +550,39 @@ class VSheet extends StatelessWidget {
             tint: VPalette.of(context).glassSheet,
             blur: 14,
             border: false,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: VInk.of(context))),
-              ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 36,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: VInk.of(context),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
+            // The clean look: no line along the top.
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 36,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: VInk.of(context).withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      const SizedBox(height: 14),
-                      Text(title.toUpperCase(), style: VText.eyebrow),
-                      const SizedBox(height: 14),
-                      // Long lists (apps, sounds) scroll inside the sheet.
-                      Flexible(child: SingleChildScrollView(child: child)),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 14),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Text(
+                        title.toUpperCase(),
+                        style: VText.eyebrow.copyWith(
+                          color: VInk.of(context).withValues(alpha: 0.55),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    // Long lists (apps, sounds) scroll inside the sheet.
+                    Flexible(child: SingleChildScrollView(child: child)),
+                  ],
                 ),
               ),
             ),

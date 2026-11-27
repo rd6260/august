@@ -82,16 +82,16 @@ class _AttachSheetState extends State<AttachSheet> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: VGlass(
-            radius: 28,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            tint: VPalette.of(context).glassSheet,
-            blur: 14,
-            border: false,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: VInk.of(context))),
+          // The clean look: soft tiles, no outlines, no line along the top.
+          child: VQuiet(
+            child: VGlass(
+              radius: 28,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(28),
               ),
+              tint: VPalette.of(context).glassSheet,
+              blur: 14,
+              border: false,
               child: SafeArea(
                 top: false,
                 child: Padding(
@@ -105,7 +105,7 @@ class _AttachSheetState extends State<AttachSheet> {
                           width: 36,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: VInk.of(context),
+                            color: VInk.of(context).withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -117,7 +117,12 @@ class _AttachSheetState extends State<AttachSheet> {
                         const SizedBox(height: 14),
                         Row(
                           children: [
-                            Text('RECENT', style: VText.eyebrow),
+                            Text(
+                              'RECENT',
+                              style: VText.eyebrow.copyWith(
+                                color: VInk.of(context).withValues(alpha: 0.55),
+                              ),
+                            ),
                             const Spacer(),
                             VTappable(
                               onTap: () => Navigator.of(context)
@@ -202,7 +207,11 @@ class _AttachSheetState extends State<AttachSheet> {
                                     const SizedBox(height: 8),
                                     Text(
                                       k.label,
-                                      style: VText.inter(12, weight: 500),
+                                      style: VText.inter(12, weight: 500)
+                                          .copyWith(
+                                            color: VInk.of(context)
+                                                .withValues(alpha: 0.8),
+                                          ),
                                     ),
                                   ],
                                 ),

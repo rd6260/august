@@ -8,6 +8,20 @@ import 'v_ink.dart';
 /// How a surface is outlined.
 enum VOutline { solid, dashed, none }
 
+/// The clean look, for a part of the app (the chat, the tab bar): under it,
+/// ink outlines ([VOutlined], and with it circle buttons and avatars) and
+/// glass borders ([VGlass]) become soft fills instead. Screens outside it
+/// keep their outlines.
+class VQuiet extends InheritedWidget {
+  const VQuiet({super.key, required super.child});
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<VQuiet>() != null;
+
+  @override
+  bool updateShouldNotify(VQuiet old) => false;
+}
+
 /// A card: 1 px outline on black, or a white inverted fill.
 ///
 /// Hierarchy comes only from [outline], [borderWidth] and [inverted], never
@@ -78,6 +92,7 @@ class VOutlined extends StatelessWidget {
     this.color,
     this.fill = VColors.transparent,
     this.dashPattern = const [4, 3],
+    this.quietable = true,
   });
 
   final Widget child;
@@ -88,15 +103,27 @@ class VOutlined extends StatelessWidget {
   final Color fill;
   final List<double> dashPattern;
 
+  /// Turns into a soft fill under [VQuiet] (when it's an ink outline). Off
+  /// where the outline itself says something (a message that failed).
+  final bool quietable;
+
   @override
   Widget build(BuildContext context) {
+    final ink = VInk.of(context);
+    // The clean look: an ink outline becomes a faint fill (a coloured one,
+    // like white on a photo, stays as it is).
+    final quiet =
+        quietable &&
+        color == null &&
+        outline != VOutline.none &&
+        VQuiet.of(context);
     return CustomPaint(
       painter: _OutlinePainter(
         radius: radius,
-        outline: outline,
+        outline: quiet ? VOutline.none : outline,
         width: width,
-        color: color ?? VInk.of(context),
-        fill: fill,
+        color: color ?? ink,
+        fill: quiet && fill.a == 0 ? ink.withValues(alpha: 0.09) : fill,
         dashPattern: dashPattern,
       ),
       child: child,

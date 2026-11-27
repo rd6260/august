@@ -134,9 +134,12 @@ class _Meta extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // The time in the dot-matrix face; "Not sent" stays in Inter.
         Text(
           failed ? 'Not sent' : hhmm(m.at),
-          style: VText.inter(11, weight: 300),
+          style: failed
+              ? VText.inter(11, weight: 300)
+              : VText.doto(12, weight: 700),
         ),
         if (m.fromMe && !failed) ...[
           const SizedBox(width: 4),
@@ -199,7 +202,13 @@ class _Bubble extends StatelessWidget {
     );
 
     if (failed) {
-      return VOutlined(radius: 20, outline: VOutline.dashed, child: body);
+      // Dashed even in the clean look: the dash is what says it failed.
+      return VOutlined(
+        radius: 20,
+        outline: VOutline.dashed,
+        quietable: false,
+        child: body,
+      );
     }
     return DecoratedBox(
       decoration: BoxDecoration(color: ink, borderRadius: radius),
@@ -955,15 +964,20 @@ class _Music extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Title and artist in the dot-matrix face.
                         VMarquee(
                           b.song.title,
-                          style: VText.inter(14, weight: 600),
+                          style: VText.doto(17, weight: 900, height: 1.15),
                           running: playing,
                         ),
-                        VMarquee(
-                          b.song.artist,
-                          style: VText.inter(12, weight: 300),
-                          running: playing,
+                        const SizedBox(height: 2),
+                        Opacity(
+                          opacity: 0.75,
+                          child: VMarquee(
+                            b.song.artist,
+                            style: VText.doto(13, weight: 700, height: 1.15),
+                            running: playing,
+                          ),
                         ),
                       ],
                     ),
@@ -1001,9 +1015,11 @@ class _Music extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
+                  // The clip's times in the dot-matrix face (words stay
+                  // in Inter).
                   Text(
                     '${mss(b.start)} – ${mss(b.end)}',
-                    style: VText.inter(11, weight: 300),
+                    style: VText.doto(12, weight: 700),
                   ),
                   const Spacer(),
                   Text(
@@ -1014,7 +1030,9 @@ class _Music extends StatelessWidget {
                         : p != null
                         ? 'Playing · ${mss(p.elapsed)}'
                         : '15 s',
-                    style: VText.inter(11, weight: 300),
+                    style: b.unavailable || loading
+                        ? VText.inter(11, weight: 300)
+                        : VText.doto(12, weight: 700),
                   ),
                 ],
               ),

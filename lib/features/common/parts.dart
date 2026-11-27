@@ -192,6 +192,29 @@ class RuleLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The clean look: a faint plain line and a muted label.
+    if (VQuiet.of(context)) {
+      final ink = VInk.of(context);
+      Widget line() => Expanded(
+        child: SizedBox(
+          height: 0.5,
+          child: ColoredBox(color: ink.withValues(alpha: 0.25)),
+        ),
+      );
+      return Row(
+        children: [
+          line(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+              text.toUpperCase(),
+              style: VText.eyebrow.copyWith(color: ink.withValues(alpha: 0.6)),
+            ),
+          ),
+          line(),
+        ],
+      );
+    }
     return Row(
       children: [
         const Expanded(child: _Dash()),

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/icons/v_icons.dart';
@@ -18,14 +17,13 @@ import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../../net/web_memes.dart';
 import '../common/art.dart';
-import '../common/choice_sheet.dart';
 import '../common/dot_loader.dart';
 import '../common/overlay.dart';
 import '../common/parts.dart';
 import '../../platform/whatsapp_stickers.dart';
 import '../common/sticker_view.dart';
-import '../common/toast.dart';
 import 'sticker_maker.dart';
+import 'sticker_menu.dart';
 
 enum TrayTab { stickers, gifs, memes }
 
@@ -238,47 +236,23 @@ class _StickersState extends ConsumerState<_Stickers> {
   }
 
   Future<void> _hold(Sticker s) async {
-    unawaited(HapticFeedback.mediumImpact());
-    final packs = ref.read(stickersProvider);
-    // The library's own copy (with its favourite), if it's in one.
-    final owned = [for (final p in packs) ...p.stickers]
-        .where((x) => x.id == s.id)
-        .firstOrNull;
     final recent = !_whatsApp && _pack == '';
-    final what = await showChoiceSheet<String>(
+    final pick = await showStickerMenu(
       context,
-      title: 'Sticker',
-      choices: [
-        if (owned != null) ...[
-          Choice(
-            'fav',
-            owned.favourite ? 'Remove from favourites' : 'Add to favourites',
-            icon: VIcon.star,
-          ),
-          const Choice('remove', 'Remove sticker', icon: VIcon.trash),
-        ] else
-          const Choice('keep', 'Keep in your stickers', icon: VIcon.star),
-        if (recent)
-          const Choice('forget', 'Remove from recent', icon: VIcon.close),
-      ],
+      s,
+      from: _fromLabel(s),
+      recent: recent,
     );
-    if (!mounted) return;
-    final n = ref.read(stickersProvider.notifier);
-    switch (what) {
-      case 'fav':
-        n.toggleFavourite(s.id);
-      case 'remove':
-        n.remove(s.id);
-      case 'keep' when packs.isNotEmpty:
-        // Into "Saved" (the Neon library has it), else the first pack.
-        final pack = packs.any((p) => p.id == 'saved')
-            ? 'saved'
-            : packs.first.id;
-        n.add(pack, s);
-        showToast(context, 'In your stickers');
-      case 'forget':
-        ref.read(recentStickersProvider.notifier).forget(s.id);
+    if (pick == StickerPick.forget) {
+      ref.read(recentStickersProvider.notifier).forget(s.id);
     }
+  }
+
+  /// Where [s] came from, for the menu's heading.
+  String _fromLabel(Sticker s) {
+    if (s.id.startsWith('cut-wa-')) return 'From WhatsApp';
+    if (s.from == 'me') return 'Yours';
+    return 'From ${ref.read(pairingProvider).partner.name}';
   }
 
   @override
@@ -298,7 +272,8 @@ class _StickersState extends ConsumerState<_Stickers> {
       label = 'Favourites';
       empty = (
         'No favourites yet',
-        'Long-press a sticker to make it a favourite.',
+        'Long-press any sticker, here, in Recent, WhatsApp or the chat, '
+            'and add it to favourites.',
       );
     } else if (_pack!.isEmpty) {
       shown = ref.watch(recentStickersProvider);
@@ -349,7 +324,9 @@ class _StickersState extends ConsumerState<_Stickers> {
                       onTap: () => pick(null),
                       child: const VIconView(VIcon.star, size: 20),
                     ),
-                    for (final p in packs)
+                    // "Saved" holds favourites from elsewhere: they show in
+                    // Favourites, not as a pack of their own.
+                    for (final p in packs.where((p) => p.id != 'saved'))
                       _PackTab(
                         selected: !_whatsApp && _pack == p.id,
                         label: 'Pack: ${p.name}',
@@ -464,8 +441,8 @@ class _StickersState extends ConsumerState<_Stickers> {
           ),
           child: Text(
             _whatsApp
-                ? 'Tap to send · long-press to keep it in your stickers'
-                : 'Long-press a sticker to favourite or remove it',
+                ? 'Tap to send · long-press to add it to favourites'
+                : 'Long-press a sticker for favourites',
             style: VText.secondary.copyWith(color: ink.withValues(alpha: 0.5)),
             textAlign: TextAlign.center,
           ),
@@ -506,19 +483,10 @@ class _WhatsAppState extends ConsumerState<_WhatsApp> {
   Future<void> _send(File f) async =>
       widget.onSend(await WhatsAppStickers.sticker(f));
 
-  Future<void> _keep(File f) async {
-    unawaited(HapticFeedback.mediumImpact());
+  Future<void> _hold(File f) async {
     final s = await WhatsAppStickers.sticker(f);
-    final packs = ref.read(stickersProvider);
-    if (!mounted || packs.isEmpty) return;
-    if (packs.any((p) => p.stickers.any((x) => x.id == s.id))) {
-      showToast(context, 'Already in your stickers');
-      return;
-    }
-    // Into "Saved" (the Neon library has it), else the first pack.
-    final pack = packs.any((p) => p.id == 'saved') ? 'saved' : packs.first.id;
-    ref.read(stickersProvider.notifier).add(pack, s);
-    showToast(context, 'In your stickers');
+    if (!mounted) return;
+    await showStickerMenu(context, s, from: 'From WhatsApp');
   }
 
   @override
@@ -577,7 +545,7 @@ class _WhatsAppState extends ConsumerState<_WhatsApp> {
                 button: true,
                 label: 'WhatsApp sticker',
                 child: GestureDetector(
-                  onLongPress: () => _keep(f),
+                  onLongPress: () => _hold(f),
                   child: VTappable(
                     onTap: () => _send(f),
                     child: Image.file(

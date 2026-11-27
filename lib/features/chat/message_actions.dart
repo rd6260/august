@@ -8,6 +8,7 @@ import '../../core/widgets/v_buttons.dart';
 import '../../core/widgets/v_glass.dart';
 import '../../core/widgets/v_ink.dart';
 import '../../data/models.dart';
+import '../common/action_group.dart';
 import '../common/overlay.dart';
 import '../common/parts.dart';
 import 'bubbles.dart';
@@ -188,26 +189,26 @@ class MessageActions extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _Group(
+                    ActionGroup(
                       rows: [
-                        _Row(
+                        ActionRow(
                           VIcon.reply,
                           'Reply',
                           () => pick(const ReplyAction()),
                         ),
                         if (m.body is TextBody)
-                          _Row(
+                          ActionRow(
                             VIcon.copy,
                             'Copy',
                             () => pick(const CopyAction()),
                           ),
                         if (_media)
-                          _Row(
+                          ActionRow(
                             VIcon.download,
                             'Save media',
                             () => pick(const SaveAction()),
                           ),
-                        _Row(
+                        ActionRow(
                           VIcon.trash,
                           'Delete for me',
                           () => pick(const DeleteAction()),
@@ -237,70 +238,4 @@ class _Handle extends StatelessWidget {
       borderRadius: BorderRadius.circular(2),
     ),
   );
-}
-
-/// The actions in one soft card, with faint dividers from the text on.
-class _Group extends StatelessWidget {
-  const _Group({required this.rows});
-
-  final List<_Row> rows;
-
-  @override
-  Widget build(BuildContext context) {
-    final ink = VInk.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: ink.withValues(alpha: 0.07),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          for (final (i, r) in rows.indexed) ...[
-            if (i > 0)
-              Padding(
-                padding: const EdgeInsets.only(left: 52),
-                child: SizedBox(
-                  height: 0.5,
-                  width: double.infinity,
-                  child: ColoredBox(color: ink.withValues(alpha: 0.14)),
-                ),
-              ),
-            r,
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  const _Row(this.icon, this.label, this.onTap);
-
-  final VIcon icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final ink = VInk.of(context);
-    return Semantics(
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      child: VTappable(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
-          child: Row(
-            children: [
-              VIconView(icon, size: 20, color: ink.withValues(alpha: 0.75)),
-              const SizedBox(width: 16),
-              Expanded(child: Text(label, style: VText.rowTitle)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

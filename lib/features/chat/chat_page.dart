@@ -21,7 +21,7 @@ import '../common/avatar.dart';
 import '../common/parts.dart';
 import '../common/toast.dart';
 import '../moments/poke_picker.dart';
-import '../stickers/sticker_maker.dart';
+import '../stickers/sticker_menu.dart';
 import 'bubbles.dart';
 import 'chat_hooks.dart';
 import 'composer.dart';
@@ -108,11 +108,27 @@ class ChatPageState extends ConsumerState<ChatPage> {
 
   Future<void> _onLongPress(Message m) async {
     final body = m.body;
-    if (body is StickerBody && !m.fromMe) {
-      await showReceivedSticker(context, ref, body.sticker);
+    final partner = ref.read(pairingProvider).partner.name;
+    // A sticker: the sticker menu (keep it, favourite it), with Reply and
+    // Delete for the message.
+    if (body is StickerBody) {
+      final pick = await showStickerMenu(
+        context,
+        body.sticker,
+        from: m.fromMe ? 'You sent this' : 'From $partner',
+        chat: true,
+      );
+      if (!mounted) return;
+      switch (pick) {
+        case StickerPick.reply:
+          setState(() => _replyTo = m);
+        case StickerPick.delete:
+          _messages.delete(m.id);
+        case StickerPick.forget || null:
+          break;
+      }
       return;
     }
-    final partner = ref.read(pairingProvider).partner.name;
     final action = await showMessageActions(context, m: m, partner: partner);
     if (!mounted || action == null) return;
     switch (action) {
@@ -206,7 +222,10 @@ class ChatPageState extends ConsumerState<ChatPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  // The clean look (soft fills, no outlines) over the whole chat.
+  Widget build(BuildContext context) => VQuiet(child: _build(context));
+
+  Widget _build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final pairing = ref.watch(pairingProvider);
     final messages = session.decoy

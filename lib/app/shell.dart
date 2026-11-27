@@ -10,6 +10,7 @@ import '../core/icons/v_icons.dart';
 import '../core/theme/v_text.dart';
 import '../core/theme/v_tokens.dart';
 import '../core/widgets/v_glass.dart';
+import '../core/widgets/v_surface.dart';
 import '../core/widgets/v_ink.dart';
 import '../data/providers.dart';
 import '../data/models.dart';
@@ -145,14 +146,16 @@ class _AppShellState extends State<AppShell> {
             left: 0,
             right: 0,
             bottom: bottom + AppShell.pillBottom,
-            child: VTabBar(
-              items: AppShell.tabs,
-              index: shell.currentIndex,
-              onTap: (i) {
-                // A field on the tab being left keeps no keyboard.
-                FocusManager.instance.primaryFocus?.unfocus();
-                shell.goBranch(i, initialLocation: i == shell.currentIndex);
-              },
+            child: VQuiet(
+              child: VTabBar(
+                items: AppShell.tabs,
+                index: shell.currentIndex,
+                onTap: (i) {
+                  // A field on the tab being left keeps no keyboard.
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  shell.goBranch(i, initialLocation: i == shell.currentIndex);
+                },
+              ),
             ),
           ),
           // A call ringing opens the incoming call screen (K2).
@@ -178,7 +181,9 @@ class _AppShellState extends State<AppShell> {
                   onClose: close,
                   onBack: () {
                     close();
-                    ref.read(momentCooldownProvider.notifier).send(moment.reply);
+                    ref
+                        .read(momentCooldownProvider.notifier)
+                        .send(moment.reply);
                   },
                 ),
               );

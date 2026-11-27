@@ -180,7 +180,8 @@ class _DoodleStickerSheetState extends ConsumerState<_DoodleStickerSheet> {
                           context,
                           title: 'Add to pack',
                           choices: [
-                            for (final p in packs) Choice(p.id, p.name),
+                            for (final p in packs.where((p) => p.id != 'saved'))
+                              Choice(p.id, p.name),
                           ],
                         );
                         if (p != null) setState(() => _pack = p);
@@ -317,9 +318,7 @@ class _PhotoStickerPageState extends ConsumerState<PhotoStickerPage> {
     final Sticker s;
     if (cut != null) {
       setState(() => _saving = true);
-      final dir = Directory(
-        '${(await DataHome.dir()).path}/stickers',
-      );
+      final dir = Directory('${(await DataHome.dir()).path}/stickers');
       final png = await cut.export(dir);
       // "cut-": drawn as its shape, not a rounded photo (StickerView).
       s = Sticker.photo(
@@ -655,99 +654,6 @@ class _SheetFrame extends StatelessWidget {
   );
 }
 
-/// S4: a sticker Aatika sent: favourite it, save it, or save her pack.
-Future<void> showReceivedSticker(
-  BuildContext context,
-  WidgetRef ref,
-  Sticker sticker,
-) => showOverlayPage<void>(context, (_) => _ReceivedSticker(sticker: sticker));
-
-class _ReceivedSticker extends ConsumerWidget {
-  const _ReceivedSticker({required this.sticker});
-
-  final Sticker sticker;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final partner = ref.watch(pairingProvider).partner.name;
-    final packs = ref.watch(stickersProvider);
-    final pack = packs
-        .where((p) => p.stickers.any((s) => s.id == sticker.id))
-        .firstOrNull;
-    final n = ref.read(stickersProvider.notifier);
-    // Theirs go in "Saved" when there is one (Neon), else "Ours".
-    final into = ref.read(stickersProvider).any((p) => p.id == 'saved')
-        ? 'saved'
-        : 'ours';
-    void done(String text) {
-      HapticFeedback.selectionClick();
-      Navigator.of(context).pop();
-    }
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: ColoredBox(color: VPalette.of(context).popupScrim),
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: _SheetFrame(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(child: StickerView(sticker, size: 170, tilt: -4)),
-                const SizedBox(height: 16),
-                Text(
-                  'From $partner',
-                  textAlign: TextAlign.center,
-                  style: VText.inter(15, weight: 600),
-                ),
-                Text(
-                  pack == null
-                      ? 'Not in your stickers yet'
-                      : 'In her pack "${pack.name}" · ${pack.stickers.length} stickers',
-                  textAlign: TextAlign.center,
-                  style: VText.secondary,
-                ),
-                const SizedBox(height: 14),
-                VButton.secondary(
-                  sticker.favourite
-                      ? 'Remove from favourites'
-                      : 'Add to favourites',
-                  onPressed: () {
-                    if (pack == null) n.add(into, sticker);
-                    n.toggleFavourite(sticker.id);
-                    done('Favourite');
-                  },
-                ),
-                const SizedBox(height: 10),
-                VButton.secondary(
-                  'Save to my stickers',
-                  onPressed: () {
-                    if (pack == null) n.add(into, sticker);
-                    done('Saved');
-                  },
-                ),
-                const SizedBox(height: 10),
-                VButton.primary(
-                  'Save the whole pack',
-                  onPressed: () => done('Saved the pack'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 /// S5: every sticker you keep, by pack (Settings › Stickers).
 class StickerLibraryPage extends ConsumerWidget {
   const StickerLibraryPage({super.key});
@@ -787,14 +693,26 @@ class StickerLibraryPage extends ConsumerWidget {
         ),
         VListSection(
           children: [
-            for (final p in packs)
+            // Favourites first (from every pack, and the hidden "Saved"),
+            // then the packs you make into.
+            for (final (title, note, stickers) in [
+              (
+                'Favourites',
+                'Long-press any sticker to add it',
+                [for (final p in packs) ...p.stickers]
+                    .where((s) => s.favourite)
+                    .toList(),
+              ),
+              for (final p in packs.where((p) => p.id != 'saved'))
+                (p.name, p.note, p.stickers),
+            ])
               VListRow(
-                title: p.name,
-                subtitle: p.note,
+                title: title,
+                subtitle: note,
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (final s in p.stickers.take(3))
+                    for (final s in stickers.take(3))
                       Padding(
                         padding: const EdgeInsets.only(left: 6),
                         child: StickerView(
