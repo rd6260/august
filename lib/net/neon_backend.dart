@@ -444,8 +444,12 @@ class NeonPairRepository implements PairRepository {
 class NeonChatRepository implements ChatRepository {
   NeonChatRepository(this.b) {
     b.wake = () => unawaited(_catchUp());
+    // Back on screen: what came in meanwhile has been seen now.
+    _life = AppLifecycleListener(onResume: () => unawaited(_markSeen()));
     unawaited(_run());
   }
+
+  late final AppLifecycleListener _life;
 
   final NeonBackend b;
   final _events = StreamController<ChatEvent>.broadcast();
@@ -540,6 +544,9 @@ class NeonChatRepository implements ChatRepository {
     try {
       await _handle(await b.api.inbox());
       _setOnline(true);
+      // On screen: what came in while away is seen now (even with no new
+      // mail to handle).
+      if (b.isOpen()) unawaited(_markSeen());
     } on NetError catch (e) {
       if (e.offline) _setOnline(false);
     }
@@ -634,7 +641,16 @@ class NeonChatRepository implements ChatRepository {
           ReceiptEnvelope(delivered, open ? Delivery.seen : Delivery.delivered),
         ),
       );
+      // Not on screen: they're seen when August next is (below).
+      if (!open) {
+        b.store
+          ..unseen = {...b.store.unseen, ...delivered}.toList()
+          ..changed();
+      }
     }
+    // On screen with some still waiting (taken while away, or before this
+    // run): seen now.
+    if (b.isOpen()) unawaited(_markSeen());
     try {
       await b.api.ack(ack);
     } on NetError {
@@ -643,6 +659,21 @@ class NeonChatRepository implements ChatRepository {
   }
 
   Future<bool> _post(MailKind kind, Envelope env) => b.post(kind, env);
+
+  /// Tells the partner their messages that were only "delivered" have been
+  /// seen: August is on screen now. Kept for next time if it can't send.
+  Future<void> _markSeen() async {
+    final ids = b.store.unseen;
+    if (_closed || ids.isEmpty || !b.isOpen()) return;
+    b.store
+      ..unseen = const []
+      ..changed();
+    if (!await _post(MailKind.receipt, ReceiptEnvelope(ids, Delivery.seen))) {
+      b.store
+        ..unseen = {...ids, ...b.store.unseen}.toList()
+        ..changed();
+    }
+  }
 
   Member? _renamed(String name) {
     final p = b.store.partner;
@@ -895,6 +926,7 @@ class NeonChatRepository implements ChatRepository {
   @override
   void dispose() {
     _closed = true;
+    _life.dispose();
     b.wake = null;
     _poll?.cancel();
     unawaited(_live?.cancel());

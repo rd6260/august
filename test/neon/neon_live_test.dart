@@ -102,6 +102,33 @@ void main() {
     expect((await sent).id, 'out-1');
     expect((await seen).id, 'out-1');
 
+    // Aatika away: delivered, not seen; seen once she's back on screen.
+    var aatikaOpen = false;
+    aatika.isOpen = () => aatikaOpen;
+    final delivered = next<DeliveryUpdate>(
+      eventsS,
+      where: (e) => e.id == 'out-away' && e.delivery == Delivery.delivered,
+    );
+    final seenLater = next<DeliveryUpdate>(
+      eventsS,
+      where: (e) => e.id == 'out-away' && e.delivery == Delivery.seen,
+    );
+    chatS.send(
+      Message(
+        id: 'out-away',
+        fromMe: true,
+        at: DateTime.now(),
+        body: const TextBody('are you up?'),
+        delivery: Delivery.pending,
+      ),
+    );
+    expect((await delivered).id, 'out-away');
+    expect(aatika.store.unseen, isNotEmpty);
+    aatikaOpen = true;
+    aatika.wake?.call(); // what coming back on screen does
+    expect((await seenLater).id, 'out-away');
+    expect(aatika.store.unseen, isEmpty);
+
     // A reply with a quote, a reaction, typing and a hug.
     final typing = next<TypingChanged>(eventsS);
     chatA.typing(true);

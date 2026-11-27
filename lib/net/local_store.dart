@@ -28,6 +28,10 @@ class LocalStore {
   AppSettings settings = const AppSettings();
   List<Doodle> doodles = const [];
 
+  /// Their messages this phone said were delivered while August wasn't on
+  /// screen: they're marked seen when it next is.
+  List<String> unseen = const [];
+
   /// Stickers sent lately, newest first (the tray's Recent).
   List<Sticker> recentStickers = const [];
 
@@ -72,6 +76,7 @@ class LocalStore {
         _doodle((d as Map).cast<String, Object?>()),
     ];
     widgetDoodle = j['widgetDoodle'] as String?;
+    unseen = [for (final id in (j['unseen'] as List?) ?? const []) '$id'];
     recentStickers = [
       for (final raw in (j['recentStickers'] as List?) ?? const [])
         if (Wire.toBody((raw as Map).cast<String, Object?>()) case StickerBody(
@@ -141,6 +146,7 @@ class LocalStore {
         },
     ],
     'widgetDoodle': ?widgetDoodle,
+    'unseen': unseen,
     'recentStickers': [
       for (final s in recentStickers)
         {
