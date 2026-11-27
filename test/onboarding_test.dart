@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:august/core/widgets/v_page.dart';
 import 'package:august/app/app.dart';
 import 'package:august/data/providers.dart';
 import 'package:august/features/chat/chat_page.dart';
@@ -96,9 +99,7 @@ void main() {
     await close(t);
   });
 
-  testWidgets('Join rides above the keyboard while typing the code', (
-    t,
-  ) async {
+  testWidgets('Join rides above the keyboard while typing the code', (t) async {
     await open(t);
     await t.tap(find.text('I have a code'));
     await frames(t);
@@ -119,6 +120,28 @@ void main() {
     t.view.resetViewInsets();
     await frames(t, 100);
     expect(t.getRect(find.text('Join')).bottom, greaterThan(screen - keyboard));
+    expect(t.takeException(), isNull);
+    await close(t);
+  });
+
+  testWidgets('re-pair from Settings covers what opened it', (t) async {
+    await open(t, paired: true);
+    final context = t.element(find.byType(Navigator).last);
+    unawaited(
+      Navigator.of(context).push(
+        PageRouteBuilder<void>(
+          opaque: false,
+          pageBuilder: (_, _, _) => const JoinPage(repair: true),
+        ),
+      ),
+    );
+    await frames(t);
+    expect(
+      find.descendant(of: find.byType(JoinPage), matching: find.byType(VVeil)),
+      findsOneWidget,
+    );
+    expect(find.text('THEIR NEW PHONE'), findsOneWidget);
+    expect(find.text('STEP 3 OF 3'), findsNothing);
     expect(t.takeException(), isNull);
     await close(t);
   });

@@ -763,11 +763,13 @@ class _JoinPageState extends ConsumerState<JoinPage> {
   @override
   Widget build(BuildContext context) {
     final code = _code.text.toUpperCase();
-    return StepPage(
+    final page = StepPage(
       back: 'Back',
-      eyebrow: 'Step 3 of 3',
+      eyebrow: widget.repair ? 'Their new phone' : 'Step 3 of 3',
       title: 'Enter their code',
-      body: 'Six letters and numbers, from their August.',
+      body: widget.repair
+          ? 'The six letters and numbers their new August shows.'
+          : 'Six letters and numbers, from their August.',
       content: [
         const SizedBox(height: 24),
         GestureDetector(
@@ -816,6 +818,10 @@ class _JoinPageState extends ConsumerState<JoinPage> {
         ),
       ],
     );
+    // From Settings (re-pair), over the app rather than the onboarding
+    // wallpaper: its own backdrop, like the page that follows it.
+    if (!widget.repair) return page;
+    return Stack(fit: StackFit.expand, children: [const VVeil(), page]);
   }
 }
 

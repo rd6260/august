@@ -68,11 +68,11 @@ void main() {
 
     // About: Idris's layout, with the developer.
     await t.scrollUntilVisible(
-      find.text('Version 0.34.0 · licences, developer'),
+      find.text('Version 0.34.1 · licences, developer'),
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    await t.tap(find.text('Version 0.34.0 · licences, developer'));
+    await t.tap(find.text('Version 0.34.1 · licences, developer'));
     await frames(t);
     expect(find.text('August'), findsWidgets);
     await t.scrollUntilVisible(
