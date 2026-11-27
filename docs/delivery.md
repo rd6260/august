@@ -81,7 +81,7 @@ flowchart LR
   W --> O[August opens later:<br/>takes and acks the mail]
 ```
 
-- **Push** (`lib/net/push.dart`): a background handler opens the sealed body with the vault's key, and shows "New message" (previews are off by default) or the moment on its own channel. It never acks.
+- **Push** (`lib/net/push.dart`): a background handler opens the sealed body with the vault's key, and shows the message text (or just "New message" with Settings › Notifications › Show message text off) or the moment on its own channel. It never acks.
 - **The background check** (`lib/net/background_check.dart`): a quiet `flutter_foreground_task` service looks for mail **every 8 minutes**, chosen to keep Neon's compute within the free plan. It notifies about new mail but never takes it. August asks to skip battery optimisation so the check runs on time. Settings › Notifications shows when it last ran.
   - `--dart-define=AUGUST_CHECK_EVERY=<seconds>` shortens the interval for tests.
 - **Taking the mail:** only the open app applies and acks, so nothing is lost if a notification is swiped away.

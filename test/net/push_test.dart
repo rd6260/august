@@ -32,7 +32,18 @@ void main() {
     ).toJson(),
   );
 
-  test('a message says only that something came', () async {
+  test('a message shows its text by default', () async {
+    final n = await Push.describe(
+      {'kind': 'msg', 'body': await seal(const TextBody('see you at 8'))},
+      vault: mine,
+      store: store,
+    );
+    expect(n!.title, 'Aatika');
+    expect(n.body, 'see you at 8');
+  });
+
+  test('with message text off, it says only that something came', () async {
+    store.settings = store.settings.copyWith(showPreview: false);
     final n = await Push.describe(
       {'kind': 'msg', 'body': await seal(const TextBody('the secret'))},
       vault: mine,

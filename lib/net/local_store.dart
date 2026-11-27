@@ -87,6 +87,11 @@ class LocalStore {
     if (st != null) settings = AppSettings.fromJson(st);
     // Before v2, hiding in recents (which blocks screenshots) was on by
     // default; it's off unless chosen now.
+    // Before v3, message text was hidden in notifications by default; it
+    // shows by default now (Settings › Notifications turns it off).
+    if (((j['v'] as num?) ?? 1) < 3) {
+      settings = settings.copyWith(showPreview: true);
+    }
     if (((j['v'] as num?) ?? 1) < 2) {
       settings = settings.copyWith(hideInRecents: false);
     }
@@ -97,7 +102,7 @@ class LocalStore {
   }
 
   Map<String, Object?> _json() => {
-    'v': 2,
+    'v': 3,
     'me': myName,
     'myPhoto': myPhoto,
     'partnerPhoto': partnerPhoto,

@@ -187,8 +187,10 @@ class SettingsPage extends ConsumerWidget {
                 final v = await showChoiceSheet<AutoDownload>(
                   context,
                   title: 'Download media',
+                  selected: settings.autoDownload,
                   choices: [
-                    for (final a in AutoDownload.values) Choice(a, a.label),
+                    for (final a in AutoDownload.values)
+                      Choice(a, a.label, sub: a.note),
                   ],
                 );
                 if (v != null) s.update((x) => x.copyWith(autoDownload: v));
@@ -255,8 +257,9 @@ class SettingsPage extends ConsumerWidget {
                   final v = await showChoiceSheet<LockAfter>(
                     context,
                     title: 'Lock after',
+                    selected: settings.lockAfter,
                     choices: [
-                      for (final l in LockAfter.values) Choice(l, l.label),
+                      for (final l in LockAfter.values) Choice(l, l.long),
                     ],
                   );
                   if (v != null) s.update((x) => x.copyWith(lockAfter: v));

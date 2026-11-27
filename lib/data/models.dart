@@ -713,8 +713,18 @@ enum LockAfter {
   m5('5 min', Duration(minutes: 5));
 
   const LockAfter(this.label, this.duration);
+
+  /// Short, for the Settings row ("30s").
   final String label;
   final Duration duration;
+
+  /// In full, for the menu that picks it.
+  String get long => switch (this) {
+    LockAfter.now => 'Right away',
+    LockAfter.s30 => 'After 30 seconds',
+    LockAfter.m1 => 'After 1 minute',
+    LockAfter.m5 => 'After 5 minutes',
+  };
 }
 
 /// When media download by themselves (C36).
@@ -725,6 +735,13 @@ enum AutoDownload {
 
   const AutoDownload(this.label);
   final String label;
+
+  /// What it means, under it in the menu.
+  String get note => switch (this) {
+    AutoDownload.always => 'Photos and videos come in by themselves',
+    AutoDownload.wifi => 'By themselves on Wi-Fi; tap to get them otherwise',
+    AutoDownload.never => 'Only when you tap them',
+  };
 }
 
 /// Local, per-phone settings (C36, C39).
@@ -733,7 +750,7 @@ class AppSettings {
     this.enterSends = false,
     this.autoplayGifs = true,
     this.autoDownload = AutoDownload.wifi,
-    this.showPreview = false,
+    this.showPreview = true,
     this.appLock = true,
     this.lockAfter = LockAfter.s30,
     this.hideInRecents = false,

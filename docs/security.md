@@ -67,7 +67,7 @@ If the server swapped in its own key, the two phones would show different codes.
 | **App lock** | A 4–6 digit PIN, kept in the vault. With a PIN set, August opens locked and locks again after the chosen time in the background. Five wrong tries mean a 30-second wait |
 | **Decoy PIN** | A second PIN that opens an empty chat with a made-up name (default "Neha"). Every action there is inert, and it must differ from the real PIN |
 | **Hide in recent apps** | Sets `FLAG_SECURE`: no thumbnail in Recents, and screenshots and screen recording are blocked |
-| **Notification previews** | Off by default: a message notification just says "New message" |
+| **Notification previews** | On by default: a message notification shows its text, as the push carries it sealed and the phone opens it. Settings › Notifications › Show message text off makes it just "New message" |
 | **Unpair** | A type-to-confirm sheet. It tells the server, then wipes the partner, the conversation and the account on this phone |
 
 ## Push and the background check

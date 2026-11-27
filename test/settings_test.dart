@@ -62,9 +62,16 @@ void main() {
     );
     await t.tap(find.text('Lock after'));
     await frames(t);
-    await t.tap(find.text('1 min'));
+    // The menu says it in full, and ticks the current one.
+    expect(
+      find.bySemanticsLabel(c.read(settingsProvider).lockAfter.long),
+      findsOneWidget,
+    );
+    await t.tap(find.text('After 1 minute'));
     await frames(t);
     expect(c.read(settingsProvider).lockAfter, LockAfter.m1);
+    // Settings shows it short.
+    expect(find.text('1 min'), findsOneWidget);
 
     // About: Idris's layout, with the developer.
     await t.scrollUntilVisible(
