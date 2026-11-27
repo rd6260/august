@@ -178,7 +178,7 @@ class _AppShellState extends State<AppShell> {
                   onClose: close,
                   onBack: () {
                     close();
-                    ref.read(momentCooldownProvider.notifier).send(moment);
+                    ref.read(momentCooldownProvider.notifier).send(moment.reply);
                   },
                 ),
               );

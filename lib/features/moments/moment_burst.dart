@@ -16,6 +16,7 @@ extension MomentCopy on VMoment {
   String get word => switch (this) {
     VMoment.missYou => 'MISS YOU',
     VMoment.angryPoke => 'ANGRY',
+    VMoment.brokenHeart => 'HEARTBROKEN',
     _ => label.toUpperCase(),
   };
 
@@ -25,6 +26,14 @@ extension MomentCopy on VMoment {
     VMoment.kiss => 'Kiss back',
     VMoment.missYou => 'Miss you too',
     VMoment.angryPoke => 'Poke back',
+    VMoment.brokenHeart => 'Send a hug',
+  };
+
+  /// What the reply button sends: the same moment, except a broken heart
+  /// gets a hug.
+  VMoment get reply => switch (this) {
+    VMoment.brokenHeart => VMoment.hug,
+    _ => this,
   };
 
   String get haptic => switch (this) {
@@ -33,6 +42,7 @@ extension MomentCopy on VMoment {
     VMoment.kiss => 'Short, short, then a little flutter',
     VMoment.missYou => 'A slow heartbeat: lub-dub, lub-dub',
     VMoment.angryPoke => 'Three hard jabs, one after another',
+    VMoment.brokenHeart => 'One strong beat, then it falls apart',
   };
 
   /// The hearts that drift across the screen with it.
@@ -42,6 +52,7 @@ extension MomentCopy on VMoment {
     VMoment.kiss => const ['❤️', '💋', '💞', '💗'],
     VMoment.missYou => const ['💙', '🤍', '💜', '❤️'],
     VMoment.angryPoke => const ['💢', '😤', '🔥', '💥'],
+    VMoment.brokenHeart => const ['💔', '🥀', '😢', '🥺'],
   };
 
   /// "Aatika poked you", "You sent a hug" (B10).
@@ -53,6 +64,7 @@ extension MomentCopy on VMoment {
         VMoment.kiss => 'You sent a kiss',
         VMoment.missYou => 'You miss $partner',
         VMoment.angryPoke => 'You angrily poked $partner',
+        VMoment.brokenHeart => 'You sent a broken heart',
       };
     }
     return switch (this) {
@@ -61,6 +73,7 @@ extension MomentCopy on VMoment {
       VMoment.kiss => '$partner sent a kiss',
       VMoment.missYou => '$partner misses you',
       VMoment.angryPoke => '$partner angrily poked you',
+      VMoment.brokenHeart => '$partner sent a broken heart',
     };
   }
 
@@ -96,6 +109,13 @@ extension MomentCopy on VMoment {
           await wait(90);
         }
         await HapticFeedback.vibrate();
+      case VMoment.brokenHeart:
+        await HapticFeedback.heavyImpact();
+        await wait(380);
+        for (final gap in [140, 220, 320]) {
+          await HapticFeedback.lightImpact();
+          await wait(gap);
+        }
       case VMoment.missYou:
         for (var i = 0; i < 2; i++) {
           await HapticFeedback.heavyImpact();
@@ -251,10 +271,18 @@ class _MomentBurstState extends State<MomentBurst>
                 const Spacer(),
                 _rings(m),
                 const SizedBox(height: 16),
-                Text(
-                  m.word,
-                  textAlign: TextAlign.center,
-                  style: VText.doto(58, weight: 900, height: 0.92),
+                // A long word (HEARTBROKEN) shrinks to fit; short ones
+                // keep their size.
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      m.word,
+                      textAlign: TextAlign.center,
+                      style: VText.doto(58, weight: 900, height: 0.92),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text('from ${widget.from} · just now', style: VText.inter(15)),

@@ -134,7 +134,8 @@ enum VMoment {
   hug('Hug', '🫂', Color(0xFFFF8FA3), 0.55),
   kiss('Kiss', '💋', Color(0xFFFF5C7A), 0.55),
   missYou('Miss you', '🥺', Color(0xFF9DB2FF), 0.50),
-  angryPoke('Angry poke', '😤', Color(0xFFFF6B3D), 0.60);
+  angryPoke('Angry poke', '😤', Color(0xFFFF6B3D), 0.60),
+  brokenHeart('Broken heart', '💔', Color(0xFFB57EDC), 0.55);
 
   const VMoment(this.label, this.emoji, this.color, this.washAlpha);
 
