@@ -428,22 +428,56 @@ class _WithReactions extends StatelessWidget {
               spacing: 4,
               children: [
                 for (final r in rs)
-                  VPill(
-                    r.count > 1 ? '${r.emoji} ${r.count}' : r.emoji,
-                    fill: r.mine ? VFill.filled : VFill.outline,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    onTap: onReact == null
-                        ? null
-                        : () => onReact!(message, r.emoji),
-                  ),
+                  r.mine
+                      ? VPill(
+                          r.count > 1 ? '${r.emoji} ${r.count}' : r.emoji,
+                          fill: VFill.filled,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          onTap: onReact == null
+                              ? null
+                              : () => onReact!(message, r.emoji),
+                        )
+                      : _TheirReaction(
+                          r.count > 1 ? '${r.emoji} ${r.count}' : r.emoji,
+                          onTap: onReact == null
+                              ? null
+                              : () => onReact!(message, r.emoji),
+                        ),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The partner's reaction: a solid chip in the panel colour with a faint
+/// edge, so it shows on any wallpaper and against either bubble (an
+/// outline alone vanished once the chat went soft).
+class _TheirReaction extends StatelessWidget {
+  const _TheirReaction(this.label, {this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ink = VInk.of(context);
+    return VTappable(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: VGlass.fill(context, VPalette.of(context).glassSheet),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: ink.withValues(alpha: 0.55)),
+        ),
+        child: Text(label, style: VText.inter(12, weight: 500)),
+      ),
     );
   }
 }
