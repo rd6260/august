@@ -75,17 +75,27 @@ class DoodlesPage extends ConsumerWidget {
   Future<void> _hold(BuildContext context, WidgetRef ref, Doodle d) async {
     unawaited(HapticFeedback.mediumImpact());
     final pinned = ref.read(widgetDoodleProvider) == d.id;
+    // "Add widget" only until there's one on this home screen (Android).
+    final canAdd = doodleWidgetSync != null && !await DoodleWidget.placed();
+    if (!context.mounted) return;
     final a = await showChoiceSheet<String>(
       context,
       title: d.name,
       choices: [
+        const Choice('send', 'Send to chat', icon: VIcon.send),
+        const Choice('rename', 'Rename', icon: VIcon.doodle),
         Choice(
           'pin',
           pinned ? 'Remove from home screen' : 'Show on home screen',
           icon: VIcon.home,
         ),
-        const Choice('rename', 'Rename', icon: VIcon.doodle),
-        const Choice('send', 'Send to chat', icon: VIcon.send),
+        if (canAdd)
+          const Choice(
+            'widget',
+            'Add widget to home screen',
+            sub: 'Shows this doodle, as either of you draws',
+            icon: VIcon.plus,
+          ),
         const Choice('delete', 'Delete for both', icon: VIcon.trash),
       ],
     );
@@ -94,6 +104,17 @@ class DoodlesPage extends ConsumerWidget {
     switch (a) {
       case 'pin':
         await _pin(context, ref, d, pinned: pinned);
+      case 'widget':
+        // This board on the widget, then the launcher's own "Add widget".
+        if (!pinned) ref.read(widgetDoodleProvider.notifier).pin(d.id);
+        await doodleWidgetSync?.add();
+        if (context.mounted && !await DoodleWidget.placed()) {
+          if (!context.mounted) return;
+          showToast(
+            context,
+            'Or long-press your home screen › Widgets › August',
+          );
+        }
       case 'rename':
         final name = await showRename(context, d.name);
         if (name != null && name.trim().isNotEmpty) n.rename(d.id, name.trim());
