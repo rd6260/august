@@ -14,7 +14,7 @@ Bump the version **on every push to main**, in three places:
 
 `test/version_test.dart` checks that they agree.
 
-**Only arm64** (`arm64-v8a`) is built and released: 64-bit ARM phones. 32-bit phones and x86 emulators get no APK, and the updater offers them nothing.
+**Only arm64** (`arm64-v8a`) is built and released, as **`August-<version>.apk`** (e.g. `August-0.34.1.apk`): 64-bit ARM phones. 32-bit phones and x86 emulators get no APK, and the updater offers them nothing. The app follows the link in `update.json`, so the file's name doesn't matter to it.
 
 **versionCodes:** the build keeps `--split-per-abi` (with `--target-platform android-arm64`) because it adds 2000 to the build number for arm64, so build 41 becomes **2041**. Don't drop the flag: the versionCode would fall to 41, below every installed copy, and no phone would take the update.
 
@@ -77,7 +77,7 @@ Published with every release, at `https://github.com/rd6260/august/releases/late
   "published": "2026-11-14T…Z",
   "notes": ["Keep covered setup steps alive, so a scanned QR pairs", "…"],
   "apks": {
-    "arm64-v8a": {"url": "https://github.com/rd6260/august/releases/download/v0.32.2-63a4ad8/app-arm64-v8a-release.apk",
+    "arm64-v8a": {"url": "https://github.com/rd6260/august/releases/download/v0.32.2-63a4ad8/August-0.32.2.apk",
                   "sha256": "…", "size": 0, "versionCode": 2041}
   }
 }
