@@ -26,6 +26,7 @@ import '../stickers/sticker_maker.dart';
 import 'settings_pages.dart';
 import 'update.dart';
 import '../../net/updater.dart';
+import '../doodles/doodles_page.dart' show showConfirm;
 
 /// Settings (C36): you, your partner, chat, notifications, privacy,
 /// stickers, storage and About.
@@ -298,6 +299,15 @@ class SettingsPage extends ConsumerWidget {
               chevron: false,
               onTap: () async {
                 unawaited(HapticFeedback.selectionClick());
+                final sure = await showConfirm(
+                  context,
+                  title: 'Clear the cache?',
+                  body:
+                      'Frees ${bytes(cache)} of meme and song previews. They '
+                      'load again when needed; your chats and media stay.',
+                  yes: 'Clear',
+                );
+                if (sure != true) return;
                 await ref.read(storageRepositoryProvider).clearCache();
                 if (context.mounted) showToast(context, 'Cache cleared');
               },
