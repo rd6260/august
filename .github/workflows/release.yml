@@ -17,6 +17,8 @@ on:
   push:
     branches:
       - main
+  # Rerun a release by hand from the Actions tab.
+  workflow_dispatch:
 
 permissions:
   contents: write
