@@ -49,7 +49,7 @@ void main() {
     expect(find.byType(WelcomePage), findsOneWidget);
     await t.tap(find.text('Start'));
     await frames(t);
-    await t.enterText(find.byType(EditableText), 'Sapan');
+    await t.enterText(find.byType(EditableText), 'Rohan');
     await frames(t, 100);
     await t.tap(find.text('Continue'));
     await frames(t);
@@ -60,10 +60,10 @@ void main() {
     await t.tap(find.text('Continue'));
     await frames(t);
     expect(find.text(MockData.inviteCode), findsOneWidget);
-    // Aatika joins.
+    // Shruti joins.
     await frames(t, 4500);
     expect(find.byType(PairedPage), findsOneWidget);
-    expect(find.text('Sapan & Aatika'), findsOneWidget);
+    expect(find.text('Rohan & Shruti'), findsOneWidget);
     await t.tap(find.text('Start chatting'));
     await frames(t);
     expect(find.byType(ChatPage), findsOneWidget);

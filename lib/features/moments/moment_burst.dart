@@ -55,7 +55,7 @@ extension MomentCopy on VMoment {
     VMoment.brokenHeart => const ['💔', '🥀', '😢', '🥺'],
   };
 
-  /// "Aatika poked you", "You sent a hug" (B10).
+  /// "Shruti poked you", "You sent a hug" (B10).
   String row({required bool fromMe, required String partner}) {
     if (fromMe) {
       return switch (this) {

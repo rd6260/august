@@ -51,27 +51,27 @@ void main() {
       .timeout(const Duration(seconds: 30));
 
   test('pair, then talk end to end through Neon', skip: skip, () async {
-    final sapan = await phone();
-    final aatika = await phone();
-    final pairS = NeonPairRepository(sapan);
-    final pairA = NeonPairRepository(aatika);
+    final rohan = await phone();
+    final shruti = await phone();
+    final pairS = NeonPairRepository(rohan);
+    final pairA = NeonPairRepository(shruti);
 
     // Pairing (C5, C6, C8).
-    await pairS.setName('Sapan');
-    await pairA.setName('Aatika');
+    await pairS.setName('Rohan');
+    await pairA.setName('Shruti');
     final code = await pairS.invite();
     expect(code, matches(RegExp(r'^[A-Z2-9]{6}$')));
     final waiting = pairS.waitForPartner(mockAfter: Duration.zero).first;
     expect(await pairA.join('ZZZZZZ'), isNull);
     final a = (await pairA.join(code))!;
     final s = await waiting.timeout(const Duration(seconds: 20));
-    expect(a.partner.name, 'Sapan');
-    expect(s.partner.name, 'Aatika');
+    expect(a.partner.name, 'Rohan');
+    expect(s.partner.name, 'Shruti');
     expect(a.securityCode, s.securityCode);
     expect(a.securityCode, hasLength(12));
 
-    final chatS = NeonChatRepository(sapan);
-    final chatA = NeonChatRepository(aatika);
+    final chatS = NeonChatRepository(rohan);
+    final chatA = NeonChatRepository(shruti);
     addTearDown(chatS.dispose);
     addTearDown(chatA.dispose);
     final eventsS = chatS.events.asBroadcastStream();
@@ -102,9 +102,9 @@ void main() {
     expect((await sent).id, 'out-1');
     expect((await seen).id, 'out-1');
 
-    // Aatika away: delivered, not seen; seen once she's back on screen.
-    var aatikaOpen = false;
-    aatika.isOpen = () => aatikaOpen;
+    // Shruti away: delivered, not seen; seen once she's back on screen.
+    var shrutiOpen = false;
+    shruti.isOpen = () => shrutiOpen;
     final delivered = next<DeliveryUpdate>(
       eventsS,
       where: (e) => e.id == 'out-away' && e.delivery == Delivery.delivered,
@@ -123,11 +123,11 @@ void main() {
       ),
     );
     expect((await delivered).id, 'out-away');
-    expect(aatika.store.unseen, isNotEmpty);
-    aatikaOpen = true;
-    aatika.wake?.call(); // what coming back on screen does
+    expect(shruti.store.unseen, isNotEmpty);
+    shrutiOpen = true;
+    shruti.wake?.call(); // what coming back on screen does
     expect((await seenLater).id, 'out-away');
-    expect(aatika.store.unseen, isEmpty);
+    expect(shruti.store.unseen, isEmpty);
 
     // A reply with a quote, a reaction, typing and a hug.
     final typing = next<TypingChanged>(eventsS);
@@ -163,18 +163,18 @@ void main() {
     // Sealed media through the bucket.
     final photo = utf8.encode('pretend jpeg ' * 1000);
     final sealed = await Channel.sealBlob(photo);
-    final key = await sapan.api.upload(sealed.bytes);
-    final down = await aatika.api.download(key);
+    final key = await rohan.api.upload(sealed.bytes);
+    final down = await shruti.api.download(key);
     expect(await Channel.openBlob(down, sealed.key), photo);
-    await aatika.api.deleteBlob(key);
+    await shruti.api.deleteBlob(key);
 
     // Delivered mail is gone from the server.
     await Future<void>.delayed(const Duration(seconds: 2));
-    expect(await sapan.api.inbox(), isEmpty);
-    expect(await aatika.api.inbox(), isEmpty);
+    expect(await rohan.api.inbox(), isEmpty);
+    expect(await shruti.api.inbox(), isEmpty);
 
     // Unpair ends it for both.
     await pairS.unpair();
-    expect((await aatika.api.me()).paired, isFalse);
+    expect((await shruti.api.me()).paired, isFalse);
   }, timeout: const Timeout(Duration(minutes: 3)));
 }

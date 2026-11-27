@@ -11,7 +11,7 @@ import 'package:august/features/chat/chat_page.dart';
 import 'package:august/features/moments/moment_burst.dart';
 import 'package:august/mock/mock_repositories.dart';
 
-/// The chat end to end on the mock: send, Aatika replies, react, reply,
+/// The chat end to end on the mock: send, Shruti replies, react, reply,
 /// change the theme for both, poke, and a moment coming back.
 void main() {
   Future<ProviderContainer> open(WidgetTester tester) async {
@@ -52,7 +52,7 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
   }
 
-  testWidgets('send a message; it is seen and Aatika replies', (tester) async {
+  testWidgets('send a message; it is seen and Shruti replies', (tester) async {
     final c = await open(tester);
     expect(find.byType(ChatPage), findsOneWidget);
     await tester.enterText(find.byType(EditableText), 'dinner at 8?');
@@ -99,7 +99,7 @@ void main() {
 
   testWidgets('the theme sheet changes the wallpaper for both', (tester) async {
     final c = await open(tester);
-    // The wallpaper beside one of Aatika's messages (hers sit on the left).
+    // The wallpaper beside one of Shruti's messages (hers sit on the left).
     final chat = tester.getRect(find.byType(ChatPage));
     final beside = Offset(
       chat.right - 12,
@@ -144,7 +144,7 @@ void main() {
     await tester.tap(poke.first);
     await settle(tester);
     expect(c.read(messagesProvider).last.body, isA<MomentBody>());
-    // Aatika pokes back: close her burst first.
+    // Shruti pokes back: close her burst first.
     await settle(tester, 900);
     expect(find.text('POKE'), findsOneWidget);
     await tester.tap(find.text('Close'));
@@ -159,7 +159,7 @@ void main() {
       (c.read(messagesProvider).last.body as MomentBody).moment,
       VMoment.hug,
     );
-    // Aatika sends it back while the app is open: the burst.
+    // Shruti sends it back while the app is open: the burst.
     await settle(tester, 900);
     expect(find.byType(MomentBurst), findsOneWidget);
     expect(find.text('HUG'), findsOneWidget);

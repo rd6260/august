@@ -846,7 +846,7 @@ class StickersNotifier extends Notifier<List<StickerPack>> {
       ),
   ];
 
-  /// Adds [sticker] to the pack [packId] (made here, or saved from Aatika).
+  /// Adds [sticker] to the pack [packId] (made here, or saved from Shruti).
   void add(String packId, Sticker sticker) => state = [
     for (final p in state)
       p.id == packId

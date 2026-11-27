@@ -6,12 +6,12 @@ How a message gets from one phone to the other, whether August is open, in the b
 
 ```mermaid
 sequenceDiagram
-  participant S as Sapan's August
+  participant S as Rohan's August
   participant API as api (Neon Function)
   participant DB as Postgres mailbox
   participant RT as Neon Realtime
   participant FCM as Firebase
-  participant A as Aatika's August
+  participant A as Shruti's August
 
   S->>S: seal envelope (XChaCha20-Poly1305)
   S->>API: POST /v1/mail {id, kind, body}
@@ -19,7 +19,7 @@ sequenceDiagram
   API-->>FCM: data-only push (msg, moment, call)
   API-->>S: committed
   DB-->>RT: new row
-  RT-->>API: change for Aatika
+  RT-->>API: change for Shruti
   API-->>A: WebSocket /v1/live {"type":"mail"…}
   A->>A: open, apply, save to moose.json
   A->>API: POST /v1/mail/ack {ids}
@@ -94,7 +94,7 @@ flowchart LR
 | --- | --- |
 | Messages (`messages`, high) | "New message", or a preview when you've turned them on |
 | Pokes and hugs (`moments`, max) | Moments, and incoming calls while August is closed |
-| Background check (`checking`, minimum importance) | The ongoing notification the foreground service needs: in the Silent section, no status bar icon, not on the lock screen; "Keeping in touch with Aatika · Checks every 8 min while August is closed · last 14:32". It replaced the louder `background` channel, which is deleted |
+| Background check (`checking`, minimum importance) | The ongoing notification the foreground service needs: in the Silent section, no status bar icon, not on the lock screen; "Keeping in touch with Shruti · Checks every 8 min while August is closed · last 14:32". It replaced the louder `background` channel, which is deleted |
 | Updates (Kotlin, `Updater.kt`) | "August updated to X", after an over-the-air install |
 
 ## Calls

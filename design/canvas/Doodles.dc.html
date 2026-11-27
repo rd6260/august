@@ -50,14 +50,14 @@ a{color:inherit;text-decoration:none}
     <div class="ph">
       <div class="tb"></div>
       <div style="position: relative; z-index: 1; padding: 64px 16px 0; display: flex; flex-direction: column; gap: 14px">
-        <div style="padding-left: 4px"><div class="ttl">Doodles</div><div class="sub" style="margin-top: 6px">4 boards, shared with Aatika</div></div>
+        <div style="padding-left: 4px"><div class="ttl">Doodles</div><div class="sub" style="margin-top: 6px">4 boards, shared with Shruti</div></div>
         <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
           <div style="height: 214px; border-radius: 20px; border: 1px dashed var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font: 500 14px Inter"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ i.plus }}"></path></svg>New doodle</div>
           <sc-for list="{{ boards }}" as="b" hint-placeholder-count="4">
             <div class="card" style="position: relative">
               <div style="height: 150px; background: var(--paper); position: relative">
                 <svg viewBox="0 0 170 150" style="position: absolute; inset: 0; width: 100%; height: 100%" aria-hidden="true"><path d="{{ b.p1 }}" fill="none" stroke="{{ b.c1 }}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ b.p2 }}" fill="none" stroke="{{ b.c2 }}" stroke-width="2.5" stroke-linecap="round"></path></svg>
-                <span style="position: absolute; top: 8px; left: 8px; display: {{ b.live }}; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 600 10px Inter"><span style="width: 6px; height: 6px; border-radius: 3px; background: var(--paper)"></span>Aatika here</span>
+                <span style="position: absolute; top: 8px; left: 8px; display: {{ b.live }}; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 600 10px Inter"><span style="width: 6px; height: 6px; border-radius: 3px; background: var(--paper)"></span>Shruti here</span>
               </div>
               <div style="padding: 10px 12px"><div style="font: 500 14px Inter">{{ b.n }}</div><div class="sub">{{ b.m }}</div></div>
             </div>
@@ -95,13 +95,13 @@ a{color:inherit;text-decoration:none}
           </sc-for>
         </div>
         <div style="display: flex; gap: 10px; margin-top: 6px"><button class="b2">Cancel</button><button class="b1">Create</button></div>
-        <div class="sub">Aatika gets it straight away and can draw too.</div>
+        <div class="sub">Shruti gets it straight away and can draw too.</div>
       </div>
     </div>
   </div>
 
   <div style="display: flex; flex-direction: column; gap: 10px">
-    <div class="lbl">C31 + C32 · Board, live with Aatika, tool dock</div>
+    <div class="lbl">C31 + C32 · Board, live with Shruti, tool dock</div>
     <div class="ph">
       <div class="canvas"><div class="dots"></div>
         <svg viewBox="0 0 390 844" style="position: absolute; inset: 0" aria-hidden="true">
@@ -114,12 +114,12 @@ a{color:inherit;text-decoration:none}
         </svg>
         <div style="position: absolute; left: 326px; top: 588px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px">
           <span style="width: 12px; height: 12px; border-radius: 6px; background: #3FA34D; box-shadow: 0 0 0 3px var(--paper)"></span>
-          <span style="padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 600 10px Inter; margin-left: 8px">Aatika</span>
+          <span style="padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--paper); font: 600 10px Inter; margin-left: 8px">Shruti</span>
         </div>
       </div>
       <div class="top">
         <button class="icb" aria-label="Back"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ i.back }}"></path></svg></button>
-        <div style="flex: 1; padding: 0 4px"><div style="font: 600 15px Inter">Sunday plans</div><div class="sub" style="display: flex; align-items: center; gap: 5px"><span style="width: 6px; height: 6px; border-radius: 3px; background: var(--ink)"></span>Aatika is drawing</div></div>
+        <div style="flex: 1; padding: 0 4px"><div style="font: 600 15px Inter">Sunday plans</div><div class="sub" style="display: flex; align-items: center; gap: 5px"><span style="width: 6px; height: 6px; border-radius: 3px; background: var(--ink)"></span>Shruti is drawing</div></div>
         <button class="icb" aria-label="Undo"><svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px" aria-hidden="true"><path d="{{ i.undo }}"></path></svg></button>
         <button class="icb" style="opacity: .35" aria-label="Redo"><svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px" aria-hidden="true"><path d="{{ i.redo }}"></path></svg></button>
         <button class="icb" aria-label="More: export, send to chat, clear"><svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px; stroke-width: 2.5" aria-hidden="true"><path d="{{ i.more }}"></path></svg></button>
@@ -251,9 +251,9 @@ class Component extends DCLogic {
       modes,
       tools: tools('Brush'), tools2: tools('Lasso'),
       boards: [
-        { n: 'Sunday plans', m: 'Aatika · now', live: 'flex', p1: 'M85 120 c -22 -20 -48 -31 -48 -56 a 24 24 0 0 1 48 -7 a 24 24 0 0 1 48 7 c 0 25 -26 36 -48 56z', c1: '#FF5C7A', p2: 'M20 30 q 20 -10 40 0 t 40 0', c2: '#5BC0EB' },
+        { n: 'Sunday plans', m: 'Shruti · now', live: 'flex', p1: 'M85 120 c -22 -20 -48 -31 -48 -56 a 24 24 0 0 1 48 -7 a 24 24 0 0 1 48 7 c 0 25 -26 36 -48 56z', c1: '#FF5C7A', p2: 'M20 30 q 20 -10 40 0 t 40 0', c2: '#5BC0EB' },
         { n: 'Our flat', m: 'You · 2 h ago', live: 'none', p1: 'M30 120 v -50 l 55 -40 l 55 40 v 50 z M70 120 v -30 h 30 v 30', c1: '#FFC15E', p2: 'M20 135 h 130', c2: '#3FA34D' },
-        { n: 'Tic tac toe', m: 'Aatika · yesterday', live: 'none', p1: 'M60 20 v 110 M110 20 v 110 M20 60 h 130 M20 100 h 130', c1: '#9DB2FF', p2: 'M30 30 l 20 20 M50 30 l -20 20 M125 75 a 12 12 0 1 0 0.1 0', c2: '#FF5C7A' },
+        { n: 'Tic tac toe', m: 'Shruti · yesterday', live: 'none', p1: 'M60 20 v 110 M110 20 v 110 M20 60 h 130 M20 100 h 130', c1: '#9DB2FF', p2: 'M30 30 l 20 20 M50 30 l -20 20 M125 75 a 12 12 0 1 0 0.1 0', c2: '#FF5C7A' },
         { n: 'August!', m: 'You · Sun', live: 'none', p1: 'M40 110 q 45 -60 90 0 M60 70 l -20 -40 l 20 10 M110 70 l 20 -40 l -20 10', c1: '#B57EDC', p2: 'M70 95 h.1 M100 95 h.1', c2: '#FFE066' }
       ],
       papers: [

@@ -4,7 +4,7 @@ This is the full inventory of every page, and every component on each page, for 
 
 Design rules are the same as Veronica, Idris and Cariño: two inks only (`#000` / `#FFF`), Doto and Inter, glass surfaces, Cariño's progressive top and bottom blur, and the chat wallpaper as the only colour. Draw every page in **both inks**: each screen board has a dark-ink row and a light-ink row.
 
-Example people: **Sapan** (you, he) and **Aatika** (your partner, she). The decoy chat's made-up name is **Neha**. The example song is **"Sienna" by The Marías**.
+Example people: **Rohan** (you, he) and **Shruti** (your partner, she). The decoy chat's made-up name is **Neha**. The example song is **"Sienna" by The Marías**.
 
 ## A. Shared components (component sheet)
 1. **Ink and type:** wordmark `AUG/UST` (Doto 900), page title, eyebrow, body, secondary, hero number, mono code.
@@ -31,7 +31,7 @@ Each bubble comes in outgoing and incoming. States: pending (clock), sent ✓, d
 7. Voice note: play/pause, waveform, duration, and a played/unplayed dot.
 8. Music clip: thumbnail, title, artist, 15 s range bar, and play. States: resolving, playing, and unavailable.
 9. Meme/GIF/sticker: GIF autoplay, sticker without a bubble, and a 'via KLIPY / r/sub' caption.
-10. Poke event (centred system row in its moment colour: '👉 Aatika poked you · 21:14'), plus hug, kiss and miss-you variants.
+10. Poke event (centred system row in its moment colour: '👉 Shruti poked you · 21:14'), plus hug, kiss and miss-you variants.
 11. System rows: date divider, 'Theme changed by X', 'Wallpaper changed', 'Paired', 'New doodle: name', and 'Unread' divider.
 12. Swipe-to-reply affordance (the reply icon reveals as you drag).
 13. Message action sheet (long-press): reactions row, Reply, Copy, Save media, Delete for me, and Info (sent, delivered, seen times).
@@ -67,7 +67,7 @@ Each bubble comes in outgoing and incoming. States: pending (clock), sent ✓, d
 22. **Theme sheet** (long-press the background): palette swatches grid (Cariño palettes), custom photo slot(s) (add, long-press to delete), dim slider, blur slider, glass strength slider, a live preview, 'Applies for both of you', and Apply.
 23. **Wallpaper photo crop:** a crop frame with the chat preview overlay, plus Use.
 24. **Poke picker** (long-press the poke button): four colour tiles (Poke, Hug, Kiss, Miss you) with emoji and label; a variant on cooldown is faded with its seconds left.
-25. **Poke burst** (one per variant, received while open): the colour wash over a scrim, three rings in the moment colour (outer one ripples), a filled centre circle with the line icon that **pulses like a heartbeat**, the word in Doto (HUG), 'from Aatika · just now', ink 'Hug back' + outline 'Close', and the haptic note. Hearts drift up across the whole screen, and the gesture's emoji (🫂 👉 💋 🥺) floats gently up through the middle.
+25. **Poke burst** (one per variant, received while open): the colour wash over a scrim, three rings in the moment colour (outer one ripples), a filled centre circle with the line icon that **pulses like a heartbeat**, the word in Doto (HUG), 'from Shruti · just now', ink 'Hug back' + outline 'Close', and the haptic note. Hearts drift up across the whole screen, and the gesture's emoji (🫂 👉 💋 🥺) floats gently up through the middle.
 26. **Meme picker sheet:** search field, source toggle (KLIPY / Reddit), category chips (Trending, GIFs, Stickers, Memes, and subreddits), masonry grid, loading/empty/error states, and a preview before send.
 27. **Music search sheet:** search field, results list (thumb, title, channel, duration), and loading/empty/error.
 28. **Music range picker:** big thumb and title, scrolling waveform with a 15 s window, start/end time labels, play preview, and Send.
@@ -113,7 +113,7 @@ Stickers can be made from **doodles** and from **photos**, and are kept in a Wha
 - **S1 · Sticker tray** (the composer's sticker button): Stickers / GIFs / Memes switch, search, pack tabs (Recent, Favourites, each pack, + make), a 4-column grid, long-press to favourite or remove.
 - **S2 · Sticker from a photo:** checkerboard canvas, auto cut-out with a white outline, tools (Auto cut, Erase, Restore, Text, Outline), Save and Send.
 - **S3 · Sticker from a doodle:** lasso › Sticker (also on the lasso popover), preview with a white outline toggle, choose a pack, Save / Save and send.
-- **S4 · Save a received sticker:** big preview, 'From Aatika · in her pack', Add to favourites, Save to my stickers, Save the whole pack.
+- **S4 · Save a received sticker:** big preview, 'From Shruti · in her pack', Add to favourites, Save to my stickers, Save the whole pack.
 - **S5 · Sticker library** (Settings › Stickers): count and size, make from a photo or a doodle, packs with thumbnails (Ours, August doodles, Cat chaos, Favourites).
 - **S6 · Stickers in the chat:** no bubble, tilted a few degrees, white outline, time chip under it, reactions on stickers, and replying to a sticker.
 

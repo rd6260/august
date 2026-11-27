@@ -80,7 +80,7 @@ void main() {
     await shot('01-welcome');
     await t.tap(find.text('Start'));
     await frames(t);
-    await t.enterText(find.byType(EditableText), 'Sapan');
+    await t.enterText(find.byType(EditableText), 'Rohan');
     await frames(t, 200);
     await t.tap(find.text('Continue'));
     await frames(t);
@@ -98,7 +98,7 @@ void main() {
     expect(find.byType(ChatPage), findsOneWidget);
     await shot('04-chat');
 
-    // 2 · Chat: send, Aatika reads and replies (C15, C16).
+    // 2 · Chat: send, Shruti reads and replies (C15, C16).
     final before = c.read(messagesProvider).length;
     await t.enterText(find.byType(EditableText).first, 'dinner at 8?');
     await frames(t, 200);
@@ -138,7 +138,7 @@ void main() {
     await t.tap(find.text('Close'));
     await frames(t);
 
-    // 4 · A call: Aatika answers, then hang up (K1, K3, K5).
+    // 4 · A call: Shruti answers, then hang up (K1, K3, K5).
     await t.tap(find.bySemanticsLabel('Voice call'));
     await frames(t, 4000);
     expect(find.text('Direct, phone to phone · encrypted'), findsOneWidget);
@@ -170,7 +170,7 @@ void main() {
     await t.tap(find.text('Sienna').first);
     await frames(t);
     await shot('11-range');
-    await t.tap(find.text('Send to Aatika'));
+    await t.tap(find.text('Send to Shruti'));
     await frames(t);
     expect(
       (c.read(messagesProvider).last.body as MusicBody).song.title,
@@ -229,7 +229,7 @@ void main() {
     c.read(sessionProvider.notifier).lock();
     await frames(t);
     await pin(t, MockData.pin);
-    expect(find.text('Aatika'), findsWidgets);
+    expect(find.text('Shruti'), findsWidgets);
     expect(VMoment.hug.color, isNot(VColors.white));
     await shot('17-unlocked');
   });

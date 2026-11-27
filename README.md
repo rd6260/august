@@ -24,7 +24,7 @@ One app, one couple. Messages live on your two phones, and the server only holds
 
 ## What it is
 
-August is a Flutter chat app for **exactly two people**: a paired couple. Sapan wrote it for himself and his partner, as a sibling of his apps Veronica, Idris and Cariño, and it shares their design language: two inks, Doto and Inter, and one shared wallpaper as the only colour.
+August is a Flutter chat app for **exactly two people**: a paired couple. Rohan wrote it for himself and his partner, as a sibling of his apps Veronica, Idris and Cariño, and it shares their design language: two inks, Doto and Inter, and one shared wallpaper as the only colour.
 
 There are no accounts, phone numbers or contact lists. You pair once, with a six-character code or a QR, and from then on everything you send is encrypted on your phone and opened on theirs.
 
@@ -49,7 +49,7 @@ Every screen comes in both inks: white on dark wallpapers and black on light one
 
 ```mermaid
 flowchart LR
-  subgraph A["Sapan's phone"]
+  subgraph A["Rohan's phone"]
     A1[August] --- A2[(moose.json<br/>history)]
     A1 --- A3[(Keystore<br/>X25519 key)]
   end
@@ -62,7 +62,7 @@ flowchart LR
     PG --> RT --> API
     API --- S3
   end
-  subgraph B["Aatika's phone"]
+  subgraph B["Shruti's phone"]
     B1[August] --- B2[(moose.json)]
   end
   A1 -- "sealed mail" --> API
@@ -86,7 +86,7 @@ flutter pub get
 flutter run --flavor dev        # mock mode: a fake partner, no server needed (no --flavor on Linux)
 ```
 
-Without `env.json`, August runs on **mocks**: a pretend Aatika who types, replies, sends moments and answers calls. Every widget test runs this way.
+Without `env.json`, August runs on **mocks**: a pretend Shruti who types, replies, sends moments and answers calls. Every widget test runs this way.
 
 To run against a real backend, copy `env.example.json` to `env.json`, fill in your Neon URLs, and build with it:
 

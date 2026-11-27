@@ -13,20 +13,20 @@ import 'package:august/net/wire.dart';
 void main() {
   late MemoryVault mine;
   late LocalStore store;
-  late Channel fromAatika;
+  late Channel fromShruti;
 
   setUp(() async {
     mine = MemoryVault();
     final me = await Identity.load(mine);
-    final aatika = await Identity.load(MemoryVault());
+    final shruti = await Identity.load(MemoryVault());
     final dir = await Directory.systemTemp.createTemp('august-push');
     addTearDown(() => dir.delete(recursive: true));
     store = await LocalStore.open(dir)
-      ..partner = Member(id: 'a', name: 'Aatika', pubkey: aatika.publicKey);
-    fromAatika = await aatika.channelTo(me.publicKey);
+      ..partner = Member(id: 'a', name: 'Shruti', pubkey: shruti.publicKey);
+    fromShruti = await shruti.channelTo(me.publicKey);
   });
 
-  Future<String> seal(Body body) async => fromAatika.sealJson(
+  Future<String> seal(Body body) async => fromShruti.sealJson(
     MessageEnvelope(
       Message(id: 'm', fromMe: true, at: DateTime.now(), body: body),
     ).toJson(),
@@ -38,7 +38,7 @@ void main() {
       vault: mine,
       store: store,
     );
-    expect(n!.title, 'Aatika');
+    expect(n!.title, 'Shruti');
     expect(n.body, 'see you at 8');
   });
 
@@ -49,7 +49,7 @@ void main() {
       vault: mine,
       store: store,
     );
-    expect(n!.title, 'Aatika');
+    expect(n!.title, 'Shruti');
     expect(n.body, 'New message');
     expect(n.body, isNot(contains('secret')));
     expect(n.moment, isFalse);
@@ -61,15 +61,15 @@ void main() {
       vault: mine,
       store: store,
     );
-    expect(n!.body, '${VMoment.hug.emoji} Aatika sent a hug');
+    expect(n!.body, '${VMoment.hug.emoji} Shruti sent a hug');
     expect(n.moment, isTrue);
   });
 
   test('mail that is not a message stays quiet', () async {
-    final doodle = await fromAatika.sealJson(
+    final doodle = await fromShruti.sealJson(
       const DoodleEnvelope(DoodleRenamed('d1', 'Our wall')).toJson(),
     );
-    final typing = await fromAatika.sealJson(
+    final typing = await fromShruti.sealJson(
       const TypingEnvelope(true).toJson(),
     );
     for (final data in [

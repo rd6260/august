@@ -87,7 +87,7 @@ abstract final class DoodleWidget {
     await HomeWidget.updateWidget(qualifiedAndroidName: provider);
   }
 
-  /// "Aatika · 14:32" today, "Aatika · 12 Mar" before. A clock time, not
+  /// "Shruti · 14:32" today, "Shruti · 12 Mar" before. A clock time, not
   /// "2 min ago": the widget only redraws when the doodle changes.
   static String caption(Doodle d, {DateTime? now}) {
     final at = d.editedAt;

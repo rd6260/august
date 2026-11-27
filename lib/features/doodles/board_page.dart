@@ -60,7 +60,7 @@ class PenSettings {
 }
 
 /// A shared board (C31): draw with the dock's nine tools (C32), undo and
-/// redo, and see Aatika's cursor while she draws.
+/// redo, and see Shruti's cursor while she draws.
 class BoardPage extends ConsumerStatefulWidget {
   const BoardPage({super.key, required this.id});
 
@@ -424,7 +424,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
           points: live,
         ),
     ];
-    // Where Aatika's pen is: the end of her last stroke.
+    // Where Shruti's pen is: the end of her last stroke.
     final partnerAt = doodle.partnerHere
         ? _strokes.where((s) => s.by == 'partner').lastOrNull?.points.lastOrNull
         : null;
@@ -821,7 +821,7 @@ class _DashRect extends CustomPainter {
   bool shouldRepaint(_DashRect old) => old.ink != ink;
 }
 
-/// Aatika's pen while she draws: a dot in her colour and her name.
+/// Shruti's pen while she draws: a dot in her colour and her name.
 class _PartnerCursor extends StatelessWidget {
   const _PartnerCursor({required this.name});
 

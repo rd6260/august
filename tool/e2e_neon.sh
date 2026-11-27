@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One phone, end to end on Neon and Firebase: Aatika is emulated in Python
+# One phone, end to end on Neon and Firebase: Shruti is emulated in Python
 # on this computer (tool/partner/partner.py), August runs on the connected
 # phone, and they meet only through the deployed backend.
 #
@@ -25,12 +25,12 @@ trap cleanup EXIT
 # The screen must stay on for the whole run (frames stop when it sleeps).
 adb shell svc power stayon usb
 adb shell input keyevent KEYCODE_WAKEUP
-echo "· starting Aatika (Python)"
+echo "· starting Shruti (Python)"
 $py tool/partner/partner.py --code-file "$code_file" > build/e2e_partner.log 2>&1 &
 partner=$!
 
 for _ in $(seq 120); do [[ -s "$code_file" ]] && break; sleep 1; done
-[[ -s "$code_file" ]] || { echo "Aatika never made a code"; cat build/e2e_partner.log; exit 1; }
+[[ -s "$code_file" ]] || { echo "Shruti never made a code"; cat build/e2e_partner.log; exit 1; }
 code=$(cat "$code_file")
 echo "· her code: $code. Running August on the phone"
 
@@ -53,11 +53,11 @@ flutter drive \
   --dart-define=PARTNER_CODE="$code" \
   --dart-define=AUGUST_CHECK_EVERY=15 || phone=$?
 
-# If the phone gave up, Aatika has no one to talk to.
+# If the phone gave up, Shruti has no one to talk to.
 [[ $phone == 0 ]] || kill "$partner" 2>/dev/null || true
-echo "· waiting for Aatika"
+echo "· waiting for Shruti"
 status=0
 wait "$partner" || status=$?
-grep '\[aatika' build/e2e_partner.log || true
-echo "· phone: $([[ $phone == 0 ]] && echo passed || echo FAILED) · Aatika: $([[ $status == 0 ]] && echo passed || echo FAILED)"
+grep '\[shruti' build/e2e_partner.log || true
+echo "· phone: $([[ $phone == 0 ]] && echo passed || echo FAILED) · Shruti: $([[ $status == 0 ]] && echo passed || echo FAILED)"
 [[ $phone == 0 && $status == 0 ]]

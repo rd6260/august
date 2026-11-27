@@ -111,14 +111,14 @@ void main() {
 
     // Partner › Unpair, typed to confirm, lands on Welcome.
     await t.scrollUntilVisible(
-      find.text('Aatika'),
+      find.text('Shruti'),
       -300,
       scrollable: find.byType(Scrollable).first,
     );
     // Clear of the status bar at the top.
     await t.drag(find.byType(Scrollable).first, const Offset(0, 220));
     await frames(t);
-    await t.tap(find.text('Aatika'));
+    await t.tap(find.text('Shruti'));
     await frames(t);
     await t.scrollUntilVisible(
       find.bySemanticsLabel('Unpair'),

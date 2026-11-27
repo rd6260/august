@@ -7,7 +7,7 @@ import 'package:august/data/providers.dart';
 import 'package:august/features/calls/call_page.dart';
 import 'package:august/mock/mock_repositories.dart';
 
-/// Calls end to end on the mock: you call and Aatika answers; she calls
+/// Calls end to end on the mock: you call and Shruti answers; she calls
 /// back when asked.
 void main() {
   Future<void> frames(WidgetTester t, [int ms = 700]) async {
@@ -47,7 +47,7 @@ void main() {
     await t.pump(const Duration(seconds: 5));
   }
 
-  testWidgets('call Aatika; she answers; hang up and the call is logged', (
+  testWidgets('call Shruti; she answers; hang up and the call is logged', (
     t,
   ) async {
     final c = await open(t);
@@ -65,7 +65,7 @@ void main() {
     await close(t);
   });
 
-  testWidgets('"call me" makes Aatika call back', (t) async {
+  testWidgets('"call me" makes Shruti call back', (t) async {
     await open(t);
     await t.enterText(find.byType(EditableText), 'call me?');
     await frames(t, 200);

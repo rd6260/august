@@ -36,7 +36,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
 
 /// August on this phone against the real Neon backend and Firebase, with
-/// Aatika emulated in Python on the computer (tool/partner/partner.py).
+/// Shruti emulated in Python on the computer (tool/partner/partner.py).
 /// tool/e2e_neon.sh starts her and passes her code as PARTNER_CODE.
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -153,11 +153,11 @@ void main() {
     );
     await frames(t, 1000);
 
-    // 1 · A new phone joins Aatika's code (C2, C3, C4, C6, C8).
+    // 1 · A new phone joins Shruti's code (C2, C3, C4, C6, C8).
     expect(find.byType(WelcomePage), findsOneWidget);
     await t.tap(find.text('I have a code'));
     await frames(t);
-    await t.enterText(find.byType(EditableText), 'Sapan');
+    await t.enterText(find.byType(EditableText), 'Rohan');
     await frames(t, 200);
     await t.tap(find.text('Continue'));
     await frames(t);
@@ -175,14 +175,14 @@ void main() {
     );
     await frames(t);
     final pairing = c.read(pairingProvider);
-    expect(pairing.partner.name, 'Aatika');
+    expect(pairing.partner.name, 'Shruti');
     expect(pairing.securityCode, hasLength(12));
     await shot('02-paired');
     await t.tap(find.text('Start chatting'));
     await frames(t, 1000);
     expect(find.byType(ChatPage), findsOneWidget);
 
-    // Aatika changed the shared theme as soon as we paired (C22).
+    // Shruti changed the shared theme as soon as we paired (C22).
     await until(
       t,
       'her theme',
@@ -190,7 +190,7 @@ void main() {
     );
     expect(c.read(chatThemeProvider).glass, 0.6);
 
-    // 2 · A text: Aatika types, hearts it, sees it and replies (C15).
+    // 2 · A text: Shruti types, hearts it, sees it and replies (C15).
     await type(t, 'dinner at 8?');
     await frames(t, 200);
     await t.tap(find.bySemanticsLabel('Send'));
@@ -461,7 +461,7 @@ void main() {
     );
     await t.tap(find.bySemanticsLabel(RegExp(r'Sienna.* by ')).first);
     await frames(t, 1000);
-    await t.tap(find.text('Send to Aatika'));
+    await t.tap(find.text('Send to Shruti'));
     await frames(t, 1000);
     final ourSong = (c.read(messagesProvider).last.body as MusicBody).song;
     expect(ourSong.videoId, isNotEmpty);
@@ -619,12 +619,12 @@ void main() {
           .read(doodlesProvider)
           .any(
             (d) =>
-                d.name == "Aatika's board" &&
+                d.name == "Shruti's board" &&
                 d.strokes.any((s) => s.by == 'partner'),
           ),
     );
     await frames(t);
-    expect(find.text("Aatika's board"), findsWidgets);
+    expect(find.text("Shruti's board"), findsWidgets);
     await t.tap(find.text('New doodle').first);
     await frames(t);
     await type(t, 'Sunday plans');
@@ -692,7 +692,7 @@ void main() {
     await t.tap(find.bySemanticsLabel('Send'));
     await frames(t, 1500);
 
-    // 9 · Aatika loses her phone: her new one shows a code, we approve it
+    // 9 · Shruti loses her phone: her new one shows a code, we approve it
     // from Settings › Partner, and she's back under a new key (C9, C37).
     final oldPartner = c.read(pairingProvider).partner.id;
     final oldCode = c.read(pairingProvider).securityCode;
@@ -721,7 +721,7 @@ void main() {
           .last,
     );
     await frames(t);
-    await t.tap(find.text('Aatika').first);
+    await t.tap(find.text('Shruti').first);
     await frames(t);
     await t.tap(find.text('Their new phone'));
     await frames(t);
@@ -735,7 +735,7 @@ void main() {
     );
     await frames(t);
     await shot('09-new-phone');
-    await t.tap(find.text("It's Aatika, approve"));
+    await t.tap(find.text("It's Shruti, approve"));
     await until(
       t,
       'the new pairing',
@@ -829,11 +829,11 @@ void main() {
     await reopened.store.flush();
     final again = await LocalStore.open(dir);
     expect(again.messages.length, all.length);
-    expect(again.partner?.name, 'Aatika');
+    expect(again.partner?.name, 'Shruti');
     expect(again.theme.wallpaper.builtin, 'moss', reason: 'the theme is kept');
     expect(
       again.doodles.map((d) => d.name),
-      containsAll(["Aatika's board", 'Sunday plans']),
+      containsAll(["Shruti's board", 'Sunday plans']),
       reason: 'the boards are kept',
     );
     expect(await reopened.api.inbox(), isEmpty);

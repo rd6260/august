@@ -46,7 +46,7 @@ void main() {
     await frames(t);
     expect(find.text('1 / 2'), findsOneWidget);
     await t.enterText(find.byType(EditableText).last, 'the lake');
-    await t.tap(find.bySemanticsLabel('Send to Aatika'));
+    await t.tap(find.bySemanticsLabel('Send to Shruti'));
     // Going up: each photo shows how much of it has gone.
     await frames(t, 300);
     expect(find.textContaining('Sending ·'), findsWidgets);

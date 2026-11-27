@@ -6,26 +6,26 @@ import 'package:august/net/crypto.dart';
 import 'package:august/net/vault.dart';
 
 void main() {
-  late Identity sapan, aatika, stranger;
+  late Identity rohan, shruti, stranger;
   late MemoryVault vault;
 
   setUp(() async {
     vault = MemoryVault();
-    sapan = await Identity.load(vault);
-    aatika = await Identity.load(MemoryVault());
+    rohan = await Identity.load(vault);
+    shruti = await Identity.load(MemoryVault());
     stranger = await Identity.load(MemoryVault());
   });
 
   test('the identity key is made once and kept', () async {
     final again = await Identity.load(vault);
-    expect(again.publicKey, sapan.publicKey);
-    expect(base64Decode(sapan.publicKey), hasLength(32));
-    expect(aatika.publicKey, isNot(sapan.publicKey));
+    expect(again.publicKey, rohan.publicKey);
+    expect(base64Decode(rohan.publicKey), hasLength(32));
+    expect(shruti.publicKey, isNot(rohan.publicKey));
   });
 
   test('a sealed box opens on the other phone, both ways', () async {
-    final s2a = await sapan.channelTo(aatika.publicKey);
-    final a2s = await aatika.channelTo(sapan.publicKey);
+    final s2a = await rohan.channelTo(shruti.publicKey);
+    final a2s = await shruti.channelTo(rohan.publicKey);
     final box = await s2a.sealJson({'text': 'dinner at 8?'});
     expect(box, isNot(contains('dinner')));
     expect(await a2s.openJson(box), {'text': 'dinner at 8?'});
@@ -36,20 +36,20 @@ void main() {
   });
 
   test('the same message seals differently each time', () async {
-    final ch = await sapan.channelTo(aatika.publicKey);
+    final ch = await rohan.channelTo(shruti.publicKey);
     expect(await ch.seal([1, 2, 3]), isNot(await ch.seal([1, 2, 3])));
   });
 
   test('a stranger or a changed box does not open', () async {
-    final s2a = await sapan.channelTo(aatika.publicKey);
+    final s2a = await rohan.channelTo(shruti.publicKey);
     final box = await s2a.seal(utf8.encode('hi'));
-    final wrong = await stranger.channelTo(sapan.publicKey);
+    final wrong = await stranger.channelTo(rohan.publicKey);
     await expectLater(
       wrong.open(box),
       throwsA(isA<SecretBoxAuthenticationError>()),
     );
     final bytes = base64Decode(box)..[30] ^= 1;
-    final a2s = await aatika.channelTo(sapan.publicKey);
+    final a2s = await shruti.channelTo(rohan.publicKey);
     await expectLater(
       a2s.open(base64Encode(bytes)),
       throwsA(isA<SecretBoxAuthenticationError>()),
@@ -64,11 +64,11 @@ void main() {
   });
 
   test('both phones show the same security code, a stranger another', () async {
-    final a = await securityCode(sapan.publicKey, aatika.publicKey);
-    final b = await securityCode(aatika.publicKey, sapan.publicKey);
+    final a = await securityCode(rohan.publicKey, shruti.publicKey);
+    final b = await securityCode(shruti.publicKey, rohan.publicKey);
     expect(a, b);
     expect(a, hasLength(12));
     expect(a.every((g) => RegExp(r'^\d{5}$').hasMatch(g)), isTrue);
-    expect(await securityCode(sapan.publicKey, stranger.publicKey), isNot(a));
+    expect(await securityCode(rohan.publicKey, stranger.publicKey), isNot(a));
   });
 }

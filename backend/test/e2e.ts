@@ -77,8 +77,8 @@ class Phone {
   }
 }
 
-const sapan = new Phone("Sapan");
-const aatika = new Phone("Aatika");
+const rohan = new Phone("Rohan");
+const shruti = new Phone("Shruti");
 const stranger = new Phone("Neha");
 
 console.log(`August e2e against ${new URL(API).host}`);
@@ -94,43 +94,43 @@ try {
   });
 
   await step("Auth: sign up three phones and mint JWTs", async () => {
-    await Promise.all([sapan.signUp(), aatika.signUp(), stranger.signUp()]);
+    await Promise.all([rohan.signUp(), shruti.signUp(), stranger.signUp()]);
   });
 
   await step("Auth: session, sign out, sign back in", async () => {
-    const s = (await (await sapan.auth("/get-session")).json()) as { user: { id: string } };
-    assert.equal(s.user.id, sapan.id);
-    assert.equal((await sapan.auth("/sign-out", {})).status, 200);
-    sapan.cookie = "";
-    assert.equal(await (await sapan.auth("/get-session")).text(), "null");
-    const res = await sapan.auth("/sign-in/email", { email: sapan.email, password: sapan.password });
+    const s = (await (await rohan.auth("/get-session")).json()) as { user: { id: string } };
+    assert.equal(s.user.id, rohan.id);
+    assert.equal((await rohan.auth("/sign-out", {})).status, 200);
+    rohan.cookie = "";
+    assert.equal(await (await rohan.auth("/get-session")).text(), "null");
+    const res = await rohan.auth("/sign-in/email", { email: rohan.email, password: rohan.password });
     assert.equal(res.status, 200);
-    await sapan.token();
+    await rohan.token();
   });
 
   await step("API refuses a missing or forged token", async () => {
     assert.equal((await fetch(`${API}/v1/me`)).status, 401);
-    const forged = sapan.jwt.slice(0, -4) + (sapan.jwt.endsWith("AAAA") ? "BBBB" : "AAAA");
+    const forged = rohan.jwt.slice(0, -4) + (rohan.jwt.endsWith("AAAA") ? "BBBB" : "AAAA");
     assert.equal((await fetch(`${API}/v1/me`, { headers: { authorization: `Bearer ${forged}` } })).status, 401);
   });
 
   const keyA = randomBytes(32).toString("base64");
   const keyB = randomBytes(32).toString("base64");
   await step("Postgres: name and public key", async () => {
-    const me = await sapan.api("PUT", "/v1/me", { name: "Sapan", pubkey: keyA });
-    assert.equal(me.name, "Sapan");
+    const me = await rohan.api("PUT", "/v1/me", { name: "Rohan", pubkey: keyA });
+    assert.equal(me.name, "Rohan");
     assert.equal(me.partner, null);
-    await aatika.api("PUT", "/v1/me", { name: "Aatika", pubkey: keyB });
+    await shruti.api("PUT", "/v1/me", { name: "Shruti", pubkey: keyB });
   });
 
   await step("Pairing: an invite code, joined from the other phone", async () => {
-    const { code } = await sapan.api("POST", "/v1/invites");
+    const { code } = await rohan.api("POST", "/v1/invites");
     assert.match(code, /^[A-Z2-9]{6}$/);
-    await aatika.api("POST", "/v1/join", { code: "ZZZZZZ" }, 404);
-    const joined = await aatika.api("POST", "/v1/join", { code: code.toLowerCase() });
-    assert.equal(joined.partner.name, "Sapan");
+    await shruti.api("POST", "/v1/join", { code: "ZZZZZZ" }, 404);
+    const joined = await shruti.api("POST", "/v1/join", { code: code.toLowerCase() });
+    assert.equal(joined.partner.name, "Rohan");
     assert.equal(joined.partner.pubkey, keyA);
-    const me = await sapan.api("GET", "/v1/me");
+    const me = await rohan.api("GET", "/v1/me");
     assert.equal(me.partner.pubkey, keyB);
     assert.equal(me.coupleId, joined.coupleId);
     await stranger.api("POST", "/v1/join", { code }, 404); // used up
@@ -141,7 +141,7 @@ try {
   });
 
   await step("Realtime: mail arrives live over the WebSocket", async () => {
-    const ws = new WebSocket(`${API.replace(/^http/, "ws")}/v1/live?token=${encodeURIComponent(sapan.jwt)}`);
+    const ws = new WebSocket(`${API.replace(/^http/, "ws")}/v1/live?token=${encodeURIComponent(rohan.jwt)}`);
     const id = randomUUID();
     const sealed = randomBytes(64).toString("base64");
     const got = new Promise<any>((resolve, reject) => {
@@ -166,82 +166,82 @@ try {
         }
       });
     });
-    const sent = await aatika.api("POST", "/v1/mail", { id, kind: "msg", body: sealed });
+    const sent = await shruti.api("POST", "/v1/mail", { id, kind: "msg", body: sealed });
     assert.equal(sent.kind, "committed");
     assert.equal(sent.pushed, pushOn ? "no-token" : "disabled");
     assert.match(sent.txid, /^\d+$/);
     const m = await got;
-    assert.equal(m.sender, aatika.id);
+    assert.equal(m.sender, shruti.id);
     assert.equal(m.body, sealed);
     ws.close();
     // Sent twice (a retry) is stored once.
-    assert.equal((await aatika.api("POST", "/v1/mail", { id, kind: "msg", body: sealed })).kind, "duplicate");
+    assert.equal((await shruti.api("POST", "/v1/mail", { id, kind: "msg", body: sealed })).kind, "duplicate");
   });
 
   await step("Push: a token is kept, and a dead one is dropped", async () => {
-    await sapan.api("PUT", "/v1/me", { fcm: "not-a-real-token" });
+    await rohan.api("PUT", "/v1/me", { fcm: "not-a-real-token" });
     const [t1, t2] = [randomUUID(), randomUUID()];
-    const r = await aatika.api("POST", "/v1/mail", { id: t1, kind: "typing", body: "x" });
+    const r = await shruti.api("POST", "/v1/mail", { id: t1, kind: "typing", body: "x" });
     assert.equal(r.pushed, "skipped", "typing never pushes");
-    const m = await aatika.api("POST", "/v1/mail", { id: t2, kind: "moment", body: "x" });
+    const m = await shruti.api("POST", "/v1/mail", { id: t2, kind: "moment", body: "x" });
     // FCM rejects a made-up token as invalid; the API reports it.
     assert.ok(pushOn ? ["unregistered", "failed"].includes(m.pushed) : m.pushed === "disabled", m.pushed);
-    await sapan.api("PUT", "/v1/me", { fcm: "" });
-    await sapan.api("POST", "/v1/mail/ack", { ids: [t1, t2] });
+    await rohan.api("PUT", "/v1/me", { fcm: "" });
+    await rohan.api("POST", "/v1/mail/ack", { ids: [t1, t2] });
   });
 
   await step("Widget: a wake reaches only a phone with a widget", async () => {
-    assert.equal((await aatika.api("POST", "/v1/wake")).pushed, "no-widget");
-    await sapan.api("PUT", "/v1/me", { widget: "yes" }, 400);
-    await sapan.api("PUT", "/v1/me", { widget: true, fcm: "not-a-real-token" });
-    const woke = await aatika.api("POST", "/v1/wake");
+    assert.equal((await shruti.api("POST", "/v1/wake")).pushed, "no-widget");
+    await rohan.api("PUT", "/v1/me", { widget: "yes" }, 400);
+    await rohan.api("PUT", "/v1/me", { widget: true, fcm: "not-a-real-token" });
+    const woke = await shruti.api("POST", "/v1/wake");
     assert.ok(pushOn ? ["unregistered", "failed"].includes(woke.pushed) : woke.pushed === "disabled", woke.pushed);
     await stranger.api("POST", "/v1/wake", undefined, 409);
-    await sapan.api("PUT", "/v1/me", { widget: false, fcm: "" });
-    assert.equal((await aatika.api("POST", "/v1/wake")).pushed, "no-widget");
+    await rohan.api("PUT", "/v1/me", { widget: false, fcm: "" });
+    assert.equal((await shruti.api("POST", "/v1/wake")).pushed, "no-widget");
   });
 
   await step("Mail: the background check lists it, the ack deletes it", async () => {
-    const box = await sapan.api<{ id: string }[]>("GET", "/v1/mail");
+    const box = await rohan.api<{ id: string }[]>("GET", "/v1/mail");
     assert.equal(box.length, 1);
-    assert.deepEqual(await aatika.api("POST", "/v1/mail/ack", { ids: [box[0]!.id] }), { deleted: 0 }); // not hers
-    assert.deepEqual(await sapan.api("POST", "/v1/mail/ack", { ids: [box[0]!.id] }), { deleted: 1 });
-    assert.equal((await sapan.api<unknown[]>("GET", "/v1/mail")).length, 0);
+    assert.deepEqual(await shruti.api("POST", "/v1/mail/ack", { ids: [box[0]!.id] }), { deleted: 0 }); // not hers
+    assert.deepEqual(await rohan.api("POST", "/v1/mail/ack", { ids: [box[0]!.id] }), { deleted: 1 });
+    assert.equal((await rohan.api<unknown[]>("GET", "/v1/mail")).length, 0);
   });
 
   await step("Object storage: sealed media up, down, then deleted", async () => {
     const blob = randomBytes(200_000);
-    const { key, url } = await sapan.api("POST", "/v1/blobs");
+    const { key, url } = await rohan.api("POST", "/v1/blobs");
     const put = await fetch(url, { method: "PUT", body: blob });
     assert.equal(put.status, 200, await put.text());
-    const got = await aatika.api("GET", `/v1/blobs?key=${encodeURIComponent(key)}`);
+    const got = await shruti.api("GET", `/v1/blobs?key=${encodeURIComponent(key)}`);
     const down = await fetch(got.url);
     assert.equal(down.status, 200);
     assert.ok(Buffer.from(await down.arrayBuffer()).equals(blob));
     await stranger.api("GET", `/v1/blobs?key=${encodeURIComponent(key)}`, undefined, 409);
-    await aatika.api("DELETE", `/v1/blobs?key=${encodeURIComponent(key)}`);
+    await shruti.api("DELETE", `/v1/blobs?key=${encodeURIComponent(key)}`);
     assert.equal((await fetch(got.url)).status, 404);
   });
 
-  await step("Re-pair: Sapan's new phone takes the old one's place", async () => {
-    const newPhone = new Phone("Sapan 2");
+  await step("Re-pair: Rohan's new phone takes the old one's place", async () => {
+    const newPhone = new Phone("Rohan 2");
     await newPhone.signUp();
-    await newPhone.api("PUT", "/v1/me", { name: "Sapan", pubkey: randomBytes(32).toString("base64") });
+    await newPhone.api("PUT", "/v1/me", { name: "Rohan", pubkey: randomBytes(32).toString("base64") });
     const { code } = await newPhone.api("POST", "/v1/invites");
-    const after = await aatika.api("POST", "/v1/join", { code });
+    const after = await shruti.api("POST", "/v1/join", { code });
     assert.equal(after.partner.id, newPhone.id);
-    assert.equal((await sapan.api("GET", "/v1/me")).partner, null);
+    assert.equal((await rohan.api("GET", "/v1/me")).partner, null);
     await cleanup([newPhone]);
   });
 
   await step("Unpair removes the couple", async () => {
-    await aatika.api("POST", "/v1/unpair");
-    assert.equal((await aatika.api("GET", "/v1/me")).partner, null);
+    await shruti.api("POST", "/v1/unpair");
+    assert.equal((await shruti.api("GET", "/v1/me")).partner, null);
   });
 
   console.log(`\n${passed} steps passed`);
 } finally {
-  await cleanup([sapan, aatika, stranger]);
+  await cleanup([rohan, shruti, stranger]);
 }
 
 // Deletes the throwaway accounts and their rows.

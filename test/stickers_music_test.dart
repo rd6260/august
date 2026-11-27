@@ -85,7 +85,7 @@ void main() {
     expect(find.textContaining(RegExp(r'0:0[1-3] / 0:15')), findsOneWidget);
     await t.tap(find.bySemanticsLabel('Stop preview'));
     await frames(t);
-    await t.tap(find.text('Send to Aatika'));
+    await t.tap(find.text('Send to Shruti'));
     await frames(t);
 
     // In the chat its bubble loads, then plays: the time moves on.

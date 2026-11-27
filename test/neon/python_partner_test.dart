@@ -11,7 +11,7 @@ import 'package:august/net/neon_backend.dart';
 import 'package:august/net/vault.dart';
 
 /// The app's network stack (lib/net, no screens) as the phone, against
-/// Aatika emulated in Python (tool/partner/partner.py), through the
+/// Shruti emulated in Python (tool/partner/partner.py), through the
 /// deployed backend. The two share no code, so this pins the protocol.
 ///
 ///   AUGUST_API_URL=… AUGUST_AUTH_URL=… flutter test test/neon/python_partner_test.dart
@@ -58,9 +58,9 @@ void main() {
     addTearDown(b.store.flush); // before the folder goes
     b.isOpen = () => true;
     final pair = NeonPairRepository(b);
-    await pair.setName('Sapan');
+    await pair.setName('Rohan');
     final pairing = (await pair.join(code))!;
-    expect(pairing.partner.name, 'Aatika');
+    expect(pairing.partner.name, 'Shruti');
     // Python's security code is the app's, digit for digit.
     for (
       var i = 0;

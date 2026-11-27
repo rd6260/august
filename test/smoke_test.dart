@@ -53,14 +53,14 @@ void main() {
     'Decoy PIN': () => const DecoyPinPage(),
     // Chat and its sheets (C15–C28, B13).
     'Message actions': () =>
-        MessageActions(message: MockData.messages()[4], partner: 'Aatika'),
+        MessageActions(message: MockData.messages()[4], partner: 'Shruti'),
     'Theme sheet': () => const ThemeSheet(),
     'Wallpaper crop': () => const WallpaperCrop(photo: 'mock:3'),
-    'Poke picker': () => const PokePicker(partner: 'Aatika'),
+    'Poke picker': () => const PokePicker(partner: 'Shruti'),
     for (final m in VMoment.values)
       'Burst · ${m.label}': () => MomentBurst(
         moment: m,
-        from: 'Aatika',
+        from: 'Shruti',
         onBack: () {},
         onClose: () {},
         buzz: false,
@@ -77,7 +77,7 @@ void main() {
     'Viewer': () => MediaViewer(
       items: [
         for (final m in MockData.gallery())
-          ViewerItem(media: m, from: 'Aatika', at: MockData.mockNow),
+          ViewerItem(media: m, from: 'Shruti', at: MockData.mockNow),
       ],
       start: 2,
     ),
@@ -113,13 +113,13 @@ void main() {
     ),
     'Colour': (c, r) async =>
         showColourSheet(c, argb: 0xFFFF5C7A, recent: const [0xFF5BC0EB]),
-    'New doodle': (c, r) async => showNewDoodle(c, partner: 'Aatika'),
+    'New doodle': (c, r) async => showNewDoodle(c, partner: 'Shruti'),
     'Doodle sticker': (c, r) async =>
         showDoodleStickerSheet(c, r, MockData.sundayPlans()),
     'Received sticker': (c, r) async => showStickerMenu(
       c,
       MockData.stickerPacks()[2].stickers.first,
-      from: 'From Aatika',
+      from: 'From Shruti',
       chat: true,
     ),
     'Unpair': (c, r) async => showUnpair(c, r),
@@ -214,7 +214,7 @@ void main() {
       (_) => MediaViewer(
         items: [
           for (final m in MockData.gallery())
-            ViewerItem(media: m, from: 'Aatika', at: MockData.mockNow),
+            ViewerItem(media: m, from: 'Shruti', at: MockData.mockNow),
         ],
         start: 2,
       ),

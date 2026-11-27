@@ -19,7 +19,7 @@ flutter pub get
 flutter run
 ```
 
-Without `env.json`, every repository is a mock (`lib/mock/`). The pretend partner, Aatika:
+Without `env.json`, every repository is a mock (`lib/mock/`). The pretend partner, Shruti:
 
 - answers your texts with a typing indicator and a reply;
 - sends your moments back as bursts;
@@ -148,7 +148,7 @@ flutter test           # about 300 tests
 Notes:
 
 - `test/flutter_test_config.dart` loads the real fonts, so text measures the same as on the phone.
-- `test/data_test.dart` "Aatika types and then replies" is timing-sensitive and can fail under load; rerun it.
+- `test/data_test.dart` "Shruti types and then replies" is timing-sensitive and can fail under load; rerun it.
 
 ### End to end with a real phone
 
@@ -156,7 +156,7 @@ Notes:
 tool/e2e_neon.sh     # needs env.json, backend/.env.local and a phone on adb
 ```
 
-August runs on the phone, and Aatika is emulated in Python on this computer (`tool/partner/partner.py`, with `calls.py` using aiortc for WebRTC, in the venv at `tool/partner/.venv`). They meet only through the deployed backend. The phone's screen has to stay on for the whole run. Afterwards, `npm run cleanup` in `backend/` deletes the `e2e-…` test accounts.
+August runs on the phone, and Shruti is emulated in Python on this computer (`tool/partner/partner.py`, with `calls.py` using aiortc for WebRTC, in the venv at `tool/partner/.venv`). They meet only through the deployed backend. The phone's screen has to stay on for the whole run. Afterwards, `npm run cleanup` in `backend/` deletes the `e2e-…` test accounts.
 
 ## Renders
 

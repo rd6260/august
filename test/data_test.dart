@@ -60,7 +60,7 @@ void main() {
       expect(of(), Delivery.seen);
     });
 
-    test('Aatika types and then replies to a text', () async {
+    test('Shruti types and then replies to a text', () async {
       final before = c.read(messagesProvider).length;
       c.read(messagesProvider.notifier).send(const TextBody('hi'));
       await Future<void>.delayed(const Duration(milliseconds: 12));
@@ -88,7 +88,7 @@ void main() {
   });
 
   group('moments', () {
-    test('one of each every 10 s, and Aatika sends one back', () async {
+    test('one of each every 10 s, and Shruti sends one back', () async {
       final cd = c.read(momentCooldownProvider.notifier);
       expect(cd.send(VMoment.hug), isTrue);
       expect(cd.send(VMoment.hug), isFalse);

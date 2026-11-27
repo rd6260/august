@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Aatika, a second August user emulated in Python, for end-to-end runs with
+"""Shruti, a second August user emulated in Python, for end-to-end runs with
 one phone. She speaks the app's protocol from scratch (it shares no code
 with lib/net/): a hidden Neon Managed Auth account, an X25519 identity,
 HKDF-SHA256, XChaCha20-Poly1305 sealed envelopes, the API Function, the
@@ -22,7 +22,7 @@ join, then plays a script against whatever the phone sends:
   a meme            fetches its link and checks it's a picture
   a round video     downloads and opens it
   a theme           notes it
-  doodles           makes her own board "Aatika's board"; when the phone
+  doodles           makes her own board "Shruti's board"; when the phone
                     makes one and draws, she draws a heart on it too
   "brb"             presses Home on the phone (adb), sends "you there?",
                     checks a notification went up (from Firebase, or from
@@ -81,7 +81,7 @@ APP_ID = "com.rd6260.august"
 
 
 def log(msg: str) -> None:
-    print(f"[aatika {datetime.now():%H:%M:%S}] {msg}", flush=True)
+    print(f"[shruti {datetime.now():%H:%M:%S}] {msg}", flush=True)
 
 
 # ── Crypto: must match lib/net/crypto.dart byte for byte ────────────────
@@ -173,9 +173,9 @@ class Neon:
         return r.content
 
 
-# ── Aatika ──────────────────────────────────────────────────────────────
+# ── Shruti ──────────────────────────────────────────────────────────────
 
-class Aatika:
+class Shruti:
     def __init__(self, neon: Neon, report: Path) -> None:
         self.neon = neon
         self.me = Identity()
@@ -202,7 +202,7 @@ class Aatika:
 
     def message(self, body: dict, reply: dict | None = None, kind: str = "msg") -> dict:
         self.n += 1
-        env = {"type": "msg", "id": f"aatika-{self.n}",
+        env = {"type": "msg", "id": f"shruti-{self.n}",
                "at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "body": body}
         if reply:
             env["reply"] = reply
@@ -282,7 +282,7 @@ class Aatika:
         data = self.photo()
         file_key = os.urandom(32)
         blob = self.neon.upload(aead_seal(file_key, data))
-        media = {"id": f"aatika-photo-{self.n}", "art": 1, "aspect": 800 / 600, "bytes": len(data),
+        media = {"id": f"shruti-photo-{self.n}", "art": 1, "aspect": 800 / 600, "bytes": len(data),
                  "blob": blob, "k": b64(file_key)}
         return self.message({"t": "photo", "photos": [media], "caption": "for you 📸"})
 
@@ -299,7 +299,7 @@ class Aatika:
         return {"by": "me", "tool": "neon", "argb": 0xFFFF5C7A, "size": 4.0, "opacity": 1.0, "p": pts}
 
     def send_voice(self) -> dict:
-        tmp = Path(self.report.parent) / "aatika-voice.m4a"
+        tmp = Path(self.report.parent) / "shruti-voice.m4a"
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
                         "sine=frequency=523:duration=2", "-c:a", "aac", "-b:a", "64k", str(tmp)],
                        check=True, timeout=60)
@@ -310,7 +310,7 @@ class Aatika:
         return self.message({"t": "voice", "ms": 2000, "wave": wave, "blob": blob, "k": b64(file_key)})
 
     def send_video(self) -> dict:
-        tmp = Path(self.report.parent) / "aatika-video.mp4"
+        tmp = Path(self.report.parent) / "shruti-video.mp4"
         subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-f", "lavfi", "-i",
                         "testsrc=size=480x270:rate=24:duration=3", "-c:v", "libx264",
                         "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(tmp)],
@@ -318,7 +318,7 @@ class Aatika:
         data = tmp.read_bytes()
         file_key = os.urandom(32)
         blob = self.neon.upload(aead_seal(file_key, data))
-        media = {"id": f"aatika-video-{self.n}", "art": 4, "aspect": 480 / 270, "bytes": len(data),
+        media = {"id": f"shruti-video-{self.n}", "art": 4, "aspect": 480 / 270, "bytes": len(data),
                  "ms": 3000, "blob": blob, "k": b64(file_key)}
         return self.message({"t": "video", "video": media})
 
@@ -366,13 +366,13 @@ class Aatika:
         log("hung up")
 
     def notified(self, seconds: int, tag: str | None = None) -> bool:
-        """An August notification from Aatika saying "New message" is up
+        """An August notification from Shruti saying "New message" is up
         (with [tag]: only one posted under that tag)."""
         end = time.time() + seconds
         while time.time() < end:
             dump = self.adb("shell", "dumpsys", "notification", "--noredact")
             for b in dump.split("NotificationRecord("):
-                if f"pkg={APP_ID}" in b and "Aatika" in b and "New message" in b and (
+                if f"pkg={APP_ID}" in b and "Shruti" in b and "New message" in b and (
                         tag is None or f"tag={tag} " in b or f"|{tag}|" in b):
                     return True
             time.sleep(1)
@@ -383,7 +383,7 @@ class Aatika:
         self.text("while you were closed")
         log("sent a message while August is closed")
         self.check("background check notified while closed", self.notified(75, tag="bg"),
-                   "Aatika · New message")
+                   "Shruti · New message")
 
     def adb(self, *args: str) -> str:
         return subprocess.run(["adb", *args], capture_output=True, text=True, timeout=30).stdout
@@ -399,7 +399,7 @@ class Aatika:
         else:
             self.check("push: wake-up sent", sent.get("pushed") == "sent", sent.get("pushed"))
         self.check("notification shown while backgrounded", self.notified(30),
-                   "Aatika · New message")
+                   "Shruti · New message")
         log("bringing August back")
         self.adb("shell", "monkey", "-p", APP_ID, "-c", "android.intent.category.LAUNCHER", "1")
 
@@ -410,7 +410,7 @@ class Aatika:
         neon = Neon(self.neon.api, self.neon.auth)
         me = Identity()
         neon.sign_up()
-        neon.call("PUT", "/v1/me", {"name": "Aatika", "pubkey": me.public})
+        neon.call("PUT", "/v1/me", {"name": "Shruti", "pubkey": me.public})
         code = neon.call("POST", "/v1/invites")["code"]
         log(f"new phone, code {code}")
         self.text(f"new phone code {code}")  # from the old phone, sealed with the old key
@@ -435,7 +435,7 @@ class Aatika:
     def run(self, code_file: Path) -> int:
         n = self.neon
         n.sign_up()
-        n.call("PUT", "/v1/me", {"name": "Aatika", "pubkey": self.me.public})
+        n.call("PUT", "/v1/me", {"name": "Shruti", "pubkey": self.me.public})
         code = n.call("POST", "/v1/invites")["code"]
         code_file.write_text(code)
         log(f"code {code}, waiting for the phone")
@@ -461,9 +461,9 @@ class Aatika:
         self.post("theme", {"type": "theme", "theme": {"wallpaper": {"builtin": "dune", "photo": None},
                                                        "dim": 0.1, "blur": 0.0, "glass": 0.6, "ink": "auto"}})
         log("changed the theme to dune")
-        self.post("doodle", {"type": "doodle", "op": "create", "id": "aatika-board",
-                             "name": "Aatika's board", "paper": "dotted"})
-        self.post("doodle", {"type": "doodle", "op": "add", "id": "aatika-board",
+        self.post("doodle", {"type": "doodle", "op": "create", "id": "shruti-board",
+                             "name": "Shruti's board", "paper": "dotted"})
+        self.post("doodle", {"type": "doodle", "op": "add", "id": "shruti-board",
                              "strokes": [self.heart(80, 120)]})
         log("made a board and drew on it")
 
@@ -608,7 +608,7 @@ def main() -> int:
     args = ap.parse_args()
     env = json.loads((ROOT / "env.json").read_text())
     args.report.parent.mkdir(parents=True, exist_ok=True)
-    return Aatika(Neon(env["AUGUST_API_URL"], env["AUGUST_AUTH_URL"]), args.report).run(args.code_file)
+    return Shruti(Neon(env["AUGUST_API_URL"], env["AUGUST_AUTH_URL"]), args.report).run(args.code_file)
 
 
 if __name__ == "__main__":

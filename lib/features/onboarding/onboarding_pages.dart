@@ -146,9 +146,9 @@ class NamePage extends ConsumerStatefulWidget {
 
 class _NamePageState extends ConsumerState<NamePage> {
   late final _name = TextEditingController(
-    // The mock fills in Sapan, as the canvas does; a real phone starts empty.
+    // The mock fills in Rohan, as the canvas does; a real phone starts empty.
     text: ref.read(sessionProvider).name.isEmpty && !ref.read(onNeonProvider)
-        ? MockData.sapan.name
+        ? MockData.rohan.name
         : ref.read(sessionProvider).name,
   );
   var _photo = false;
@@ -475,7 +475,7 @@ class _QrPainter extends CustomPainter {
 }
 
 /// C5: show your code; your person types or scans it. The server makes the
-/// code and says when they've joined; the mock Aatika joins after
+/// code and says when they've joined; the mock Shruti joins after
 /// [joinsAfter].
 class CreatePairPage extends ConsumerStatefulWidget {
   const CreatePairPage({

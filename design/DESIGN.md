@@ -72,7 +72,7 @@ A blur is never put inside an opacity or a fade, because it pops. Renders of the
 **Burst (C25):**
 - Layout: a radial wash in the moment colour over the scrim, then three rings in the colour. The outer ring is dashed and ripples outward (2.4 s); the middle ring is at 0.45; the inner ring is solid.
 - Centre: a 112 px filled circle in the moment colour, with the line icon in black.
-- Text: the word in Doto 900 / 58, then 'from Aatika · just now'.
+- Text: the word in Doto 900 / 58, then 'from Shruti · just now'.
 - Buttons: an ink 'Hug back' and an outline 'Close'.
 - Motion: the centre circle **beats like a heart** (scale 1 → 1.14 → 1 → 1.09 → 1 over 1.4 s, looping); it does not bob up and down. About 14 hearts drift up across the whole screen with sway and rotation (4.5–7 s each). Five of the gesture's own emoji float up more slowly and larger (7–9 s).
 
@@ -104,5 +104,5 @@ A blur is never put inside an opacity or a fade, because it pops. Renders of the
 - Long-press the chat wallpaper to open the shared theme sheet. Either partner can change it for both, and the last change wins. A system row records each change.
 - Pokes have a 10 s cooldown per variant. In the picker, a variant on cooldown shows faded with its seconds left.
 - Delivery ticks: a clock while sending, ✓ sent, ✓✓ delivered, a bold ✓✓ when seen, and a dashed bubble with Retry when it failed.
-- Media say where they come from: 'from Aatika's phone' when direct (P2P), and the size with 'cloud' on the fallback.
+- Media say where they come from: 'from Shruti's phone' when direct (P2P), and the size with 'cloud' on the fallback.
 - **Calls ring only while the partner's August is open.** Otherwise the call shows as 'no answer', and she gets a missed call at her next background check (up to 8 min).

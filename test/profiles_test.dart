@@ -34,12 +34,12 @@ void main() {
     expect(Directory('${root.path}/profiles/${p.id}').existsSync(), isTrue);
     File('${root.path}/profiles/${p.id}/moose.json').writeAsStringSync(
       jsonEncode({
-        'partner': {'id': 'x', 'name': 'Aatika', 'pubkey': 'k'},
+        'partner': {'id': 'x', 'name': 'Shruti', 'pubkey': 'k'},
       }),
     );
     final all = await Profiles.all();
     expect(all.map((p) => p.name), ['Main', 'Tester Two']);
-    expect(all.last.partner, 'Aatika');
+    expect(all.last.partner, 'Shruti');
     expect(all.first.partner, isNull);
   });
 

@@ -61,7 +61,7 @@ class _StickerMenu extends ConsumerWidget {
 
   final Sticker sticker;
 
-  /// "From Aatika", "From WhatsApp", "Yours"…
+  /// "From Shruti", "From WhatsApp", "Yours"…
   final String from;
   final bool recent;
   final bool chat;

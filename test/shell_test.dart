@@ -53,14 +53,14 @@ void main() {
         expect(find.byType(LockScreen), findsNothing);
 
         // The chat opens first, in the ink the wallpaper asks for.
-        final name = find.text('Aatika').first;
+        final name = find.text('Shruti').first;
         expect(VInk.of(tester.element(name)), ink);
 
         // Inactive tabs show only their icon in the pill.
         for (final (icon, title) in [
           (VIcon.doodle, 'Doodles'),
           (VIcon.gear, 'Settings'),
-          (VIcon.chat, 'Aatika'),
+          (VIcon.chat, 'Shruti'),
         ]) {
           // The bar takes taps for itself and picks the tab by position, so
           // the icon is never the hit target.

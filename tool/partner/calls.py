@@ -1,4 +1,4 @@
-"""Aatika's side of a call: aiortc (WebRTC in Python) on its own asyncio
+"""Shruti's side of a call: aiortc (WebRTC in Python) on its own asyncio
 loop. She sends a 440 Hz tone and, on a video call, a moving test card,
 and counts what arrives from the phone."""
 

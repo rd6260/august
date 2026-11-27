@@ -28,7 +28,7 @@ void main() {
       showMessageActions(
         t.element(find.byType(Scrollable).first),
         m: m,
-        partner: 'Aatika',
+        partner: 'Shruti',
       ),
     );
     for (var i = 0; i < 12; i++) {

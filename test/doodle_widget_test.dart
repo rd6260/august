@@ -110,18 +110,18 @@ void main() {
     var boards = applyDoodleOp(
       start,
       StrokesAdded(id, [line(50)]),
-      partner: 'Aatika',
+      partner: 'Shruti',
       at: at,
     );
     final d = boards.first;
     expect(d.strokes.length, start.first.strokes.length + 1);
-    expect(d.editedBy, 'Aatika');
-    expect(DoodleWidget.caption(d, now: at), 'Aatika · 14:32');
+    expect(d.editedBy, 'Shruti');
+    expect(DoodleWidget.caption(d, now: at), 'Shruti · 14:32');
     expect(
       DoodleWidget.caption(d, now: at.add(const Duration(days: 2))),
-      'Aatika · 27 Nov',
+      'Shruti · 27 Nov',
     );
-    boards = applyDoodleOp(boards, DoodleDeleted(id), partner: 'Aatika');
+    boards = applyDoodleOp(boards, DoodleDeleted(id), partner: 'Shruti');
     expect(boards.any((b) => b.id == id), isFalse);
     expect(
       identical(

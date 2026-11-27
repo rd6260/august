@@ -85,7 +85,7 @@ void main() {
     expect(store.paired, isFalse);
     final day = MockData.messages();
     store
-      ..myName = 'Sapan'
+      ..myName = 'Rohan'
       ..messages = [
         ...day,
         Message(
@@ -98,7 +98,7 @@ void main() {
       ];
     await store.flush();
     final again = await LocalStore.open(dir);
-    expect(again.myName, 'Sapan');
+    expect(again.myName, 'Rohan');
     expect(again.messages, hasLength(day.length + 1));
     for (var i = 0; i < day.length; i++) {
       expect(again.messages[i].fromMe, day[i].fromMe);

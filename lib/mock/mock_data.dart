@@ -45,8 +45,8 @@ abstract final class MockData {
       ),
   ];
 
-  static const sapan = Person(id: 'me', name: 'Sapan');
-  static const aatika = Person(id: 'partner', name: 'Aatika');
+  static const rohan = Person(id: 'me', name: 'Rohan');
+  static const shruti = Person(id: 'partner', name: 'Shruti');
 
   /// The decoy chat's made-up person (C14).
   static const decoyName = 'Neha';
@@ -61,7 +61,7 @@ abstract final class MockData {
     '12890', '75341', '09826', '61470',
   ];
 
-  /// What Aatika's new phone shows during a re-pair (C9, C10).
+  /// What Shruti's new phone shows during a re-pair (C9, C10).
   static const newSecurityCode = [
     '88214', '30957', '14402', '69183', //
     '27560', '51348', '93017', '40625',
@@ -75,8 +75,8 @@ abstract final class MockData {
   static const repairCode = 'R3PA1R';
 
   static Pairing pairing() => Pairing(
-    me: sapan,
-    partner: aatika,
+    me: rohan,
+    partner: shruti,
     since: DateTime(2025, 2, 14),
     securityCode: securityCode,
     lastSeen: today(21, 4),
@@ -236,7 +236,7 @@ abstract final class MockData {
       id: 'sunday',
       name: 'Sunday plans',
       strokes: sundayPlans(),
-      editedBy: 'Aatika',
+      editedBy: 'Shruti',
       editedAt: mockNow,
       partnerHere: true,
     ),
@@ -309,7 +309,7 @@ abstract final class MockData {
           points: [Offset(130, 200), Offset(80, 270)],
         ),
       ],
-      editedBy: 'Aatika',
+      editedBy: 'Shruti',
       editedAt: mockNow.subtract(const Duration(days: 1)),
     ),
     Doodle(
@@ -395,7 +395,7 @@ abstract final class MockData {
       const StickerPack(
         id: 'cats',
         name: 'Cat chaos',
-        note: '8 · from Aatika',
+        note: '8 · from Shruti',
         stickers: [
           Sticker.photo(
             id: 's-cat',
@@ -526,7 +526,7 @@ abstract final class MockData {
           Media(id: 'rv1', art: 2, duration: Duration(seconds: 12)),
         ),
       ),
-      theirs(8, 12, const TextBody('good morning sapan ☀️')),
+      theirs(8, 12, const TextBody('good morning rohan ☀️')),
       mine(8, 14, const TextBody('morning!! did you sleep at all')),
       theirs(9, 30, const PhotoBody([Media(id: 'p1', art: 0, aspect: 1.5)])),
       mine(
@@ -568,7 +568,7 @@ abstract final class MockData {
         at: today(13, 30),
         body: const SystemBody(
           SystemKind.theme,
-          'Aatika changed the theme to Night',
+          'Shruti changed the theme to Night',
         ),
       ),
       theirs(

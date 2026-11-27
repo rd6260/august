@@ -36,7 +36,7 @@ class MockPairRepository implements PairRepository {
   Future<void> unpair() async {}
 }
 
-/// A pretend Aatika: what you send goes ✓, ✓✓ then seen; now and then she
+/// A pretend Shruti: what you send goes ✓, ✓✓ then seen; now and then she
 /// types back; a moment you send gets one back.
 class MockChatRepository implements ChatRepository {
   MockChatRepository({this.replyDelay = const Duration(seconds: 2)});
@@ -62,7 +62,7 @@ class MockChatRepository implements ChatRepository {
   @override
   Stream<ChatEvent> get events => _events.stream;
 
-  /// Something from Aatika right now (tests).
+  /// Something from Shruti right now (tests).
   void push(ChatEvent e) => _events.add(e);
 
   void _after(Duration d, void Function() f) => _timers.add(
@@ -114,7 +114,7 @@ class MockChatRepository implements ChatRepository {
       });
       return;
     }
-    // "new phone" plays Aatika's re-pair request (C9).
+    // "new phone" plays Shruti's re-pair request (C9).
     if (body is TextBody && body.text.toLowerCase().contains('new phone')) {
       _after(replyDelay, () => _events.add(const RepairRequested()));
       return;

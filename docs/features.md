@@ -152,7 +152,7 @@ Code: `features/doodles/` (`doodles_page.dart`, `board_page.dart`, `doodle_sheet
 One doodle you both picked, on both home screens, changing as either of you draws.
 
 - **Pick:** long-press a board › **Show on home screen** (or **Remove from home screen**). The pick syncs, so both widgets show the same board, and either of you can change it at any time. Without a widget yet, August offers to add one (the launcher's own "Add widget"); otherwise add **Our doodle** from the widget list.
-- **Look:** the board's paper fills the widget and the drawing is fitted to the middle, with a caption such as "Aatika · 14:32" (a clock time, since the widget only redraws when the doodle changes). Resizable; tapping it opens the board. With nothing picked, it says how to pick one.
+- **Look:** the board's paper fills the widget and the drawing is fitted to the middle, with a caption such as "Shruti · 14:32" (a clock time, since the widget only redraws when the doodle changes). Resizable; tapping it opens the board. With nothing picked, it says how to pick one.
 - **Staying current:** while August is open, it redraws within a second of a change. When the other phone's doodle changes, it asks the server for a silent wake-up, bunched: one 3 s after drawing pauses, and at least one every 15 s while it goes on. The woken phone peeks at the waiting doodle changes (it doesn't take them, like a notification), applies them to a copy of the board and redraws. The background check also redraws it every 8 minutes if a wake-up didn't get through.
 - **Only phones with a widget are woken:** each phone tells the server whether it has one (`PUT /v1/me {"widget": …}`), and older versions never do, so they never get a wake-up they'd show as "New message".
 
