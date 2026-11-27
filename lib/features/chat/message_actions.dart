@@ -7,7 +7,6 @@ import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
 import '../../core/widgets/v_glass.dart';
 import '../../core/widgets/v_ink.dart';
-import '../../core/widgets/v_surface.dart';
 import '../../data/models.dart';
 import '../common/overlay.dart';
 import '../common/parts.dart';
@@ -62,9 +61,10 @@ class MessageActions extends StatelessWidget {
   final Message message;
   final String partner;
 
+  /// Photos, videos and GIFs/memes can be saved to the phone; stickers
+  /// stay in August (they're kept with Long-press › Keep in the tray).
   bool get _media => switch (message.body) {
     PhotoBody() || VideoBody() || RoundVideoBody() || MemeBody() => true,
-    StickerBody() => true,
     _ => false,
   };
 
@@ -103,6 +103,7 @@ class MessageActions extends StatelessWidget {
                   radius: 999,
                   tint: VPalette.of(context).glassSheet,
                   blur: 14,
+                  border: false,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -129,10 +130,22 @@ class MessageActions extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(width: 4),
-                        VCircleButton(
-                          icon: VIcon.plus,
-                          size: 32,
-                          onTap: () => pick(const ReactAction('🫶')),
+                        Semantics(
+                          button: true,
+                          label: 'More reactions',
+                          child: VTappable(
+                            onTap: () => pick(const ReactAction('🫶')),
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: VInk.of(context).withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const VIconView(VIcon.plus, size: 18),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -156,44 +169,52 @@ class MessageActions extends StatelessWidget {
             tint: VPalette.of(context).glassSheet,
             blur: 14,
             border: false,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: VInk.of(context))),
-              ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const _Handle(),
-                      const SizedBox(height: 6),
-                      _Row(
-                        VIcon.reply,
-                        'Reply',
-                        () => pick(const ReplyAction()),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Center(child: _Handle()),
+                    const SizedBox(height: 12),
+                    // When it was sent, delivered and seen: a quiet line.
+                    Text(
+                      info,
+                      textAlign: TextAlign.center,
+                      style: VText.secondary.copyWith(
+                        color: VInk.of(context).withValues(alpha: 0.55),
                       ),
-                      if (m.body is TextBody)
+                    ),
+                    const SizedBox(height: 12),
+                    _Group(
+                      rows: [
                         _Row(
-                          VIcon.copy,
-                          'Copy',
-                          () => pick(const CopyAction()),
+                          VIcon.reply,
+                          'Reply',
+                          () => pick(const ReplyAction()),
                         ),
-                      _Row(
-                        VIcon.download,
-                        'Save media',
-                        _media ? () => pick(const SaveAction()) : null,
-                      ),
-                      _Row(VIcon.info, 'Info', null, sub: info, enabled: true),
-                      _Row(
-                        VIcon.trash,
-                        'Delete for me',
-                        () => pick(const DeleteAction()),
-                        last: true,
-                      ),
-                    ],
-                  ),
+                        if (m.body is TextBody)
+                          _Row(
+                            VIcon.copy,
+                            'Copy',
+                            () => pick(const CopyAction()),
+                          ),
+                        if (_media)
+                          _Row(
+                            VIcon.download,
+                            'Save media',
+                            () => pick(const SaveAction()),
+                          ),
+                        _Row(
+                          VIcon.trash,
+                          'Delete for me',
+                          () => pick(const DeleteAction()),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -212,63 +233,72 @@ class _Handle extends StatelessWidget {
     width: 36,
     height: 4,
     decoration: BoxDecoration(
-      color: VInk.of(context),
+      color: VInk.of(context).withValues(alpha: 0.3),
       borderRadius: BorderRadius.circular(2),
     ),
   );
 }
 
-class _Row extends StatelessWidget {
-  const _Row(
-    this.icon,
-    this.label,
-    this.onTap, {
-    this.sub,
-    this.last = false,
-    bool? enabled,
-  }) : enabled = enabled ?? onTap != null;
+/// The actions in one soft card, with faint dividers from the text on.
+class _Group extends StatelessWidget {
+  const _Group({required this.rows});
 
-  final VIcon icon;
-  final String label;
-  final VoidCallback? onTap;
-  final String? sub;
-  final bool last;
-  final bool enabled;
+  final List<_Row> rows;
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: enabled ? 1 : 0.35,
+    final ink = VInk.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: ink.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (final (i, r) in rows.indexed) ...[
+            if (i > 0)
+              Padding(
+                padding: const EdgeInsets.only(left: 52),
+                child: SizedBox(
+                  height: 0.5,
+                  width: double.infinity,
+                  child: ColoredBox(color: ink.withValues(alpha: 0.14)),
+                ),
+              ),
+            r,
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Row extends StatelessWidget {
+  const _Row(this.icon, this.label, this.onTap);
+
+  final VIcon icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ink = VInk.of(context);
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
       child: VTappable(
         onTap: onTap,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-              child: Row(
-                crossAxisAlignment: sub == null
-                    ? CrossAxisAlignment.center
-                    : CrossAxisAlignment.start,
-                children: [
-                  VIconView(icon, size: 22),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(label, style: VText.rowTitle),
-                        if (sub != null) ...[
-                          const SizedBox(height: 4),
-                          Text(sub!, style: VText.secondary),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (!last) const VDivider(),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 16),
+          child: Row(
+            children: [
+              VIconView(icon, size: 20, color: ink.withValues(alpha: 0.75)),
+              const SizedBox(width: 16),
+              Expanded(child: Text(label, style: VText.rowTitle)),
+            ],
+          ),
         ),
       ),
     );
