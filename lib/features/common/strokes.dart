@@ -88,9 +88,50 @@ class StrokesPainter extends CustomPainter {
       old.outline != outline;
 }
 
+/// A text stroke laid out: Inter, [Stroke.size] as its font size, in its
+/// colour, from its first point (the top-left).
+TextPainter textOf(Stroke st) => TextPainter(
+  text: TextSpan(
+    text: st.text ?? '',
+    style: TextStyle(
+      fontFamily: 'Inter',
+      fontSize: st.size,
+      fontWeight: FontWeight.w600,
+      height: 1.15,
+      color: VPenColors.of(st.argb).withValues(alpha: st.opacity),
+    ),
+  ),
+  textDirection: TextDirection.ltr,
+)..layout();
+
+/// What a stroke covers on the board: a pen's points with its width, or
+/// the box its text fills. Null when there's nothing (no points).
+Rect? strokeBounds(Stroke st) {
+  if (st.points.isEmpty) return null;
+  if (st.isText) {
+    final t = textOf(st);
+    final r = st.points.first & t.size;
+    t.dispose();
+    return r;
+  }
+  Rect? r;
+  for (final p in st.points) {
+    final pr = Rect.fromCircle(center: p, radius: st.size / 2);
+    r = r == null ? pr : r.expandToInclude(pr);
+  }
+  return r;
+}
+
 /// Draws one stroke in its tool's style.
 void paintStroke(Canvas canvas, Stroke st) {
   if (st.points.isEmpty) return;
+  if (st.tool == PenTool.text) {
+    if (!st.isText) return;
+    final t = textOf(st);
+    t.paint(canvas, st.points.first);
+    t.dispose();
+    return;
+  }
   final color = VPenColors.of(st.argb).withValues(alpha: st.opacity);
   final path = smoothPath(st.points);
   Paint base({double? width, StrokeCap cap = StrokeCap.round}) => Paint()
@@ -165,6 +206,7 @@ void paintStroke(Canvas canvas, Stroke st) {
       );
     case PenTool.fineLiner:
     case PenTool.lasso:
+    case PenTool.text:
       canvas.drawPath(path, base());
   }
 }

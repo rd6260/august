@@ -26,28 +26,25 @@ class _BoardSheet extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => Stack(
-    children: [
-      Positioned.fill(
-        child: GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: ColoredBox(color: VPalette.of(context).popupScrim),
+  Widget build(BuildContext context) => VQuiet(
+    child: Stack(
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: ColoredBox(color: VPalette.of(context).popupScrim),
+          ),
         ),
-      ),
-      Positioned(
-        left: 0,
-        right: 0,
-        bottom: 0,
-        child: VGlass(
-          radius: 28,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          tint: VPalette.of(context).glassSheet,
-          blur: 14,
-          border: false,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: VInk.of(context))),
-            ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: VGlass(
+            radius: 28,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            tint: VPalette.of(context).glassSheet,
+            blur: 14,
+            border: false,
             child: SafeArea(
               top: false,
               child: Padding(
@@ -62,7 +59,7 @@ class _BoardSheet extends StatelessWidget {
                         height: 4,
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: VInk.of(context),
+                          color: VInk.of(context).withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -74,8 +71,8 @@ class _BoardSheet extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
@@ -111,18 +108,30 @@ class _ToolOptionsState extends State<_ToolOptions> {
 
   @override
   Widget build(BuildContext context) {
-    final preview = Stroke(
-      tool: widget.tool == PenTool.eraser ? PenTool.fineLiner : widget.tool,
-      argb: widget.tool == PenTool.eraser
-          ? VInk.of(context).toARGB32()
-          : widget.argb,
-      size: _pen.size,
-      opacity: _pen.opacity,
-      points: [
-        for (var x = 10.0; x <= 290; x += 6)
-          Offset(x, 30 + math.sin(x / 290 * 2 * math.pi) * 16),
-      ],
-    );
+    final preview = widget.tool == PenTool.text
+        // The text tool: a word at the chosen size.
+        ? Stroke(
+            tool: PenTool.text,
+            argb: widget.argb,
+            size: _pen.size,
+            opacity: _pen.opacity,
+            points: [Offset(16, 30 - _pen.size * 0.6)],
+            text: 'Hello',
+          )
+        : Stroke(
+            tool: widget.tool == PenTool.eraser
+                ? PenTool.fineLiner
+                : widget.tool,
+            argb: widget.tool == PenTool.eraser
+                ? VInk.of(context).toARGB32()
+                : widget.argb,
+            size: _pen.size,
+            opacity: _pen.opacity,
+            points: [
+              for (var x = 10.0; x <= 290; x += 6)
+                Offset(x, 30 + math.sin(x / 290 * 2 * math.pi) * 16),
+            ],
+          );
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -150,7 +159,9 @@ class _ToolOptionsState extends State<_ToolOptions> {
               decoration: BoxDecoration(
                 color: VInk.surfaceOf(context),
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: VInk.of(context)),
+                border: Border.all(
+                  color: VInk.of(context).withValues(alpha: 0.15),
+                ),
               ),
               child: Center(
                 child: SizedBox(
@@ -180,25 +191,28 @@ class _ToolOptionsState extends State<_ToolOptions> {
                 () => _pen = _pen.copyWith(opacity: math.max(0.1, v)),
               ),
             ),
-            const SizedBox(height: 10),
-            VSlider(
-              label: 'Smoothing',
-              value: _pen.smoothing,
-              display: '${(_pen.smoothing * 100).round()}',
-              onChanged: (v) =>
-                  setState(() => _pen = _pen.copyWith(smoothing: v)),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(child: Text('Pressure', style: VText.rowTitle)),
-                VSwitch(
-                  value: _pen.pressure,
-                  onChanged: (v) =>
-                      setState(() => _pen = _pen.copyWith(pressure: v)),
-                ),
-              ],
-            ),
+            // Text has no line to smooth, nor pressure.
+            if (widget.tool != PenTool.text) ...[
+              const SizedBox(height: 10),
+              VSlider(
+                label: 'Smoothing',
+                value: _pen.smoothing,
+                display: '${(_pen.smoothing * 100).round()}',
+                onChanged: (v) =>
+                    setState(() => _pen = _pen.copyWith(smoothing: v)),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(child: Text('Pressure', style: VText.rowTitle)),
+                  VSwitch(
+                    value: _pen.pressure,
+                    onChanged: (v) =>
+                        setState(() => _pen = _pen.copyWith(pressure: v)),
+                  ),
+                ],
+              ),
+            ],
             if (widget.tool == PenTool.calligraphy) ...[
               const SizedBox(height: 14),
               Text('Nib angle', style: VText.rowTitle),
@@ -270,7 +284,7 @@ class _ColourSheetState extends State<_ColourSheet> {
           decoration: BoxDecoration(
             color: VPenColors.of(c),
             borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: ink),
+            border: Border.all(color: ink.withValues(alpha: 0.25)),
           ),
         ),
       ),
@@ -483,7 +497,7 @@ class _Brightness extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(11),
-                        border: Border.all(color: ink),
+                        border: Border.all(color: ink.withValues(alpha: 0.2)),
                         gradient: LinearGradient(
                           colors: [VColors.black, hsv.withValue(1).toColor()],
                         ),
@@ -602,116 +616,134 @@ class _NewDoodleState extends State<_NewDoodle> {
   Widget build(BuildContext context) {
     final ink = VInk.of(context);
     final paper = VInk.surfaceOf(context);
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: ColoredBox(color: VPalette.of(context).popupScrim),
+    return VQuiet(
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: ColoredBox(color: VPalette.of(context).popupScrim),
+            ),
           ),
-        ),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: VGlass(
-              radius: 28,
-              tint: VPalette.of(context).glassSheet,
-              blur: 14,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text('New doodle', style: VText.doto(26)),
-                    const SizedBox(height: 14),
-                    Text('NAME', style: VText.eyebrow),
-                    const SizedBox(height: 8),
-                    VTextField(controller: _name, autofocus: true),
-                    const SizedBox(height: 14),
-                    Text('PAPER', style: VText.eyebrow),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        for (final p in Paper.values) ...[
-                          if (p != Paper.plain) const SizedBox(width: 8),
-                          Expanded(
-                            child: Semantics(
-                              button: true,
-                              selected: p == _paper,
-                              label: p.name,
-                              child: VTappable(
-                                onTap: () => setState(() => _paper = p),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      height: 78,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: ink),
-                                        boxShadow: p == _paper
-                                            ? [
-                                                BoxShadow(
-                                                  color: paper,
-                                                  spreadRadius: 3,
-                                                ),
-                                                BoxShadow(
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: VGlass(
+                radius: 28,
+                tint: VPalette.of(context).glassSheet,
+                blur: 14,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('New doodle', style: VText.doto(26)),
+                      const SizedBox(height: 14),
+                      Text('NAME', style: VText.eyebrow),
+                      const SizedBox(height: 8),
+                      VTextField(controller: _name, autofocus: true),
+                      const SizedBox(height: 14),
+                      Text('PAPER', style: VText.eyebrow),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          for (final p in Paper.values) ...[
+                            if (p != Paper.plain) const SizedBox(width: 8),
+                            Expanded(
+                              child: Semantics(
+                                button: true,
+                                selected: p == _paper,
+                                label: p.name,
+                                child: VTappable(
+                                  onTap: () => setState(() => _paper = p),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: 78,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          // The chosen paper: a clear ring;
+                                          // the rest a faint edge.
+                                          border: p == _paper
+                                              ? Border.all(
                                                   color: ink,
-                                                  spreadRadius: 5,
+                                                  width: 2.5,
+                                                )
+                                              : Border.all(
+                                                  color: ink.withValues(
+                                                    alpha: 0.2,
+                                                  ),
                                                 ),
-                                              ]
-                                            : null,
+                                          boxShadow: p == _paper
+                                              ? [
+                                                  BoxShadow(
+                                                    color: paper,
+                                                    spreadRadius: 3,
+                                                  ),
+                                                  BoxShadow(
+                                                    color: ink,
+                                                    spreadRadius: 5,
+                                                  ),
+                                                ]
+                                              : null,
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            11,
+                                          ),
+                                          child: PaperView(p),
+                                        ),
                                       ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(11),
-                                        child: PaperView(p),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        p.name[0].toUpperCase() +
+                                            p.name.substring(1),
+                                        style: VText.inter(11, weight: 500),
                                       ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      p.name[0].toUpperCase() +
-                                          p.name.substring(1),
-                                      style: VText.inter(11, weight: 500),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: VButton.secondary(
+                              'Cancel',
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: VButton.primary(
+                              'Create',
+                              onPressed: () =>
+                                  Navigator.of(context)
+                                      .pop((_name.text, _paper)),
+                            ),
                           ),
                         ],
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: VButton.secondary(
-                            'Cancel',
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: VButton.primary(
-                            'Create',
-                            onPressed: () =>
-                                Navigator.of(context).pop((_name.text, _paper)),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '${widget.partner} gets it straight away and can draw too.',
-                      style: VText.secondary,
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${widget.partner} gets it straight away and can draw too.',
+                        style: VText.secondary,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

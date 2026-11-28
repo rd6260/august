@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import '../../core/theme/v_palette.dart';
 import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
 import '../../core/widgets/v_glass.dart';
+import '../../core/widgets/v_surface.dart';
 import '../../core/widgets/v_ink.dart';
 import '../../data/models.dart';
 import '../../data/providers.dart';
@@ -111,6 +113,9 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   Set<int> _picked = {};
   Offset _drag = Offset.zero;
 
+  /// The text tool: where the board was tapped, for the words to go.
+  Offset? _textAt;
+
   Doodle get _doodle => ref
       .read(doodlesProvider)
       .firstWhere(
@@ -128,6 +133,8 @@ class _BoardPageState extends ConsumerState<BoardPage> {
         PenTool.neon => const PenSettings(size: 4),
         PenTool.highlighter => const PenSettings(size: 20, opacity: 0.45),
         PenTool.eraser => const PenSettings(size: 18),
+        // Text: its font size.
+        PenTool.text => const PenSettings(size: 24),
         _ => const PenSettings(),
       };
 
@@ -176,6 +183,10 @@ class _BoardPageState extends ConsumerState<BoardPage> {
 
   void _down(Offset p, Size s) {
     final b = _toBoard(p, s);
+    if (_tool == PenTool.text) {
+      _textAt = b;
+      return;
+    }
     if (_tool == PenTool.lasso && _picked.isNotEmpty && _inPicked(b)) {
       _drag = Offset.zero;
       _live = null;
@@ -186,6 +197,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   }
 
   void _move(Offset p, Size s, Offset delta) {
+    if (_tool == PenTool.text) return;
     if (_tool == PenTool.lasso && _picked.isNotEmpty && _live == null) {
       setState(() => _drag += delta / _scale(s));
       return;
@@ -204,6 +216,12 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   }
 
   void _up() {
+    if (_tool == PenTool.text) {
+      final at = _textAt;
+      _textAt = null;
+      if (at != null) unawaited(_addText(at));
+      return;
+    }
     if (_tool == PenTool.lasso && _picked.isNotEmpty && _live == null) {
       if (_drag != Offset.zero) {
         _commit([
@@ -238,20 +256,64 @@ class _BoardPageState extends ConsumerState<BoardPage> {
     ]);
   }
 
-  Stroke _shift(Stroke s, Offset d) => Stroke(
-    tool: s.tool,
-    argb: s.argb,
-    size: s.size,
-    opacity: s.opacity,
-    by: s.by,
-    points: [for (final p in s.points) p + d],
-  );
+  /// The text tool: asks for the words, then puts them where the board was
+  /// tapped, in the pen's colour and size.
+  Future<void> _addText(Offset at) async {
+    final c = TextEditingController();
+    final words = await showVSheet<String>(
+      context,
+      title: 'Add text',
+      builder: (context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          VTextField(
+            controller: c,
+            autofocus: true,
+            maxLines: 3,
+            placeholder: 'Write something',
+          ),
+          const SizedBox(height: 14),
+          VButton.primary(
+            'Add',
+            onPressed: () => Navigator.of(context).pop(c.text),
+          ),
+        ],
+      ),
+    );
+    c.dispose();
+    final text = words?.trim() ?? '';
+    if (text.isEmpty || !mounted) return;
+    final pen = _pen(PenTool.text);
+    _commit([
+      ..._strokes,
+      Stroke(
+        tool: PenTool.text,
+        argb: _argb,
+        size: pen.size,
+        opacity: pen.opacity,
+        points: [at],
+        text: text,
+      ),
+    ]);
+  }
+
+  Stroke _shift(Stroke s, Offset d) =>
+      s.copyWith(points: [for (final p in s.points) p + d]);
 
   /// The eraser takes away every stroke it touches.
   void _erase(List<Offset> path) {
     final r = _pen(PenTool.eraser).size;
-    bool touches(Stroke s) =>
-        s.points.any((p) => path.any((q) => (p - q).distance < r + s.size / 2));
+    bool touches(Stroke s) {
+      // Text: anywhere on its words.
+      if (s.isText) {
+        final box = strokeBounds(s)!.inflate(r);
+        return path.any(box.contains);
+      }
+      return s.points.any(
+        (p) => path.any((q) => (p - q).distance < r + s.size / 2),
+      );
+    }
+
     final next = [
       for (final s in _strokes)
         if (!touches(s)) s,
@@ -268,6 +330,11 @@ class _BoardPageState extends ConsumerState<BoardPage> {
     final path = Path()..addPolygon(loop, true);
     final picked = <int>{};
     for (final (i, s) in _strokes.indexed) {
+      // Text: picked when the loop takes in the middle of its words.
+      if (s.isText) {
+        if (path.contains(strokeBounds(s)!.center)) picked.add(i);
+        continue;
+      }
       final inside = s.points.where(path.contains).length;
       if (s.points.isNotEmpty && inside >= s.points.length * 0.6) picked.add(i);
     }
@@ -283,13 +350,10 @@ class _BoardPageState extends ConsumerState<BoardPage> {
   Rect? _pickedBounds() {
     Rect? r;
     for (final i in _picked) {
-      for (final p in _strokes[i].points) {
-        final pr = Rect.fromCircle(
-          center: p + _drag,
-          radius: _strokes[i].size / 2,
-        );
-        r = r == null ? pr : r.expandToInclude(pr);
-      }
+      final b = strokeBounds(_strokes[i]);
+      if (b == null) continue;
+      final pr = b.shift(_drag);
+      r = r == null ? pr : r.expandToInclude(pr);
     }
     return r;
   }
@@ -300,15 +364,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
       case 'recolour':
         _commit([
           for (final (i, s) in _strokes.indexed)
-            _picked.contains(i)
-                ? Stroke(
-                    tool: s.tool,
-                    argb: _argb,
-                    size: s.size,
-                    opacity: s.opacity,
-                    points: s.points,
-                  )
-                : s,
+            _picked.contains(i) ? s.copyWith(argb: _argb) : s,
         ]);
       case 'duplicate':
         _commit([
@@ -386,8 +442,11 @@ class _BoardPageState extends ConsumerState<BoardPage> {
     });
   }
 
+  // The clean look (soft fills, no outlines), like the chat and Settings.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => VQuiet(child: _build(context));
+
+  Widget _build(BuildContext context) {
     // The partner's strokes arrive in the provider: draw them. (Ours are
     // the very list we set, so they're skipped.)
     ref.listen(
@@ -670,6 +729,7 @@ class _Dock extends StatelessWidget {
     PenTool.calligraphy => VIcon.calligraphy,
     PenTool.neon => VIcon.neon,
     PenTool.highlighter => VIcon.highlighter,
+    PenTool.text => VIcon.text,
     PenTool.eraser => VIcon.eraser,
     PenTool.lasso => VIcon.lasso,
   };

@@ -142,7 +142,11 @@ class DoodlesPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  // The clean look (soft fills, no outlines), like the chat and Settings.
+  Widget build(BuildContext context, WidgetRef ref) =>
+      VQuiet(child: _build(context, ref));
+
+  Widget _build(BuildContext context, WidgetRef ref) {
     final doodles = ref.watch(doodlesProvider);
     final partner = ref.watch(pairingProvider).partner.name;
     final pinned = ref.watch(widgetDoodleProvider);
@@ -345,7 +349,7 @@ class _Card extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(height: 1, color: ink),
+                Container(height: 0.5, color: ink.withValues(alpha: 0.15)),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
                   child: Column(

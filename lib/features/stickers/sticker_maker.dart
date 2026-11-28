@@ -62,7 +62,8 @@ Future<Sticker?> makeSticker(BuildContext context, WidgetRef ref) async {
 List<Stroke> normalise(List<Stroke> strokes) {
   final pts = [
     for (final s in strokes)
-      if (s.tool != PenTool.eraser && s.tool != PenTool.lasso) ...s.points,
+      if (s.tool != PenTool.eraser && s.tool != PenTool.lasso)
+        if (strokeBounds(s) case final b?) ...[b.topLeft, b.bottomRight],
   ];
   if (pts.isEmpty) return const [];
   var minX = pts.first.dx, maxX = minX, minY = pts.first.dy, maxY = minY;
@@ -79,11 +80,8 @@ List<Stroke> normalise(List<Stroke> strokes) {
   return [
     for (final s in strokes)
       if (s.tool != PenTool.eraser && s.tool != PenTool.lasso)
-        Stroke(
-          tool: s.tool,
-          argb: s.argb,
+        s.copyWith(
           size: s.size / side,
-          opacity: s.opacity,
           points: [for (final p in s.points) f(p)],
         ),
   ];

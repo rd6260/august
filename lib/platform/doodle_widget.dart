@@ -202,11 +202,10 @@ void paintWidgetDoodle(Canvas canvas, Size box, Doodle d, ChatTheme theme) {
   var first = true;
   for (final s in strokes) {
     if (s.tool == PenTool.eraser) continue;
-    for (final pt in s.points) {
-      final r = Rect.fromCircle(center: pt, radius: s.size / 2);
-      bounds = first ? r : bounds.expandToInclude(r);
-      first = false;
-    }
+    final r = strokeBounds(s);
+    if (r == null) continue;
+    bounds = first ? r : bounds.expandToInclude(r);
+    first = false;
   }
   if (first) return;
   // Never zoom past 3× the board, so a dot doesn't become a blob.

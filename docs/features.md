@@ -140,7 +140,9 @@ Code: `features/stickers/` (`tray.dart`, `sticker_maker.dart`, `cutout.dart`), `
 - **Gallery:** board cards with a thumbnail, name, who edited last and when, and a **live dot** when your partner has it open. Long-press to put it on the home screen, rename, delete or send to the chat. The board on the home screen has a small house in its corner.
 - **New doodle:** a name, and a plain, dotted or lined background, or the chat wallpaper.
 - **Board:** pan and zoom, your partner's live cursor, undo and redo, and more (export, send to chat, clear). It turns to landscape.
-- **Nine tools:** fine liner, marker, brush, pencil, calligraphy, neon, highlighter, eraser and lasso.
+- **Ten tools:** fine liner, marker, brush, pencil, calligraphy, neon, highlighter, **text**, eraser and lasso.
+- **Text:** pick T, tap the board, type and Add: the words go where you tapped, in the colour and size picked (long-press T for size and opacity). Synced like any stroke; the lasso moves, recolours or deletes them, and the eraser takes them away.
+- **Board:** a rounded card clear of the top bar and the dock; the clean look throughout (soft buttons, dock and sheets, no outlines).
 - **Tool options:** size with a live stroke preview, opacity, smoothing, pressure, and the nib angle for calligraphy.
 - **Colour:** a wheel with brightness, recent colours, presets and hex.
 - **Lasso:** move, recolour, duplicate, delete, or make a sticker.

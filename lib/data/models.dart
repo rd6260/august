@@ -222,19 +222,46 @@ class Stroke {
     this.size = 4,
     this.opacity = 1,
     this.by = 'me',
+    this.text,
   });
 
   final PenTool tool;
   final int argb;
   final List<Offset> points;
+
+  /// The pen's width; for text, its font size.
   final double size;
   final double opacity;
 
   /// Who drew it: 'me' or 'partner'.
   final String by;
+
+  /// The text tool's words, set from [points]' first (its top-left); null
+  /// for every other tool.
+  final String? text;
+
+  bool get isText => tool == PenTool.text && (text?.isNotEmpty ?? false);
+
+  /// The same stroke with some of it changed (moved, recoloured, scaled),
+  /// its text and all.
+  Stroke copyWith({
+    List<Offset>? points,
+    int? argb,
+    double? size,
+    String? by,
+  }) => Stroke(
+    tool: tool,
+    argb: argb ?? this.argb,
+    points: points ?? this.points,
+    size: size ?? this.size,
+    opacity: opacity,
+    by: by ?? this.by,
+    text: text,
+  );
 }
 
-/// The nine doodle tools (C32), in the dock's order.
+/// The doodle tools (C32), in the dock's order: nine pens and the text
+/// tool.
 enum PenTool {
   fineLiner('Fine liner'),
   marker('Marker'),
@@ -243,6 +270,7 @@ enum PenTool {
   calligraphy('Calligraphy'),
   neon('Neon'),
   highlighter('Highlighter'),
+  text('Text'),
   eraser('Eraser'),
   lasso('Lasso');
 

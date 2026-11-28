@@ -434,14 +434,7 @@ abstract final class Wire {
   static Stroke toStroke(Map<String, Object?> j, {bool flip = false}) {
     final s = _toStroke(j);
     final by = (j['by'] as String?) ?? 'partner';
-    return Stroke(
-      tool: s.tool,
-      argb: s.argb,
-      size: s.size,
-      opacity: s.opacity,
-      points: s.points,
-      by: flip ? (by == 'me' ? 'partner' : 'me') : by,
-    );
+    return s.copyWith(by: flip ? (by == 'me' ? 'partner' : 'me') : by);
   }
 
   // Points keep 4 decimals: plenty for a phone screen.
@@ -451,6 +444,7 @@ abstract final class Wire {
     'argb': s.argb,
     'size': s.size,
     'opacity': s.opacity,
+    'text': ?s.text,
     'p': [
       for (final p in s.points) ...[
         (p.dx * 10000).round(),
@@ -470,6 +464,7 @@ abstract final class Wire {
         for (var i = 0; i + 1 < p.length; i += 2) Offset(p[i], p[i + 1]),
       ],
       by: 'partner',
+      text: j['text'] as String?,
     );
   }
 
