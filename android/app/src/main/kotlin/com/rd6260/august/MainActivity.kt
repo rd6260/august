@@ -36,6 +36,20 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "august/window")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
+                    // The widget, redrawn by home_widget's background engine
+                    // (widget_refresh.dart). The app's own engine reads the
+                    // picture back from the GPU in a way that comes out
+                    // sheared on some phones; that one doesn't.
+                    "redrawWidget" -> {
+                        val intent = android.content.Intent(
+                            this,
+                            es.antonborri.home_widget.HomeWidgetBackgroundReceiver::class.java,
+                        )
+                            .setAction("es.antonborri.home_widget.action.BACKGROUND")
+                            .setData(android.net.Uri.parse("august://redraw"))
+                        sendBroadcast(intent)
+                        result.success(null)
+                    }
                     "secure" -> {
                         val on = call.arguments as? Boolean ?: true
                         runOnUiThread {

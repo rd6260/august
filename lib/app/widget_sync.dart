@@ -74,6 +74,9 @@ class DoodleWidgetSync {
     _redraw?.cancel();
     _redraw = Timer(const Duration(milliseconds: 600), () async {
       try {
+        // Saved, then drawn by the background engine (on Neon).
+        final background = ref.read(widgetRedrawProvider);
+        if (background != null) return await background();
         await DoodleWidget.show(
           doodle: ref.read(_pinnedDoodle),
           theme: ref.read(chatThemeProvider),

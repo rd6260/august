@@ -1,11 +1,56 @@
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
+
 import '../data/models.dart';
+import '../platform/data_home.dart';
 import '../platform/doodle_widget.dart';
 import 'api.dart';
+import 'config.dart';
 import 'crypto.dart';
 import 'local_store.dart';
+import 'neon_backend.dart';
 import 'wire.dart';
+
+/// Tapping the widget's caption ("You · 06:45"): redraws it, in the
+/// background, from the server's waiting doodle changes when it can and from
+/// this phone's boards otherwise. Runs in its own isolate (home_widget's).
+///
+/// `august://redraw` (from the open app, see [DoodleWidget.redrawInBackground])
+/// draws what this phone has, without asking the server: the app has the
+/// latest already.
+@pragma('vm:entry-point')
+Future<void> widgetTapped(Uri? uri) async {
+  final host = uri?.host;
+  if (host != 'refresh' && host != 'redraw') return;
+  WidgetsFlutterBinding.ensureInitialized();
+  final dir = await DataHome.dir();
+  final store = await LocalStore.open(dir);
+  final config = NeonConfig.fromEnvironment;
+  if (host == 'refresh' && config != null && store.paired) {
+    try {
+      final b = await NeonBackend.open(
+        config,
+        vault: await DataHome.vault(),
+        dir: dir,
+      );
+      await refreshWidgetInBackground(
+        api: b.api,
+        identity: b.identity,
+        store: store,
+        dir: dir,
+      );
+      return;
+    } on Object {
+      // Offline: what this phone has.
+    }
+  }
+  await DoodleWidget.show(
+    doodle: store.doodles.where((d) => d.id == store.widgetDoodle).firstOrNull,
+    theme: store.theme,
+    dir: dir,
+  );
+}
 
 /// Redraws the home screen widget while August is closed: the boards on
 /// this phone, plus doodle changes still waiting on the server.

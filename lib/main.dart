@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:path_provider/path_provider.dart';
@@ -24,6 +25,8 @@ import 'net/phone_round.dart';
 import 'net/phone_songs.dart';
 import 'net/phone_storage.dart';
 import 'net/web_memes.dart';
+import 'net/widget_refresh.dart';
+import 'platform/doodle_widget.dart';
 import 'net/phone_voice.dart';
 import 'net/push.dart';
 import 'net/updater.dart';
@@ -118,7 +121,14 @@ Future<void> _start() async {
       }
       ..askNotifications = Push.ask
       ..pushToken = Push.token;
-    if (android) BackgroundCheck.init();
+    if (android) {
+      BackgroundCheck.init();
+      // The widget's caption redraws it (widget_refresh.dart).
+      unawaited(
+        HomeWidget.registerInteractivityCallback(widgetTapped)
+            .catchError((Object _) => false),
+      );
+    }
     try {
       await Push.init(onWake: () => backend.wake?.call());
       // Paired but not allowed to notify (a reinstall drops the permission,
@@ -148,6 +158,10 @@ Future<void> _start() async {
           notificationsAllowedProvider.overrideWith((ref) => Push.allowed()),
           notificationSettingsProvider.overrideWithValue(Push.openSettings),
           clearNotificationsProvider.overrideWithValue(Push.clear),
+          widgetRedrawProvider.overrideWithValue(() async {
+            await backend.store.flush();
+            await DoodleWidget.redrawInBackground();
+          }),
           keepCheckingProvider.overrideWithValue(
             () => BackgroundCheck.keepGoing(paired: backend.store.paired),
           ),

@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../core/theme/v_colors.dart';
@@ -39,6 +39,20 @@ abstract final class DoodleWidget {
     }
   }
 
+  /// Has home_widget's background engine redraw the widget from what's saved
+  /// on this phone. The open app uses this rather than drawing it itself:
+  /// its engine reads the picture back from the GPU in a way that comes out
+  /// sheared into bands on some phones (the background engine doesn't).
+  static Future<void> redrawInBackground() async {
+    if (!supported) return;
+    try {
+      await const MethodChannel('august/window')
+          .invokeMethod<void>('redrawWidget');
+    } on Object {
+      // No such channel here (tests): nothing to redraw.
+    }
+  }
+
   /// Asks the launcher to add the widget (Android 8+, most launchers).
   static Future<void> add() async {
     if (!supported) return;
@@ -51,29 +65,50 @@ abstract final class DoodleWidget {
 
   /// Redraws the widget: [doodle] (null when none is picked or the board is
   /// gone), on [theme]'s ink. [dir] is where the picture is kept.
+  /// Redraws run one after another in an isolate, so one can't remove the
+  /// picture another has just handed to the widget.
+  static Future<void> _last = Future.value();
+
   static Future<void> show({
     required Doodle? doodle,
     required ChatTheme theme,
     required Directory dir,
     DateTime? now,
+  }) {
+    if (!supported) return Future.value();
+    return _last = _last
+        .catchError((Object _) {})
+        .then((_) => _show(doodle: doodle, theme: theme, dir: dir, now: now));
+  }
+
+  static Future<void> _show({
+    required Doodle? doodle,
+    required ChatTheme theme,
+    required Directory dir,
+    DateTime? now,
   }) async {
-    if (!supported) return;
     String? path;
     if (doodle != null) {
       final png = await render(doodle, theme);
-      // A new name each time: the launcher may cache a bitmap by its path.
+      // A new name each time (the launcher may cache a bitmap by its path),
+      // written whole before the widget can see it.
       final stamp = DateTime.now().microsecondsSinceEpoch;
       final file = File('${dir.path}/widget-doodle-$stamp.png');
-      await file.writeAsBytes(png, flush: true);
+      final part = File('${file.path}.part');
+      await part.writeAsBytes(png, flush: true);
+      await part.rename(file.path);
       path = file.path;
-      for (final old in dir.listSync().whereType<File>()) {
-        final name = old.uri.pathSegments.last;
-        if (name.startsWith('widget-doodle-') && old.path != path) {
-          try {
-            old.deleteSync();
-          } on Object {
-            // In use or gone: next time.
-          }
+      // Keep the newest few: another isolate (a wake-up push, the
+      // background check) may be showing one of them right now.
+      final kept = [
+        for (final f in dir.listSync().whereType<File>())
+          if (RegExp(r'widget-doodle-\d+\.png$').hasMatch(f.path)) f,
+      ]..sort((a, b) => b.path.compareTo(a.path));
+      for (final old in kept.skip(3)) {
+        try {
+          old.deleteSync();
+        } on Object {
+          // In use or gone: next time.
         }
       }
     }
@@ -106,10 +141,14 @@ abstract final class DoodleWidget {
 
   /// The doodle as a square PNG, [size] pixels a side: its paper filling
   /// the square, and its strokes fitted to the middle.
+  /// [size] stays a multiple of 64: some phones' GPUs hand the pixels
+  /// back with each row padded to 64 or 256 bytes, which the PNG encoder
+  /// doesn't expect, and the picture comes out sheared into diagonal bands.
+  /// 640 × 4 bytes a row needs no padding.
   static Future<Uint8List> render(
     Doodle d,
     ChatTheme theme, {
-    int size = 720,
+    int size = 640,
   }) async {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);

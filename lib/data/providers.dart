@@ -209,16 +209,20 @@ final backgroundCheckProvider = FutureProvider<DateTime?>((ref) async => null);
 /// Whether notifications may show (Android's permission); true off Neon.
 final notificationsAllowedProvider = FutureProvider<bool>((ref) async => true);
 
+/// Redraws the home screen widget from the open app. Null: draw it here
+/// (the mock, which saves nothing for a background engine to read). On
+/// Neon: save, then have the background engine draw it (DoodleWidget
+/// .redrawInBackground).
+final widgetRedrawProvider = Provider<Future<void> Function()?>((ref) => null);
+
 /// Takes down August's notifications (it's open: they're being read).
 final clearNotificationsProvider = Provider<Future<void> Function()>(
-  (ref) =>
-      () async {},
+  (ref) => () async {},
 );
 
 /// Opens the phone's notification settings for August.
 final notificationSettingsProvider = Provider<Future<void> Function()>(
-  (ref) =>
-      () async {},
+  (ref) => () async {},
 );
 
 /// True when August runs on Neon, false on the mock partner.
@@ -804,10 +808,8 @@ class RecentStickersNotifier extends Notifier<List<Sticker>> {
   }
 
   /// [s] was just sent: first, once.
-  void used(Sticker s) => state = [
-    s,
-    ...state.where((x) => x.id != s.id),
-  ].take(keep).toList();
+  void used(Sticker s) =>
+      state = [s, ...state.where((x) => x.id != s.id)].take(keep).toList();
 
   void forget(String id) => state = [
     for (final s in state)

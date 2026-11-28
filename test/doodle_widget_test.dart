@@ -132,6 +132,21 @@ void main() {
     );
   });
 
+  test('the picture is 640 a side, so no GPU pads its rows', () async {
+    final png = await DoodleWidget.render(
+      MockData.doodles().first,
+      const ChatTheme(),
+    );
+    // PNG's header: width and height, big-endian, at bytes 16 and 20.
+    final data = ByteData.sublistView(png);
+    final w = data.getUint32(16), h = data.getUint32(20);
+    expect(w, 640);
+    expect(h, 640);
+    // A row of 4-byte pixels must be a whole number of 256-byte blocks
+    // (or the picture shears into bands on some phones).
+    expect((w * 4) % 256, 0);
+  });
+
   test('the picture is a square PNG, on either ink', () async {
     for (final wp in ['night', 'paper']) {
       final png = await DoodleWidget.render(

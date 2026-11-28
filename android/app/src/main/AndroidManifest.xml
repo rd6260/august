@@ -47,6 +47,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Taps on the widget's caption run Dart in the background
+             (home_widget; widget_refresh.dart's widgetTapped). -->
+        <receiver
+            android:name="es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="es.antonborri.home_widget.action.BACKGROUND" />
+            </intent-filter>
+        </receiver>
         <!-- The background check's ongoing notification: August's bubble. -->
         <meta-data
             android:name="com.rd6260.august.CHECK_ICON"
