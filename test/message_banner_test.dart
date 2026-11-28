@@ -49,8 +49,14 @@ void main() {
     final c = await open(t, Routes.settings);
     // The mock partner answers what you send (in a few seconds).
     c.read(messagesProvider.notifier).send(const TextBody('are you up?'));
-    await wait(t, 4500);
+    // The reply comes after the partner "types" (about 4 s, later on a slow
+    // machine): wait for it, then for the banner to finish sliding in.
+    // Tapped while still above the screen, it would miss.
+    for (var ms = 0; banner().evaluate().isEmpty && ms < 10000; ms += 50) {
+      await t.pump(const Duration(milliseconds: 50));
+    }
     expect(banner(), findsOneWidget);
+    await wait(t, 500);
     await t.tap(banner());
     await wait(t, 800);
     expect(find.byType(ChatPage), findsOneWidget);
@@ -63,7 +69,9 @@ void main() {
     final semantics = t.ensureSemantics();
     final c = await open(t, Routes.chat);
     c.read(messagesProvider.notifier).send(const TextBody('are you up?'));
-    await wait(t, 4500);
+    // Long enough for the reply to have come, even on a slow machine.
+    await wait(t, 8000);
+    expect(c.read(messagesProvider).last.fromMe, isFalse);
     expect(banner(), findsNothing);
     semantics.dispose();
     await close(t);
