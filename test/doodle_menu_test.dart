@@ -8,7 +8,7 @@ import 'package:august/data/providers.dart';
 import 'package:august/mock/mock_repositories.dart';
 
 /// A doodle's long-press menu: Send as sticker first, the home screen just
-/// before Delete; Duplicate makes a copy for both of you.
+/// before Delete; Copy makes a copy for both of you.
 void main() {
   testWidgets('the doodle menu is in order', (t) async {
     t.view.physicalSize = const Size(1170, 2532);
@@ -39,7 +39,7 @@ void main() {
     final order = [
       'Send as sticker',
       'Rename',
-      'Duplicate',
+      'Copy',
       'Show on home screen',
       'Delete for both',
     ];
@@ -51,7 +51,7 @@ void main() {
     await t.pump(const Duration(seconds: 5));
   });
 
-  testWidgets('Duplicate copies the board, for both', (t) async {
+  testWidgets('Copy copies the board, for both', (t) async {
     t.view.physicalSize = const Size(1170, 2532);
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
@@ -80,7 +80,7 @@ void main() {
     final before = c.read(doodlesProvider).length;
     await t.longPress(find.text(d.name).first);
     await frames();
-    await t.tap(find.text('Duplicate').last);
+    await t.tap(find.text('Copy').last);
     await frames();
     final all = c.read(doodlesProvider);
     expect(all.length, before + 1);
@@ -92,7 +92,7 @@ void main() {
     // The partner gets the new board, then its drawing.
     expect(sent.whereType<DoodleCreated>().single.doodle.id, copy.id);
     expect(sent.whereType<StrokesSet>().single.strokes, d.strokes);
-    expect(find.text('Duplicated'), findsOneWidget);
+    expect(find.text('Copied'), findsOneWidget);
     await t.pumpWidget(const SizedBox.shrink());
     await t.pump(const Duration(seconds: 5));
   });
