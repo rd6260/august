@@ -84,7 +84,7 @@ class DoodlesPage extends ConsumerWidget {
       choices: [
         const Choice('send', 'Send as sticker', icon: VIcon.send),
         const Choice('rename', 'Rename', icon: VIcon.doodle),
-        const Choice('duplicate', 'Copy', icon: VIcon.copy),
+        const Choice('duplicate', 'Make a copy', icon: VIcon.copy),
         Choice(
           'pin',
           pinned ? 'Remove from home screen' : 'Show on home screen',

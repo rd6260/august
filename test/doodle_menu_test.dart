@@ -8,7 +8,7 @@ import 'package:august/data/providers.dart';
 import 'package:august/mock/mock_repositories.dart';
 
 /// A doodle's long-press menu: Send as sticker first, the home screen just
-/// before Delete; Copy makes a copy for both of you.
+/// before Delete; Make a copy does that for both of you.
 void main() {
   testWidgets('the doodle menu is in order', (t) async {
     t.view.physicalSize = const Size(1170, 2532);
@@ -39,7 +39,7 @@ void main() {
     final order = [
       'Send as sticker',
       'Rename',
-      'Copy',
+      'Make a copy',
       'Show on home screen',
       'Delete for both',
     ];
@@ -51,7 +51,7 @@ void main() {
     await t.pump(const Duration(seconds: 5));
   });
 
-  testWidgets('Copy copies the board, for both', (t) async {
+  testWidgets('Make a copy copies the board, for both', (t) async {
     t.view.physicalSize = const Size(1170, 2532);
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
@@ -80,7 +80,7 @@ void main() {
     final before = c.read(doodlesProvider).length;
     await t.longPress(find.text(d.name).first);
     await frames();
-    await t.tap(find.text('Copy').last);
+    await t.tap(find.text('Make a copy').last);
     await frames();
     final all = c.read(doodlesProvider);
     expect(all.length, before + 1);
