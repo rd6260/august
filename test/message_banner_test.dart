@@ -40,7 +40,14 @@ void main() {
     await t.pump(const Duration(seconds: 6));
   }
 
-  Finder banner() => find.bySemanticsLabel(RegExp('Open the chat'));
+  // The banner's own Semantics widget (labelled "<name>: <text>. Open the
+  // chat"). Not find.bySemanticsLabel: on Flutter 3.47 (CI) its centre is
+  // the screen's, and a tap there misses the banner.
+  Finder banner() => find.byWidgetPredicate(
+    (w) =>
+        w is Semantics &&
+        (w.properties.label?.endsWith('Open the chat') ?? false),
+  );
 
   testWidgets('on Settings, a reply comes as a banner; tap for the chat', (
     t,
