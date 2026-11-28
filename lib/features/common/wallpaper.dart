@@ -10,21 +10,6 @@ import '../../core/theme/v_colors.dart';
 import 'art.dart';
 import '../../data/chat_theme.dart';
 
-/// The image a photo wallpaper is drawn from: the blurred copy when one is
-/// asked for and made, else the photo, always at the same decode size, so
-/// every view of the same wallpaper shares one decoded image.
-ImageProvider wallpaperImage(
-  String photo, {
-  double blur = 0,
-  bool soft = false,
-}) {
-  if (soft) return ResizeImage(FileImage(File(photo)), width: 40);
-  if (blur > 0.01 && blurReady(photo, blur)) {
-    return FileImage(File(bakedPath(photo, blur)));
-  }
-  return ResizeImage(FileImage(File(photo)), width: blur > 0.01 ? 720 : 1440);
-}
-
 /// Decodes [image] (if not already) and completes when it can be drawn.
 Future<void> warmImage(ImageProvider image) {
   final done = Completer<void>();
@@ -74,107 +59,154 @@ class WallpaperView extends StatefulWidget {
 }
 
 class _WallpaperViewState extends State<WallpaperView> {
-  late _Shown _shown = _Shown.of(widget);
+  /// Blur is being changed (a slider dragged): drawn live, straight from
+  /// the setting, until it rests.
+  bool _moving = false;
+  Timer? _settle;
+
+  late _Shown _shown = _Shown.of(widget, moving: _moving);
   int _generation = 0;
+
+  /// Counts the wallpapers shown, to key each one in the cross-fade. Not
+  /// [_Shown.key]: a wallpaper can come back while its earlier copy is still
+  /// fading out, and two children of the fade can't share a key.
+  int _layer = 0;
 
   @override
   void didUpdateWidget(WallpaperView old) {
     super.didUpdateWidget(old);
-    final next = _Shown.of(widget);
-    if (next.key == _shown.key) return;
-    final generation = ++_generation;
-    final image = next.image;
-    if (image == null) {
+    if (old.blur != widget.blur && old.wallpaper == widget.wallpaper) {
+      _moving = true;
+      _settle?.cancel();
+      _settle = Timer(const Duration(milliseconds: 450), () {
+        _moving = false;
+        if (mounted) _update();
+      });
+    }
+    _update();
+  }
+
+  @override
+  void dispose() {
+    _settle?.cancel();
+    super.dispose();
+  }
+
+  /// Shows the wallpaper as the settings are now. The same picture with a
+  /// new blur redraws in place, every frame of a drag; only a different
+  /// picture fades in (once it's decoded, so never half-loaded).
+  void _update() {
+    final next = _Shown.of(widget, moving: _moving);
+    if (next.key == _shown.key) {
+      _generation++;
       setState(() => _shown = next);
       return;
     }
-    // Keep showing the old wallpaper until the new one is decoded.
+    final generation = ++_generation;
+    void show() => setState(() {
+      _shown = next;
+      _layer++;
+    });
+    final image = next.image;
+    if (image == null) return show();
     warmImage(image).then((_) {
-      if (mounted && generation == _generation) setState(() => _shown = next);
+      if (mounted && generation == _generation) show();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 320),
-      switchInCurve: Curves.easeOutCubic,
-      layoutBuilder: (current, previous) =>
-          Stack(fit: StackFit.expand, children: [...previous, ?current]),
-      child: KeyedSubtree(key: ValueKey(_shown.key), child: _shown.build()),
+    final dim = widget.dim.clamp(0.0, 0.8);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 320),
+          switchInCurve: Curves.easeOutCubic,
+          layoutBuilder: (current, previous) =>
+              Stack(fit: StackFit.expand, children: [...previous, ?current]),
+          child: KeyedSubtree(key: ValueKey(_layer), child: _shown.build()),
+        ),
+        // Over whatever shows, so Dim follows its slider frame by frame.
+        if (dim > 0) ColoredBox(color: VColors.black.withValues(alpha: dim)),
+      ],
     );
   }
 }
 
-/// One wallpaper as it is drawn, with a key that changes exactly when what
-/// shows changes.
+/// One wallpaper picture as it is drawn. Its key changes when a different
+/// picture (another photo or palette, or the blurred copy) is needed; not
+/// for the dim, or for the amount of a live blur, which redraw in place.
 class _Shown {
   _Shown(this.key, this.image, this.build);
 
-  factory _Shown.of(WallpaperView w) {
+  factory _Shown.of(WallpaperView w, {required bool moving}) {
     final photo = w.wallpaper.photo;
-    final dim = w.dim.clamp(0.0, 0.8);
-    Widget withDim(Widget base) => Stack(
-      fit: StackFit.expand,
-      children: [
-        base,
-        if (dim > 0) ColoredBox(color: VColors.black.withValues(alpha: dim)),
-      ],
-    );
+    Widget blurred(double b, Widget child) => b <= 0.01
+        ? child
+        : ImageFiltered(
+            imageFilter: ui.ImageFilter.blur(
+              sigmaX: b * 30,
+              sigmaY: b * 30,
+              tileMode: TileMode.clamp,
+            ),
+            child: child,
+          );
 
     if (photo == null) {
       final palette = VWallpapers.all[w.wallpaper.builtin] ?? VWallpapers.night;
-      return _Shown(
-        'b:${w.wallpaper.builtin}:$dim',
-        null,
-        () => withDim(_Palette(palette)),
-      );
+      return _Shown('b:${w.wallpaper.builtin}', null, () => _Palette(palette));
     }
-    // A photo stand-in from the mock data ('mock:<art>') until real photos
-    // arrive in Phase 4.
+    // A photo stand-in from the mock data ('mock:<art>').
     if (photo.startsWith('mock:')) {
       final art = int.tryParse(photo.substring(5)) ?? 0;
       final b = w.soft ? 0.0 : w.blur;
       return _Shown(
-        'm:$photo:$b:$dim',
+        'm:$photo',
         null,
-        () => withDim(
-          ImageFiltered(
-            imageFilter: ui.ImageFilter.blur(sigmaX: b * 30, sigmaY: b * 30),
-            child: ArtBox(
-              art: art,
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+        () => blurred(
+          b,
+          ArtBox(
+            art: art,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
       );
     }
     final blur = w.soft ? 0.0 : w.blur;
-    final image = wallpaperImage(photo, blur: blur, soft: w.soft);
-    final baked = blur > 0.01 && blurReady(photo, blur);
-    final live = blur > 0.01 && !baked;
-    Widget picture() => Image(
-      image: image,
-      fit: BoxFit.cover,
-      gaplessPlayback: true,
-      filterQuality: w.soft ? FilterQuality.high : FilterQuality.medium,
-      errorBuilder: (_, _, _) => const _Palette(VWallpapers.night),
-    );
+    final ImageProvider image;
+    final String key;
+    var live = 0.0;
+    if (w.soft) {
+      image = ResizeImage(FileImage(File(photo)), width: 40);
+      key = 'p:$photo:soft';
+    } else if (blur <= 0.01) {
+      image = ResizeImage(FileImage(File(photo)), width: 1440);
+      key = 'p:$photo:sharp';
+    } else if (!moving && blurReady(photo, blur)) {
+      // At rest, the copy blurred once into a file: no cost per frame.
+      image = FileImage(File(bakedPath(photo, blur)));
+      key = 'p:$photo:baked:${(blur * 100).round()}';
+    } else {
+      // Being adjusted (or not baked yet): blurred live, one picture for
+      // every amount, so it follows the slider without a fade.
+      image = ResizeImage(FileImage(File(photo)), width: 720);
+      key = 'p:$photo:live';
+      live = blur;
+    }
     return _Shown(
-      'p:$photo:${w.soft}:$blur:$baked:$dim',
+      key,
       image,
-      () => withDim(
-        live
-            ? ImageFiltered(
-                imageFilter: ui.ImageFilter.blur(
-                  sigmaX: blur * 30,
-                  sigmaY: blur * 30,
-                  tileMode: TileMode.clamp,
-                ),
-                child: picture(),
-              )
-            : picture(),
+      () => blurred(
+        live,
+        Image(
+          image: image,
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+          filterQuality: w.soft ? FilterQuality.high : FilterQuality.medium,
+          errorBuilder: (_, _, _) => const _Palette(VWallpapers.night),
+        ),
       ),
     );
   }

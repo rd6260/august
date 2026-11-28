@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -22,6 +24,8 @@ class AugustTheme extends StatefulWidget {
 }
 
 class _AugustThemeState extends State<AugustTheme> {
+  Timer? _soon;
+
   @override
   void initState() {
     super.initState();
@@ -33,8 +37,16 @@ class _AugustThemeState extends State<AugustTheme> {
     super.didUpdateWidget(old);
     if (old.theme.wallpaper != widget.theme.wallpaper ||
         old.theme.blur != widget.theme.blur) {
-      _bake();
+      // Once the blur rests: not a file for every step of its slider.
+      _soon?.cancel();
+      _soon = Timer(const Duration(milliseconds: 400), _bake);
     }
+  }
+
+  @override
+  void dispose() {
+    _soon?.cancel();
+    super.dispose();
   }
 
   /// A blurred photo wallpaper is blurred once into a file, then shown as a
