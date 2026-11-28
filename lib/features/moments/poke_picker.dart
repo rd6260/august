@@ -9,6 +9,7 @@ import '../../core/theme/v_palette.dart';
 import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
 import '../../core/widgets/v_glass.dart';
+import '../../core/widgets/v_ink.dart';
 import '../../data/providers.dart';
 import '../common/overlay.dart';
 
@@ -50,9 +51,7 @@ class _PokePickerState extends ConsumerState<PokePicker> {
   Widget build(BuildContext context) {
     ref.watch(momentCooldownProvider);
     final cd = ref.read(momentCooldownProvider.notifier);
-    const all = VMoment.values;
-    final paired = all.take(all.length - all.length % 2);
-    final wide = all.length.isOdd ? all.last : null;
+    final ink = VInk.of(context);
     Widget tile(VMoment m) => _Tile(
       moment: m,
       wait: cd.left(m),
@@ -75,51 +74,57 @@ class _PokePickerState extends ConsumerState<PokePicker> {
         ),
         Positioned(
           right: 14,
-          top: top + 72,
-          width: 300,
-          child: VGlass(
-            radius: 28,
-            tint: VPalette.of(context).glassSheet,
-            blur: 14,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        'SEND ${widget.partner.toUpperCase()} A…',
-                        style: VText.eyebrow,
+          top: top + 66,
+          width: 312,
+          // Grows out of the poke button, top right.
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.85, end: 1),
+            duration: const Duration(milliseconds: 260),
+            curve: Curves.easeOutBack,
+            builder: (context, k, child) => Transform.scale(
+              scale: k,
+              alignment: Alignment.topRight,
+              child: child,
+            ),
+            child: VGlass(
+              radius: 28,
+              tint: VPalette.of(context).glassSheet,
+              blur: 14,
+              border: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Text(
+                        'Send ${widget.partner} a…',
+                        style: VText.inter(16, weight: 600),
                       ),
-                      const Spacer(),
-                      Text('tap to send', style: VText.secondary),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  GridView.count(
-                    padding: EdgeInsets.zero, // not the status bar's inset
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 131 / 112,
-                    children: [for (final m in paired) tile(m)],
-                  ),
-                  // An odd one out (Angry poke) gets a wide tile below.
-                  if (wide != null) ...[
-                    const SizedBox(height: 10),
-                    SizedBox(height: 84, child: tile(wide)),
+                    ),
+                    const SizedBox(height: 12),
+                    GridView.count(
+                      padding: EdgeInsets.zero, // not the status bar's inset
+                      crossAxisCount: 3,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                      childAspectRatio: 0.92,
+                      children: [for (final m in VMoment.values) tile(m)],
+                    ),
+                    const SizedBox(height: 12),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        'One of each every 10 seconds, so they stay special.',
+                        style: VText.inter(12)
+                            .copyWith(color: ink.withValues(alpha: 0.55)),
+                      ),
+                    ),
                   ],
-                  const SizedBox(height: 12),
-                  Text(
-                    'One of each every 10 seconds, so they stay special.',
-                    style: VText.secondary,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -129,6 +134,9 @@ class _PokePickerState extends ConsumerState<PokePicker> {
   }
 }
 
+/// A moment to send: a soft wash of its colour, the emoji and its name.
+/// Recharging, the emoji fades, the seconds show, and a bar along the
+/// bottom fills back up.
 class _Tile extends StatelessWidget {
   const _Tile({required this.moment, required this.wait, required this.onTap});
 
@@ -138,7 +146,10 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ink = VInk.of(context);
     final cooling = wait > Duration.zero;
+    final total = MomentCooldown.cooldown.inMilliseconds;
+    final back = 1 - (wait.inMilliseconds / total).clamp(0.0, 1.0);
     return Semantics(
       button: true,
       label: cooling
@@ -146,12 +157,11 @@ class _Tile extends StatelessWidget {
           : 'Send a ${moment.label}',
       child: VTappable(
         onTap: onTap,
-        child: Opacity(
-          opacity: cooling ? 0.45 : 1,
-          child: Container(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: DecoratedBox(
             decoration: BoxDecoration(
-              color: moment.color,
-              borderRadius: BorderRadius.circular(20),
+              color: moment.color.withValues(alpha: cooling ? 0.1 : 0.24),
             ),
             child: Stack(
               children: [
@@ -159,28 +169,37 @@ class _Tile extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        moment.emoji,
-                        style: const TextStyle(fontSize: 38, height: 1),
+                      AnimatedOpacity(
+                        opacity: cooling ? 0.35 : 1,
+                        duration: const Duration(milliseconds: 200),
+                        child: Text(
+                          moment.emoji,
+                          style: const TextStyle(fontSize: 34, height: 1),
+                        ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
-                        moment.label,
-                        style: VText.inter(
-                          13,
-                          weight: 600,
-                        ).copyWith(color: VColors.black),
+                        cooling ? '${wait.inSeconds + 1} s' : moment.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: cooling
+                            ? VText.doto(13)
+                                  .copyWith(color: ink.withValues(alpha: 0.6))
+                            : VText.inter(12, weight: 600),
                       ),
                     ],
                   ),
                 ),
                 if (cooling)
                   Positioned(
-                    top: 8,
-                    right: 10,
-                    child: Text(
-                      '${wait.inSeconds + 1}s',
-                      style: VText.doto(12).copyWith(color: VColors.black),
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 3,
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: back,
+                      child: ColoredBox(color: moment.color),
                     ),
                   ),
               ],
