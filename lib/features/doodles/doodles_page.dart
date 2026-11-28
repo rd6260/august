@@ -117,8 +117,13 @@ class DoodlesPage extends ConsumerWidget {
           );
         }
       case 'duplicate':
-        n.duplicate(d.id);
-        showToast(context, 'Copied');
+        // Just as a new doodle: the note in the chat, then the board.
+        final copy = n.duplicate(d.id);
+        if (copy == null) return;
+        ref
+            .read(messagesProvider.notifier)
+            .send(SystemBody(SystemKind.doodle, 'New doodle: ${copy.name}'));
+        await openBoard(context, copy.id);
       case 'rename':
         final name = await showRename(context, d.name);
         if (name != null && name.trim().isNotEmpty) n.rename(d.id, name.trim());

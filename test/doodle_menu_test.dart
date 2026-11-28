@@ -5,6 +5,7 @@ import 'package:august/app/app.dart';
 import 'package:august/app/router.dart';
 import 'package:august/data/models.dart';
 import 'package:august/data/providers.dart';
+import 'package:august/features/doodles/board_page.dart';
 import 'package:august/mock/mock_repositories.dart';
 
 /// A doodle's long-press menu: Send as sticker first, the home screen just
@@ -92,7 +93,11 @@ void main() {
     // The partner gets the new board, then its drawing.
     expect(sent.whereType<DoodleCreated>().single.doodle.id, copy.id);
     expect(sent.whereType<StrokesSet>().single.strokes, d.strokes);
-    expect(find.text('Copied'), findsOneWidget);
+    // As a new doodle would: the note in the chat, and the board open.
+    final note = c.read(messagesProvider).last;
+    expect(note.body, isA<SystemBody>());
+    expect((note.body as SystemBody).text, 'New doodle: ${d.name} copy');
+    expect(find.byType(BoardPage), findsOneWidget);
     await t.pumpWidget(const SizedBox.shrink());
     await t.pump(const Duration(seconds: 5));
   });
