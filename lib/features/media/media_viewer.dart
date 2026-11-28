@@ -12,8 +12,10 @@ import '../../core/icons/v_icons.dart';
 import '../../core/theme/v_colors.dart';
 import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
+import '../../core/widgets/v_glass.dart';
 import '../../core/widgets/v_ink.dart';
 import '../../core/widgets/v_progress.dart';
+import '../../core/widgets/v_surface.dart';
 import '../../data/models.dart';
 import '../common/art.dart';
 import '../common/video_frame.dart';
@@ -196,9 +198,12 @@ class _MediaViewerState extends State<MediaViewer> {
           ],
         ),
       ),
-      VCircleButton(icon: VIcon.more, size: 44, onTap: () {}),
     ],
   );
+
+  /// The header and actions: a tap on the picture hides them, and another
+  /// brings them back.
+  bool _chrome = true;
 
   /// The photo on screen is zoomed: swiping to the next waits, so a drag
   /// moves the photo instead.
@@ -243,6 +248,7 @@ class _MediaViewerState extends State<MediaViewer> {
     itemBuilder: (context, i) {
       final it = widget.items[i];
       return GestureDetector(
+        onTap: () => setState(() => _chrome = !_chrome),
         onDoubleTapDown: (d) => _doubleTapAt = d,
         onDoubleTap: i == _at && !it.video ? _doubleTap : null,
         child: InteractiveViewer(
@@ -282,9 +288,8 @@ class _MediaViewerState extends State<MediaViewer> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: VColors.black.withValues(
-                                        alpha: 0.4,
+                                        alpha: 0.45,
                                       ),
-                                      border: Border.all(color: VColors.white),
                                     ),
                                     child: const Center(
                                       child: VIconView(
@@ -390,74 +395,121 @@ class _MediaViewerState extends State<MediaViewer> {
     return 'jpeg';
   }
 
-  Widget _actions(ViewerItem item) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceAround,
-    children: [
-      _Action(VIcon.reply, 'Reply', () {
-        Navigator.of(context).pop();
-        widget.onReply?.call(item);
-      }),
-      _Action(VIcon.download, 'Save', () => unawaited(_save(item))),
-      _Action(VIcon.share, 'Share', () => unawaited(_share(item))),
-    ],
+  Widget _actions(ViewerItem item) => VGlass(
+    radius: 26,
+    tint: VColors.black.withValues(alpha: 0.35),
+    blur: 18,
+    border: false,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _Action(VIcon.reply, 'Reply', () {
+            Navigator.of(context).pop();
+            widget.onReply?.call(item);
+          }),
+          _Action(VIcon.download, 'Save', () => unawaited(_save(item))),
+          _Action(VIcon.share, 'Share', () => unawaited(_share(item))),
+        ],
+      ),
+    ),
   );
 
   @override
   Widget build(BuildContext context) {
-    final paper = VInk.surfaceOf(context);
     final item = widget.items[_at];
-    // In landscape the picture takes the screen and the rest sits beside
-    // it.
-    final wide = isLandscape(context);
-    return AllowRotation(
-      child: ColoredBox(
-        color: paper,
+    const fade = Duration(milliseconds: 200);
+    // Full screen on black, whatever the theme: the picture edge to edge,
+    // the header and actions floating over it on soft shades. Turning the
+    // phone keeps the same layout.
+    final top = Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              VColors.black.withValues(alpha: 0.55),
+              VColors.black.withValues(alpha: 0),
+            ],
+          ),
+        ),
         child: SafeArea(
-          child: wide
-              ? Row(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+            child: _header(item),
+          ),
+        ),
+      ),
+    );
+    final bottom = Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              VColors.black.withValues(alpha: 0.55),
+              VColors.black.withValues(alpha: 0),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 28, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(child: _pages()),
-                    SizedBox(
-                      width: 280,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 12, 16, 12),
-                        child: Column(
-                          children: [
-                            _header(item),
-                            const Spacer(),
-                            if (item.video) ...[
-                              _scrubber(item),
-                              const SizedBox(height: 18),
-                            ],
-                            _actions(item),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                      child: _header(item),
-                    ),
-                    const SizedBox(height: 20),
-                    Expanded(child: _pages()),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
-                      child: Column(
-                        children: [
-                          if (item.video) ...[
-                            _scrubber(item),
-                            const SizedBox(height: 18),
-                          ],
-                          _actions(item),
-                        ],
-                      ),
-                    ),
+                    if (item.video) ...[
+                      _scrubber(item),
+                      const SizedBox(height: 14),
+                    ],
+                    _actions(item),
                   ],
                 ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    Widget chrome(Positioned p) => Positioned(
+      left: p.left,
+      right: p.right,
+      top: p.top,
+      bottom: p.bottom,
+      child: IgnorePointer(
+        ignoring: !_chrome,
+        child: AnimatedOpacity(
+          opacity: _chrome ? 1 : 0,
+          duration: fade,
+          child: p.child,
+        ),
+      ),
+    );
+    return AllowRotation(
+      child: VQuiet(
+        child: VInkScope(
+          ink: VColors.white,
+          child: ColoredBox(
+            color: VColors.black,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [_pages(), chrome(top), chrome(bottom)],
+            ),
+          ),
         ),
       ),
     );
@@ -477,12 +529,16 @@ class _Action extends StatelessWidget {
     label: label,
     child: VTappable(
       onTap: onTap,
-      child: Column(
-        children: [
-          VCircleButton(icon: icon, size: 44),
-          const SizedBox(height: 6),
-          Text(label, style: VText.inter(12, weight: 500)),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            VIconView(icon, size: 22),
+            const SizedBox(height: 4),
+            Text(label, style: VText.inter(12, weight: 500)),
+          ],
+        ),
       ),
     ),
   );

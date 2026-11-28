@@ -267,7 +267,10 @@ class PickMark extends StatelessWidget {
       height: 24,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: number > 0 ? VColors.white : null,
+        // A faint shade inside the empty ring, so it shows on light photos.
+        color: number > 0
+            ? VColors.white
+            : VColors.black.withValues(alpha: 0.18),
         border: Border.all(color: VColors.white, width: 1.5),
       ),
       alignment: Alignment.center,

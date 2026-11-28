@@ -8,6 +8,7 @@ import 'package:video_player/video_player.dart';
 import '../../core/icons/v_icons.dart';
 import '../../core/theme/v_colors.dart';
 import '../../core/theme/v_palette.dart';
+import '../../core/widgets/v_surface.dart';
 import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
 import '../../core/widgets/v_controls.dart';
@@ -90,134 +91,128 @@ class _GalleryPageState extends State<GalleryPage> {
         )
         .toList();
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const VVeil(),
-        CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          VLink(
-                            '‹ Chat',
-                            onTap: () => Navigator.of(context).pop(),
-                            style: VText.inter(14),
-                          ),
-                          const Spacer(),
-                          Text(
-                            'Recents ⌄',
-                            style: VText.inter(13, weight: 500),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Text('Gallery', style: VText.title),
-                      ),
-                      const SizedBox(height: 14),
-                      VSegmented<_Filter>(
-                        segments: const {
-                          _Filter.all: 'All',
-                          _Filter.photos: 'Photos',
-                          _Filter.videos: 'Videos',
-                        },
-                        value: _filter,
-                        onChanged: (f) => setState(() => _filter = f),
-                      ),
-                      const SizedBox(height: 14),
-                    ],
+    // The clean look: soft buttons and filter, picked photos shrink a little
+    // instead of an outline.
+    return VQuiet(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const VVeil(),
+          CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            VCircleButton(
+                              icon: VIcon.back,
+                              size: 44,
+                              onTap: () => Navigator.of(context).pop(),
+                            ),
+                            const SizedBox(width: 12),
+                            Text('Gallery', style: VText.title),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        VSegmented<_Filter>(
+                          quiet: true,
+                          segments: const {
+                            _Filter.all: 'All',
+                            _Filter.photos: 'Photos',
+                            _Filter.videos: 'Videos',
+                          },
+                          value: _filter,
+                          onChanged: (f) => setState(() => _filter = f),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            SliverPadding(
-              padding: EdgeInsets.fromLTRB(4, 0, 4, bottom + 100),
-              sliver: SliverGrid.count(
-                crossAxisCount: 3,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
-                children: [
-                  for (final m in shown)
-                    Semantics(
-                      button: true,
-                      selected: _picked.contains(m),
-                      label: m.duration == null ? 'Photo' : 'Video',
-                      child: VTappable(
-                        haptic: false,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(
-                            () => _picked.contains(m)
-                                ? _picked.remove(m)
-                                : _picked.add(m),
-                          );
-                        },
-                        child: ArtBox(
-                          art: m.art,
-                          radius: BorderRadius.circular(6),
-                          child: OnMedia(
-                            child: Stack(
-                              children: [
-                                if (_picked.contains(m))
-                                  Positioned.fill(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(
-                                          color: VColors.white,
-                                          width: 2,
-                                        ),
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(4, 0, 4, bottom + 100),
+                sliver: SliverGrid.count(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 4,
+                  children: [
+                    for (final m in shown)
+                      Semantics(
+                        button: true,
+                        selected: _picked.contains(m),
+                        label: m.duration == null ? 'Photo' : 'Video',
+                        child: VTappable(
+                          haptic: false,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(
+                              () => _picked.contains(m)
+                                  ? _picked.remove(m)
+                                  : _picked.add(m),
+                            );
+                          },
+                          child: AnimatedScale(
+                            scale: _picked.contains(m) ? 0.88 : 1,
+                            duration: const Duration(milliseconds: 160),
+                            curve: Curves.easeOutCubic,
+                            child: ArtBox(
+                              art: m.art,
+                              radius: BorderRadius.circular(
+                                _picked.contains(m) ? 14 : 8,
+                              ),
+                              child: OnMedia(
+                                child: Stack(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: PickMark(
+                                        _picked.contains(m)
+                                            ? widget.addTo +
+                                                  _picked.indexOf(m) +
+                                                  1
+                                            : 0,
                                       ),
                                     ),
-                                  ),
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: PickMark(
-                                    _picked.contains(m)
-                                        ? widget.addTo + _picked.indexOf(m) + 1
-                                        : 0,
-                                  ),
+                                    if (m.duration != null)
+                                      Positioned(
+                                        left: 6,
+                                        bottom: 5,
+                                        child: Text(
+                                          mss(m.duration!),
+                                          style: VText.doto(12),
+                                        ),
+                                      ),
+                                  ],
                                 ),
-                                if (m.duration != null)
-                                  Positioned(
-                                    left: 6,
-                                    bottom: 5,
-                                    child: Text(
-                                      mss(m.duration!),
-                                      style: VText.doto(12),
-                                    ),
-                                  ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-        Positioned(
-          left: 16,
-          right: 16,
-          bottom: bottom + 24,
-          child: VButton.primary(
-            _picked.isEmpty ? 'Pick photos' : 'Send ${_picked.length}',
-            enabled: _picked.isNotEmpty,
-            onPressed: () => Navigator.of(context).pop(List.of(_picked)),
+            ],
           ),
-        ),
-      ],
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: bottom + 24,
+            child: VButton.primary(
+              _picked.isEmpty ? 'Pick photos' : 'Send ${_picked.length}',
+              enabled: _picked.isNotEmpty,
+              onPressed: () => Navigator.of(context).pop(List.of(_picked)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -264,148 +259,191 @@ class _MediaPreviewState extends State<MediaPreview> {
   @override
   Widget build(BuildContext context) {
     final ink = VInk.of(context);
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const VVeil(),
-        SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                child: Row(
-                  children: [
-                    VCircleButton(
-                      icon: VIcon.close,
-                      size: 44,
-                      onTap: () => Navigator.of(context).pop(),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${_at + 1} / ${_media.length}',
-                      style: VText.doto(16),
-                    ),
-                    const Spacer(),
-                    VCircleButton(icon: VIcon.trash, size: 44, onTap: _remove),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 22),
-              Expanded(
-                child: PageView.builder(
-                  controller: _page,
-                  itemCount: _media.length,
-                  onPageChanged: (i) => setState(() => _at = i),
-                  itemBuilder: (context, i) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _media[i].duration != null
-                        ? _PreviewVideo(_media[i], active: i == _at)
-                        : ArtBox(
-                            art: _media[i].art,
-                            path: _media[i].path,
-                            radius: BorderRadius.circular(20),
+    final many = _media.length > 1;
+    // The clean look: soft buttons, caption and HD; the photo itself as
+    // large as it fits.
+    // Typing a caption: everything rises above the keyboard (the photo
+    // gives up the room). Pages here have no scaffold to do it.
+    return VQuiet(
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const VVeil(),
+            SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: Row(
+                      children: [
+                        VCircleButton(
+                          icon: VIcon.close,
+                          size: 44,
+                          onTap: () => Navigator.of(context).pop(),
+                        ),
+                        const Spacer(),
+                        // Which one, when there are several.
+                        if (many)
+                          Text(
+                            '${_at + 1} / ${_media.length}',
+                            style: VText.doto(16),
+                          )
+                        else if (widget.partner.isNotEmpty)
+                          Text(
+                            'To ${widget.partner}',
+                            style: VText.inter(
+                              14,
+                              weight: 500,
+                            ).copyWith(color: ink.withValues(alpha: 0.7)),
                           ),
+                        const Spacer(),
+                        VCircleButton(
+                          icon: VIcon.trash,
+                          size: 44,
+                          onTap: _remove,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              SizedBox(
-                height: 52,
-                child: Center(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _media.length,
-                    separatorBuilder: (_, _) => const SizedBox(width: 8),
-                    itemBuilder: (context, i) => VTappable(
-                      onTap: () => _page.animateToPage(
-                        i,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      ),
-                      child: Container(
-                        margin: const EdgeInsets.all(2),
-                        decoration: i == _at
-                            ? BoxDecoration(
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: ink, width: 2),
-                              )
-                            : null,
-                        padding: const EdgeInsets.all(2),
-                        child: ArtBox(
-                          art: _media[i].art,
-                          // A video's file isn't an image: its first frame
-                          // goes on top instead.
-                          path: _media[i].duration == null
-                              ? _media[i].path
-                              : null,
-                          width: 44,
-                          height: 44,
-                          radius: BorderRadius.circular(10),
-                          child: _media[i].duration != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: _media[i].path == null
-                                      ? null
-                                      : VideoFrame(_media[i].path!),
-                                )
-                              : null,
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _page,
+                      itemCount: _media.length,
+                      onPageChanged: (i) => setState(() => _at = i),
+                      itemBuilder: (context, i) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        // Its own shape, as large as fits: never cropped.
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: _media[i].aspect,
+                            child: _media[i].duration != null
+                                ? _PreviewVideo(_media[i], active: i == _at)
+                                : ArtBox(
+                                    art: _media[i].art,
+                                    path: _media[i].path,
+                                    radius: BorderRadius.circular(20),
+                                  ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: VGlass(
-                        radius: 22,
-                        tint: VPalette.of(context).glassCard,
-                        blur: 16,
-                        child: _CaptionField(controller: _caption),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Semantics(
-                      button: true,
-                      toggled: _hd,
-                      label: 'HD',
-                      child: VPill(
-                        'HD',
-                        fill: _hd ? VFill.filled : VFill.outline,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _hd = !_hd);
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Semantics(
-                      button: true,
-                      label: widget.partner.isEmpty
-                          ? 'Send'
-                          : 'Send to ${widget.partner}',
-                      child: VCircleButton(
-                        icon: VIcon.send,
-                        size: 44,
-                        filled: true,
-                        onTap: () => Navigator.of(context).pop((
-                          media: List.of(_media),
-                          caption: _caption.text.trim(),
-                          hd: _hd,
-                        )),
+                  // The strip of all of them, only when there's more than one.
+                  if (many) ...[
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      height: 52,
+                      child: Center(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _media.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          itemBuilder: (context, i) => VTappable(
+                            onTap: () => _page.animateToPage(
+                              i,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOut,
+                            ),
+                            child: AnimatedOpacity(
+                              opacity: i == _at ? 1 : 0.5,
+                              duration: const Duration(milliseconds: 160),
+                              child: Container(
+                                margin: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  // The one on screen ringed (it says which).
+                                  border: Border.all(
+                                    color: i == _at ? ink : VColors.transparent,
+                                    width: 2,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(2),
+                                child: ArtBox(
+                                  art: _media[i].art,
+                                  // A video's file isn't an image: its first frame
+                                  // goes on top instead.
+                                  path: _media[i].duration == null
+                                      ? _media[i].path
+                                      : null,
+                                  width: 44,
+                                  height: 44,
+                                  radius: BorderRadius.circular(10),
+                                  child: _media[i].duration != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: _media[i].path == null
+                                              ? null
+                                              : VideoFrame(_media[i].path!),
+                                        )
+                                      : null,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
-                ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 20),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: VGlass(
+                            radius: 22,
+                            tint: VPalette.of(context).glassCard,
+                            blur: 16,
+                            child: _CaptionField(controller: _caption),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Semantics(
+                          button: true,
+                          toggled: _hd,
+                          label: 'HD',
+                          child: VPill(
+                            'HD',
+                            fill: _hd ? VFill.filled : VFill.outline,
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              setState(() => _hd = !_hd);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Semantics(
+                          button: true,
+                          label: widget.partner.isEmpty
+                              ? 'Send'
+                              : 'Send to ${widget.partner}',
+                          child: VCircleButton(
+                            icon: VIcon.send,
+                            size: 44,
+                            filled: true,
+                            onTap: () => Navigator.of(context).pop((
+                              media: List.of(_media),
+                              caption: _caption.text.trim(),
+                              hd: _hd,
+                            )),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -421,7 +459,8 @@ class _CaptionField extends StatelessWidget {
     return CupertinoTextField(
       controller: controller,
       placeholder: 'Add a caption',
-      placeholderStyle: VText.inter(15).copyWith(color: ink),
+      placeholderStyle: VText.inter(15)
+          .copyWith(color: ink.withValues(alpha: 0.55)),
       style: VText.inter(15).copyWith(color: ink),
       cursorColor: ink,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -448,135 +487,137 @@ class _CameraPageState extends State<CameraPage> {
   @override
   Widget build(BuildContext context) {
     final last = MockData.gallery().first;
-    return VInkScope(
-      ink: VColors.white,
-      child: ColoredBox(
-        color: VColors.black,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ArtBox(
-              art: _front ? 8 : 4,
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            SafeArea(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    child: Row(
-                      children: [
-                        VCircleButton(
-                          icon: VIcon.close,
-                          size: 44,
-                          onTap: () => Navigator.of(context).pop(),
-                        ),
-                        const Spacer(),
-                        if (_recording)
-                          const VPill.badge('REC')
-                        else
-                          const SizedBox.shrink(),
-                        const Spacer(),
-                        Semantics(
-                          button: true,
-                          label: _flash ? 'Flash on' : 'Flash off',
-                          child: VCircleButton(
-                            icon: VIcon.flash,
+    // Soft buttons over the viewfinder; the shutter keeps its ring.
+    return VQuiet(
+      child: VInkScope(
+        ink: VColors.white,
+        child: ColoredBox(
+          color: VColors.black,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ArtBox(
+                art: _front ? 8 : 4,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Row(
+                        children: [
+                          VCircleButton(
+                            icon: VIcon.close,
                             size: 44,
-                            filled: _flash,
-                            onTap: () => setState(() => _flash = !_flash),
+                            onTap: () => Navigator.of(context).pop(),
                           ),
-                        ),
-                      ],
+                          const Spacer(),
+                          if (_recording)
+                            const VPill.badge('REC')
+                          else
+                            const SizedBox.shrink(),
+                          const Spacer(),
+                          Semantics(
+                            button: true,
+                            label: _flash ? 'Flash on' : 'Flash off',
+                            child: VCircleButton(
+                              icon: VIcon.flash,
+                              size: 44,
+                              filled: _flash,
+                              onTap: () => setState(() => _flash = !_flash),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Tap for a photo · hold for video',
-                    style: VText.inter(13),
-                  ),
-                  const SizedBox(height: 22),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(44, 0, 44, 40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ArtBox(
-                          art: last.art,
-                          width: 48,
-                          height: 48,
-                          radius: BorderRadius.circular(12),
-                        ),
-                        Semantics(
-                          button: true,
-                          label: 'Shutter',
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.mediumImpact();
-                              Navigator.of(context).pop(
-                                Media(
-                                  id: 'cam${DateTime.now().millisecondsSinceEpoch}',
-                                  art: _front ? 8 : 4,
-                                  aspect: 0.75,
-                                ),
-                              );
-                            },
-                            onLongPressStart: (_) =>
-                                setState(() => _recording = true),
-                            onLongPressEnd: (_) {
-                              setState(() => _recording = false);
-                              Navigator.of(context).pop(
-                                Media(
-                                  id: 'vid${DateTime.now().millisecondsSinceEpoch}',
-                                  art: _front ? 8 : 4,
-                                  aspect: 0.75,
-                                  duration: const Duration(seconds: 6),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              width: 80,
-                              height: 80,
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: VColors.white,
-                                  width: 2,
-                                ),
-                              ),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
+                    const Spacer(),
+                    Text(
+                      'Tap for a photo · hold for video',
+                      style: VText.inter(13),
+                    ),
+                    const SizedBox(height: 22),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(44, 0, 44, 40),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ArtBox(
+                            art: last.art,
+                            width: 48,
+                            height: 48,
+                            radius: BorderRadius.circular(12),
+                          ),
+                          Semantics(
+                            button: true,
+                            label: 'Shutter',
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.mediumImpact();
+                                Navigator.of(context).pop(
+                                  Media(
+                                    id: 'cam${DateTime.now().millisecondsSinceEpoch}',
+                                    art: _front ? 8 : 4,
+                                    aspect: 0.75,
+                                  ),
+                                );
+                              },
+                              onLongPressStart: (_) =>
+                                  setState(() => _recording = true),
+                              onLongPressEnd: (_) {
+                                setState(() => _recording = false);
+                                Navigator.of(context).pop(
+                                  Media(
+                                    id: 'vid${DateTime.now().millisecondsSinceEpoch}',
+                                    art: _front ? 8 : 4,
+                                    aspect: 0.75,
+                                    duration: const Duration(seconds: 6),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 80,
+                                height: 80,
+                                padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
-                                  color: VColors.white,
-                                  borderRadius: BorderRadius.circular(
-                                    _recording ? 8 : 40,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: VColors.white,
+                                    width: 2,
                                   ),
                                 ),
-                                margin: EdgeInsets.all(_recording ? 14 : 0),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  decoration: BoxDecoration(
+                                    color: VColors.white,
+                                    borderRadius: BorderRadius.circular(
+                                      _recording ? 8 : 40,
+                                    ),
+                                  ),
+                                  margin: EdgeInsets.all(_recording ? 14 : 0),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        VCircleButton(
-                          icon: VIcon.swapCamera,
-                          size: 44,
-                          onTap: () => setState(() => _front = !_front),
-                        ),
-                      ],
+                          VCircleButton(
+                            icon: VIcon.swapCamera,
+                            size: 44,
+                            onTap: () => setState(() => _front = !_front),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
 
 /// A video in the preview (C19): its first frame, and tap to play it
 /// through before sending. It stops when swiped away.
@@ -620,7 +661,9 @@ class _PreviewVideoState extends State<_PreviewVideo> {
   @override
   void didUpdateWidget(_PreviewVideo old) {
     super.didUpdateWidget(old);
-    if (!widget.active && (_c?.value.isPlaying ?? false)) unawaited(_c!.pause());
+    if (!widget.active && (_c?.value.isPlaying ?? false)) {
+      unawaited(_c!.pause());
+    }
   }
 
   @override
@@ -674,8 +717,7 @@ class _PreviewVideoState extends State<_PreviewVideo> {
                     height: 68,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: VColors.black.withValues(alpha: 0.4),
-                      border: Border.all(color: VColors.white),
+                      color: VColors.black.withValues(alpha: 0.45),
                     ),
                     child: const Center(
                       child: VIconView(
