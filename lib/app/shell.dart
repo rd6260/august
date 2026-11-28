@@ -20,6 +20,7 @@ import '../features/onboarding/onboarding_pages.dart';
 import '../features/moments/moment_burst.dart';
 import '../features/settings/update.dart';
 import '../net/updater.dart';
+import 'message_banner.dart';
 
 /// The three tabs with the floating glass pill over them, and Cariño's
 /// progressive blur along the bottom edge (as Idris's shell).
@@ -160,6 +161,12 @@ class _AppShellState extends State<AppShell> {
           ),
           // A call ringing opens the incoming call screen (K2).
           const _CallListener(),
+          // A message while you're not looking at the chat: a banner.
+          MessageBannerListener(
+            onChat: () =>
+                shell.currentIndex == 0 &&
+                (ModalRoute.of(context)?.isCurrent ?? true),
+          ),
           // Checks for a newer August, and says what's new after an update.
           const _UpdateListener(),
           // A hug, poke, kiss or miss-you arriving covers everything (C25).
