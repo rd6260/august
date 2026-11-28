@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/theme/v_colors.dart';
 import '../../core/theme/v_text.dart';
@@ -119,8 +120,10 @@ class _ProfilesPageState extends State<ProfilesPage> {
   Future<(List<Profile>, String)> _read() async =>
       (await Profiles.all(), await Profiles.current());
 
-  Future<void> _tap(Profile p, {required bool current}) async {
+  /// Long-press: Switch or Delete (not on the one in use).
+  Future<void> _hold(Profile p, {required bool current}) async {
     if (current) return;
+    unawaited(HapticFeedback.mediumImpact());
     final what = await showChoiceSheet<String>(
       context,
       title: p.name,
@@ -196,15 +199,19 @@ class _ProfilesPageState extends State<ProfilesPage> {
                   'identity, pairing and chat, in '
                   '${DataHome.devRoot}/profiles. Switching restarts August.',
               children: [
+                // A tap switches; a long press offers Switch and Delete.
                 for (final p in all)
-                  VListRow(
-                    title: p.name,
-                    subtitle: p.partner == null
-                        ? 'Not paired'
-                        : 'Paired with ${p.partner}',
-                    value: p.id == now ? 'Current' : null,
-                    chevron: p.id != now,
-                    onTap: () => _tap(p, current: p.id == now),
+                  GestureDetector(
+                    onLongPress: () => _hold(p, current: p.id == now),
+                    child: VListRow(
+                      title: p.name,
+                      subtitle: p.partner == null
+                          ? 'Not paired'
+                          : 'Paired with ${p.partner}',
+                      value: p.id == now ? 'Current' : null,
+                      chevron: p.id != now,
+                      onTap: p.id == now ? null : () => Profiles.use(p.id),
+                    ),
                   ),
                 VListRow(title: 'New profile', onTap: _new),
               ],

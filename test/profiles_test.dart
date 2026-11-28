@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:august/features/dev/dev_pages.dart';
 import 'package:august/platform/data_home.dart';
 
 /// The dev flavor's profiles: folders under August/profiles, one current.
@@ -50,5 +53,62 @@ void main() {
     Directory('${root.path}/profiles/main').createSync(recursive: true);
     await Profiles.delete('main');
     expect(Directory('${root.path}/profiles/main').existsSync(), isTrue);
+  });
+
+  testWidgets('a tap switches; a long press offers Switch and Delete', (
+    t,
+  ) async {
+    final calls = <String>[];
+    t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('august/dev'),
+      (call) async {
+        calls.add(call.method);
+        return null;
+      },
+    );
+    addTearDown(
+      () => t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('august/dev'),
+        null,
+      ),
+    );
+    await t.runAsync(() => Profiles.create('Second'));
+    // The list is read from the files (real time, not the test's).
+    await t.runAsync(
+      () => t.pumpWidget(const CupertinoApp(home: ProfilesPage())),
+    );
+    for (var i = 0; i < 10 && find.text('Second').evaluate().isEmpty; i++) {
+      await t.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await t.pump();
+    }
+    expect(find.text('Second'), findsOneWidget);
+
+    // A long press: the menu, and nothing switched.
+    await t.longPress(find.text('Second'));
+    await t.pump(const Duration(milliseconds: 600));
+    expect(find.text('Switch to Second'), findsOneWidget);
+    expect(find.text('Delete Second'), findsOneWidget);
+    expect(calls, isEmpty);
+    // Put the menu away without picking.
+    Navigator.of(t.element(find.text('Switch to Second'))).pop();
+    for (var i = 0; i < 30; i++) {
+      await t.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.text('Switch to Second'), findsNothing);
+
+    // A tap: straight to it.
+    await t.tap(find.text('Second'));
+    for (var i = 0; i < 20 && calls.isEmpty; i++) {
+      await t.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await t.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.text('Switch to Second'), findsNothing);
+    expect(calls, ['restart']);
+    final now = await t.runAsync(Profiles.current);
+    expect(now, isNot('main'));
   });
 }
