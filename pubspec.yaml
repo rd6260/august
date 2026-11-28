@@ -89,6 +89,7 @@ flutter:
     # The developer's picture for About (as in Idris), bundled so nothing
     # is fetched.
     - assets/images/developer.jpg
+    - assets/images/developer-rd.jpg
 
   shaders:
     - shaders/progressive_blur.frag

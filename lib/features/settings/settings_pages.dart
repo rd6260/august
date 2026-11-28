@@ -644,13 +644,25 @@ class AboutPage extends StatelessWidget {
         VListGroup(
           label: 'Developers',
           children: [
-            const VListRow(
-              leading: Avatar(Person(id: 'rohan', name: 'Rohan Das'), size: 44),
+            VListRow(
+              leading: ClipOval(
+                child: Image.asset(
+                  'assets/images/developer-rd.jpg',
+                  width: 44,
+                  height: 44,
+                  fit: BoxFit.cover,
+                ),
+              ),
               title: 'Rohan Das',
               subtitle: 'Made it too',
               chevron: false,
             ),
             _link('GitHub', 'rd6260', 'https://github.com/rd6260'),
+            _link(
+              'LinkedIn',
+              'nitul-aka-rd',
+              'https://www.linkedin.com/in/nitul-aka-rd/',
+            ),
             VListRow(
               leading: ClipOval(
                 child: Image.asset(
