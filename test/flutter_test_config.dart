@@ -11,6 +11,7 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   for (final (family, path) in [
     ('Doto', 'assets/fonts/Doto.ttf'),
     ('Inter', 'assets/fonts/Inter.ttf'),
+    ('PatrickHand', 'assets/fonts/PatrickHand.ttf'),
   ]) {
     final loader = FontLoader(family)
       ..addFont(

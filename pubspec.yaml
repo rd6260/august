@@ -85,6 +85,7 @@ flutter:
   assets:
     - assets/fonts/OFL-Doto.txt
     - assets/fonts/OFL-Inter.txt
+    - assets/fonts/OFL-PatrickHand.txt
     # The developer's picture for About (as in Idris), bundled so nothing
     # is fetched.
     - assets/images/developer.jpg
@@ -100,3 +101,7 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter.ttf
+    # Doodle text (OFL), handwriting; Regular only.
+    - family: PatrickHand
+      fonts:
+        - asset: assets/fonts/PatrickHand.ttf

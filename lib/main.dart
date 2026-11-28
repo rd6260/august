@@ -61,7 +61,7 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   LicenseRegistry.addLicense(() async* {
-    for (final font in ['Doto', 'Inter']) {
+    for (final font in ['Doto', 'Inter', 'PatrickHand']) {
       final text = await rootBundle.loadString('assets/fonts/OFL-$font.txt');
       yield LicenseEntryWithLineBreaks([font], text);
     }

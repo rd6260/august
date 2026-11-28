@@ -596,6 +596,7 @@ class AboutPage extends StatelessWidget {
   static const _licences = [
     ('Doto', 'OFL'),
     ('Inter', 'OFL'),
+    ('Patrick Hand', 'OFL'),
     ('NewPipe Extractor', 'GPL-3.0'),
     ('youtube_explode_dart', 'BSD-3'),
     ('OkHttp', 'Apache 2.0'),

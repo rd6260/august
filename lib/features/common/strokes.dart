@@ -88,15 +88,15 @@ class StrokesPainter extends CustomPainter {
       old.outline != outline;
 }
 
-/// A text stroke laid out: Inter, [Stroke.size] as its font size, in its
-/// colour, from its first point (the top-left).
+/// A text stroke laid out: Patrick Hand (handwriting, like the rest of a
+/// doodle), [Stroke.size] as its font size, in its colour, from its first
+/// point (the top-left).
 TextPainter textOf(Stroke st) => TextPainter(
   text: TextSpan(
     text: st.text ?? '',
     style: TextStyle(
-      fontFamily: 'Inter',
+      fontFamily: 'PatrickHand',
       fontSize: st.size,
-      fontWeight: FontWeight.w600,
       height: 1.15,
       color: VPenColors.of(st.argb).withValues(alpha: st.opacity),
     ),
