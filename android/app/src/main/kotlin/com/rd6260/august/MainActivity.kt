@@ -11,6 +11,14 @@ class MainActivity : FlutterActivity() {
         // on the next launch.
         CrashFiles.installCrashHandler(this)
         super.onCreate(savedInstanceState)
+        // Opened by sharing photos or videos to August.
+        ShareIntake.handle(this, intent)
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        ShareIntake.handle(this, intent)
     }
 
     @Deprecated("The folder picker still answers here")
@@ -29,6 +37,8 @@ class MainActivity : FlutterActivity() {
         Updater.register(this, flutterEngine.dartExecutor.binaryMessenger)
         // The dev flavor's storage permission and profile restarts.
         DevStorage.register(this, flutterEngine.dartExecutor.binaryMessenger)
+        // Photos and videos shared to August from other apps.
+        ShareIntake.register(flutterEngine.dartExecutor.binaryMessenger)
         // The sticker tray's WhatsApp tab: WhatsApp's sticker folder.
         WhatsAppStickers.register(this, flutterEngine.dartExecutor.binaryMessenger)
         // "Hide in recent apps" (C36): FLAG_SECURE blanks August in the

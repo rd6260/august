@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,7 @@ import '../features/onboarding/onboarding_pages.dart';
 import '../platform/secure_window.dart';
 import 'august_theme.dart';
 import 'router.dart';
+import 'share_intake.dart';
 import 'widget_sync.dart';
 
 /// The app root: the shared theme's wallpaper, ink and glass apply
@@ -43,6 +45,7 @@ class _AugustAppState extends ConsumerState<AugustApp> {
   late bool _splash = widget.splash;
   late final AppLifecycleListener _life;
   late final _widget = DoodleWidgetSync(ref, _router);
+  late final _share = ShareIntake(ref, _router);
   DateTime? _left;
 
   @override
@@ -65,6 +68,8 @@ class _AugustAppState extends ConsumerState<AugustApp> {
     // The home screen widget follows the picked doodle.
     doodleWidgetSync = _widget;
     unawaited(_widget.start());
+    // Photos and videos shared to August from other apps.
+    if (Platform.isAndroid) unawaited(_share.start());
     // Leaving August for longer than "Lock after" locks it (C36).
     _life = AppLifecycleListener(
       onHide: () => _left = DateTime.now(),
@@ -88,6 +93,7 @@ class _AugustAppState extends ConsumerState<AugustApp> {
   @override
   void dispose() {
     _widget.dispose();
+    _share.dispose();
     if (identical(doodleWidgetSync, _widget)) doodleWidgetSync = null;
     _life.dispose();
     _router.dispose();

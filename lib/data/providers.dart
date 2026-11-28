@@ -215,6 +215,13 @@ final notificationsAllowedProvider = FutureProvider<bool>((ref) async => true);
 /// .redrawInBackground).
 final widgetRedrawProvider = Provider<Future<void> Function()?>((ref) => null);
 
+/// Turns photos and videos shared to August (copied files, with their
+/// type) into media to send. Null where they can't be kept (the mock).
+final sharedMediaProvider =
+    Provider<Future<List<Media>> Function(List<({String path, String mime})>)?>(
+      (ref) => null,
+    );
+
 /// Takes down August's notifications (it's open: they're being read).
 final clearNotificationsProvider = Provider<Future<void> Function()>(
   (ref) => () async {},

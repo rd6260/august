@@ -73,6 +73,29 @@ class PhoneMedia implements MediaSource {
     }
   }
 
+  /// A photo or video shared to August (ShareIntake.kt copied it into the
+  /// cache), moved into the media folder as the gallery's would be.
+  Future<Media> fromShared(String path, String mime) async {
+    await dir.create(recursive: true);
+    final id = NeonChatRepository.uuid();
+    final from = File(path);
+    final file = await from.copy('${dir.path}/$id');
+    try {
+      await from.delete();
+    } on Object {
+      // The cache will go anyway.
+    }
+    if (mime.startsWith('video/')) return videoOf(file, id: id);
+    final bytes = await file.readAsBytes();
+    return Media(
+      id: id,
+      art: bytes.length % 10,
+      aspect: await aspectOf(bytes),
+      bytes: bytes.length,
+      path: file.path,
+    );
+  }
+
   Future<Media> _keep(XFile x) async {
     await dir.create(recursive: true);
     final id = NeonChatRepository.uuid();

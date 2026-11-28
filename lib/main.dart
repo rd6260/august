@@ -158,6 +158,12 @@ Future<void> _start() async {
           notificationsAllowedProvider.overrideWith((ref) => Push.allowed()),
           notificationSettingsProvider.overrideWithValue(Push.openSettings),
           clearNotificationsProvider.overrideWithValue(Push.clear),
+          sharedMediaProvider.overrideWithValue((items) async {
+            final phone = PhoneMedia(backend.mediaDir);
+            return [
+              for (final i in items) await phone.fromShared(i.path, i.mime),
+            ];
+          }),
           widgetRedrawProvider.overrideWithValue(() async {
             await backend.store.flush();
             await DoodleWidget.redrawInBackground();

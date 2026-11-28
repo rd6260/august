@@ -76,6 +76,7 @@ Code: `features/onboarding/` (`onboarding_pages.dart`, `pair_card.dart`, `step_p
 
 <img src="renders/uploading_night.webp" width="24%" alt="A video and a round video going up"> <img src="renders/uploading_paper.webp" width="24%" alt="The same, paper">
 - **Auto-download:** Always, on Wi-Fi, or never (Settings › Download media).
+- **Share to August (Android):** August is in other apps' share sheets for photos and videos, one or several. They're copied in (the sender's links don't last), August opens the chat with the usual preview (caption, HD), and Send sends them as the gallery's would; behind the app lock, the preview waits until it's unlocked. Code: `ShareIntake.kt`, `app/share_intake.dart`.
 
 Code: `features/media/`, `net/phone_media.dart`, `phone_voice.dart`, `phone_round.dart`.
 

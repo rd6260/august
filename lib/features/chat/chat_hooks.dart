@@ -45,11 +45,7 @@ class ChatHooks {
               source: ref.read(mediaSourceProvider),
             );
             if (picked != null) {
-              await _sendPicked(
-                messages,
-                picked,
-                ref.read(mediaSourceProvider),
-              );
+              await sendPicked(messages, picked, ref.read(mediaSourceProvider));
             }
           case AttachKind.camera:
             final shot = await takePhoto(
@@ -58,7 +54,7 @@ class ChatHooks {
               source: ref.read(mediaSourceProvider),
             );
             if (shot != null) {
-              await _sendPicked(messages, shot, ref.read(mediaSourceProvider));
+              await sendPicked(messages, shot, ref.read(mediaSourceProvider));
             }
           case AttachKind.roundVideo:
             if (context.mounted) {
@@ -82,24 +78,6 @@ class ChatHooks {
         }
     }
     return null;
-  }
-
-  Future<void> _sendPicked(
-    MessagesNotifier messages,
-    PickedMedia p,
-    MediaSource? source,
-  ) async {
-    final caption = p.caption.isEmpty ? null : p.caption;
-    final videos = p.media.where((m) => m.duration != null).toList();
-    var photos = p.media.where((m) => m.duration == null).toList();
-    // Not HD: resized to 2048 px before they go.
-    if (!p.hd && source != null) {
-      photos = [for (final m in photos) await source.standard(m)];
-    }
-    if (photos.isNotEmpty) messages.send(PhotoBody(photos, caption: caption));
-    for (final v in videos) {
-      messages.send(VideoBody(v));
-    }
   }
 
   /// The gallery grid (C18), to add more photos to the strip.
@@ -162,4 +140,25 @@ class ChatHooks {
   /// Starts a call (K1).
   void call(BuildContext context, WidgetRef ref, {required bool video}) =>
       startCall(context, ref, video: video);
+}
+
+/// Sends what the preview handed back ([p]): its photos as one message
+/// (resized unless HD), each video on its own. From the gallery, the
+/// camera and media shared to August alike.
+Future<void> sendPicked(
+  MessagesNotifier messages,
+  PickedMedia p,
+  MediaSource? source,
+) async {
+  final caption = p.caption.isEmpty ? null : p.caption;
+  final videos = p.media.where((m) => m.duration != null).toList();
+  var photos = p.media.where((m) => m.duration == null).toList();
+  // Not HD: resized to 2048 px before they go.
+  if (!p.hd && source != null) {
+    photos = [for (final m in photos) await source.standard(m)];
+  }
+  if (photos.isNotEmpty) messages.send(PhotoBody(photos, caption: caption));
+  for (final v in videos) {
+    messages.send(VideoBody(v));
+  }
 }
