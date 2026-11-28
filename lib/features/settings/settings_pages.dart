@@ -642,7 +642,7 @@ class AboutPage extends StatelessWidget {
           ],
         ),
         VListGroup(
-          label: 'Developer',
+          label: 'Developers',
           children: [
             VListRow(
               leading: ClipOval(
@@ -665,17 +665,14 @@ class AboutPage extends StatelessWidget {
                 'https://www.linkedin.com/in/sapangajjar101105',
               ),
             ])
-              VListRow(
-                title: title,
-                value: handle,
-                // Opens in the browser (or the app, if it's installed).
-                onTap: () => unawaited(
-                  launchUrl(
-                    Uri.parse(link),
-                    mode: LaunchMode.externalApplication,
-                  ),
-                ),
-              ),
+              _link(title, handle, link),
+            const VListRow(
+              leading: Avatar(Person(id: 'rohan', name: 'Rohan Das'), size: 44),
+              title: 'Rohan Das',
+              subtitle: 'Made it too',
+              chevron: false,
+            ),
+            _link('GitHub', 'rd6260', 'https://github.com/rd6260'),
           ],
         ),
         VListGroup(
@@ -695,3 +692,13 @@ class AboutPage extends StatelessWidget {
     );
   }
 }
+
+/// A profile link on the About page: opens in the browser (or the app, if
+/// it's installed).
+VListRow _link(String title, String handle, String link) => VListRow(
+  title: title,
+  value: handle,
+  onTap: () => unawaited(
+    launchUrl(Uri.parse(link), mode: LaunchMode.externalApplication),
+  ),
+);
