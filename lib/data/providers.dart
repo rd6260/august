@@ -690,7 +690,7 @@ class DoodlesNotifier extends Notifier<List<Doodle>> {
     return d;
   }
 
-  /// A copy of board [id] ("<name> copy", same paper and drawing), first
+  /// A copy of board [id] ("[name] copy", same paper and drawing), first
   /// in the list, for both of you. It goes to the partner as a new board,
   /// then its strokes.
   Doodle? duplicate(String id) {
