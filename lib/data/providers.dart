@@ -690,6 +690,26 @@ class DoodlesNotifier extends Notifier<List<Doodle>> {
     return d;
   }
 
+  /// A copy of board [id] ("<name> copy", same paper and drawing), first
+  /// in the list, for both of you. It goes to the partner as a new board,
+  /// then its strokes.
+  Doodle? duplicate(String id) {
+    final from = state.where((d) => d.id == id).firstOrNull;
+    if (from == null) return null;
+    final d = Doodle(
+      id: 'd${DateTime.now().microsecondsSinceEpoch}',
+      name: '${from.name} copy',
+      strokes: from.strokes,
+      editedBy: 'You',
+      editedAt: DateTime.now(),
+      paper: from.paper,
+    );
+    state = [d, ...state];
+    _share(DoodleCreated(d));
+    if (d.strokes.isNotEmpty) _share(StrokesSet(d.id, d.strokes));
+    return d;
+  }
+
   /// The home screen widget shows [id]: wake the partner's to redraw.
   void _touched(String id) =>
       ref.read(widgetDoodleProvider.notifier).touched(id);

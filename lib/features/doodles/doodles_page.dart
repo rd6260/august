@@ -84,6 +84,7 @@ class DoodlesPage extends ConsumerWidget {
       choices: [
         const Choice('send', 'Send as sticker', icon: VIcon.send),
         const Choice('rename', 'Rename', icon: VIcon.doodle),
+        const Choice('duplicate', 'Duplicate', icon: VIcon.copy),
         Choice(
           'pin',
           pinned ? 'Remove from home screen' : 'Show on home screen',
@@ -115,6 +116,9 @@ class DoodlesPage extends ConsumerWidget {
             'Or long-press your home screen › Widgets › August',
           );
         }
+      case 'duplicate':
+        n.duplicate(d.id);
+        showToast(context, 'Duplicated');
       case 'rename':
         final name = await showRename(context, d.name);
         if (name != null && name.trim().isNotEmpty) n.rename(d.id, name.trim());
