@@ -644,6 +644,13 @@ class AboutPage extends StatelessWidget {
         VListGroup(
           label: 'Developers',
           children: [
+            const VListRow(
+              leading: Avatar(Person(id: 'rohan', name: 'Rohan Das'), size: 44),
+              title: 'Rohan Das',
+              subtitle: 'Made it too',
+              chevron: false,
+            ),
+            _link('GitHub', 'rd6260', 'https://github.com/rd6260'),
             VListRow(
               leading: ClipOval(
                 child: Image.asset(
@@ -666,13 +673,6 @@ class AboutPage extends StatelessWidget {
               ),
             ])
               _link(title, handle, link),
-            const VListRow(
-              leading: Avatar(Person(id: 'rohan', name: 'Rohan Das'), size: 44),
-              title: 'Rohan Das',
-              subtitle: 'Made it too',
-              chevron: false,
-            ),
-            _link('GitHub', 'rd6260', 'https://github.com/rd6260'),
           ],
         ),
         VListGroup(
