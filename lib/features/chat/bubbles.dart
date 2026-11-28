@@ -65,7 +65,7 @@ class MessageView extends StatelessWidget {
     final m = message;
     if (m.centred) return Center(child: _Centred(m, partner, actions));
     final width = MediaQuery.sizeOf(context).width;
-    final content = switch (m.body) {
+    final bare = switch (m.body) {
       StickerBody(:final sticker) => _StickerMessage(m, sticker),
       RoundVideoBody(:final video, :final playing) => _RoundVideo(
         m,
@@ -79,6 +79,23 @@ class MessageView extends StatelessWidget {
       ),
       _ => _Bubble(m, partner, actions, playing: playingId == m.id),
     };
+    // A sticker, round video or emoji has no bubble to hold what it
+    // answers: the quote sits just over it, as a small card of its own.
+    final content = m.reply != null && bare is! _Bubble
+        ? Column(
+            crossAxisAlignment: m.fromMe
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: _QuoteView(m.reply!, partner: partner, onInk: true),
+              ),
+              bare,
+            ],
+          )
+        : bare;
     final failed = m.fromMe && m.delivery == Delivery.failed;
     return _SwipeToReply(
       onReply: actions.onReply == null ? null : () => actions.onReply!(m),

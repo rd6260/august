@@ -367,7 +367,8 @@ class ComposerState extends State<Composer> with WidgetsBindingObserver {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (widget.replyTo != null && widget.media.isEmpty) ...[
+        // Still shown with photos in the strip: they go as the reply.
+        if (widget.replyTo != null) ...[
           _ReplyBar(
             message: widget.replyTo!,
             partner: widget.partner,

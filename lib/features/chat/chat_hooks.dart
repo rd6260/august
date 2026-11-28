@@ -24,15 +24,19 @@ class ChatHooks {
   static ChatHooks of(BuildContext context) => const ChatHooks();
 
   /// The attach sheet (C17). Recent photos come back for the composer's
-  /// strip; everything else is sent from here.
-  Future<List<Media>?> attach(BuildContext context, WidgetRef ref) async {
+  /// strip; everything else goes out through [send] (the chat's, so it
+  /// answers the message being replied to).
+  Future<List<Media>?> attach(
+    BuildContext context,
+    WidgetRef ref, {
+    required void Function(Body body) send,
+  }) async {
     final choice = await showAttachSheet(
       context,
       recent: ref.read(mediaSourceProvider) == null,
     );
     if (choice == null || !context.mounted) return null;
     final partner = ref.read(pairingProvider).partner.name;
-    final messages = ref.read(messagesProvider.notifier);
     switch (choice) {
       case AttachRecent(:final media):
         return media;
@@ -45,7 +49,7 @@ class ChatHooks {
               source: ref.read(mediaSourceProvider),
             );
             if (picked != null) {
-              await sendPicked(messages, picked, ref.read(mediaSourceProvider));
+              await sendPicked(send, picked, ref.read(mediaSourceProvider));
             }
           case AttachKind.camera:
             final shot = await takePhoto(
@@ -54,7 +58,7 @@ class ChatHooks {
               source: ref.read(mediaSourceProvider),
             );
             if (shot != null) {
-              await sendPicked(messages, shot, ref.read(mediaSourceProvider));
+              await sendPicked(send, shot, ref.read(mediaSourceProvider));
             }
           case AttachKind.roundVideo:
             if (context.mounted) {
@@ -68,13 +72,13 @@ class ChatHooks {
             if (m != null) ref.read(momentCooldownProvider.notifier).send(m);
           case AttachKind.music:
             final body = await music(context);
-            if (body != null) messages.send(body);
+            if (body != null) send(body);
           case AttachKind.meme:
             final body = await stickers(context, startOnMemes: true);
-            if (body != null) messages.send(body);
+            if (body != null) send(body);
           case AttachKind.doodle:
             final body = await doodle(context, ref);
-            if (body != null) messages.send(body);
+            if (body != null) send(body);
         }
     }
     return null;
@@ -142,11 +146,11 @@ class ChatHooks {
       startCall(context, ref, video: video);
 }
 
-/// Sends what the preview handed back ([p]): its photos as one message
-/// (resized unless HD), each video on its own. From the gallery, the
-/// camera and media shared to August alike.
+/// Sends what the preview handed back ([p]) with [send]: its photos as one
+/// message (resized unless HD), each video on its own. From the gallery,
+/// the camera and media shared to August alike.
 Future<void> sendPicked(
-  MessagesNotifier messages,
+  void Function(Body body) send,
   PickedMedia p,
   MediaSource? source,
 ) async {
@@ -157,8 +161,8 @@ Future<void> sendPicked(
   if (!p.hd && source != null) {
     photos = [for (final m in photos) await source.standard(m)];
   }
-  if (photos.isNotEmpty) messages.send(PhotoBody(photos, caption: caption));
+  if (photos.isNotEmpty) send(PhotoBody(photos, caption: caption));
   for (final v in videos) {
-    messages.send(VideoBody(v));
+    send(VideoBody(v));
   }
 }

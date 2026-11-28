@@ -80,7 +80,7 @@ class ShareIntake {
       );
       if (picked == null) return;
       await sendPicked(
-        ref.read(messagesProvider.notifier),
+        ref.read(messagesProvider.notifier).send,
         picked,
         ref.read(mediaSourceProvider),
       );

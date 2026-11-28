@@ -459,7 +459,11 @@ class ChatPageState extends ConsumerState<ChatPage> {
                     ),
                   ),
                   onAttach: () async {
-                    final picked = await hooks.attach(context, ref);
+                    final picked = await hooks.attach(
+                      context,
+                      ref,
+                      send: _send,
+                    );
                     if (picked != null && mounted) {
                       setState(() => _picked = [..._picked, ...picked]);
                     }
