@@ -13,6 +13,8 @@ class VSlider extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.display,
+    this.onChangeStart,
+    this.onChangeEnd,
   });
 
   final String label;
@@ -23,6 +25,10 @@ class VSlider extends StatelessWidget {
 
   /// The value as shown, e.g. "30%"; defaults to a percentage.
   final String? display;
+
+  /// A drag on it began, and ended (the theme sheet steps aside meanwhile).
+  final VoidCallback? onChangeStart;
+  final VoidCallback? onChangeEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +66,12 @@ class VSlider extends StatelessWidget {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTapDown: (d) => set(d.localPosition.dx),
+                onHorizontalDragStart: onChanged == null
+                    ? null
+                    : (_) => onChangeStart?.call(),
                 onHorizontalDragUpdate: (d) => set(d.localPosition.dx),
+                onHorizontalDragEnd: (_) => onChangeEnd?.call(),
+                onHorizontalDragCancel: () => onChangeEnd?.call(),
                 child: SizedBox(
                   height: 28,
                   child: Stack(

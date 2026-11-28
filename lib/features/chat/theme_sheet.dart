@@ -93,177 +93,291 @@ class _ThemeSheetState extends ConsumerState<ThemeSheet> {
     _set(ref.read(chatThemeProvider).copyWith(wallpaper: wallpaper, ink: ink));
   }
 
+  /// The slider being dragged (Dim, Blur or Glass), or null. Meanwhile the
+  /// rest of the sheet steps aside, so the chat shows the change.
+  String? _adjusting;
+
   @override
   Widget build(BuildContext context) {
     final theme = ref.watch(chatThemeProvider);
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: GestureDetector(onTap: () => Navigator.of(context).pop(false)),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: VGlass(
-            radius: 28,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            tint: VPalette.of(context).glassSheet,
-            blur: 14,
-            border: false,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: VInk.of(context))),
-              ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 36,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: VInk.of(context),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text('Theme', style: VText.doto(26)),
-                          const Spacer(),
-                          Text(
-                            'Changes for both of you',
-                            style: VText.secondary,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Text('PALETTES', style: VText.eyebrow),
-                      const SizedBox(height: 10),
-                      GridView(
-                        // Not the status bar's inset, which a grid takes
-                        // by default.
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        // A tile and its name, whatever the width.
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                              mainAxisExtent: 82,
-                            ),
-                        children: [
-                          for (final name in VWallpapers.all.keys)
-                            _Swatch(
-                              label: name,
-                              selected: theme.wallpaper.builtin == name,
-                              onTap: () => _set(
-                                theme.copyWith(
-                                  wallpaper: WallpaperRef.builtin(name),
-                                  ink: InkChoice.auto,
-                                ),
-                              ),
-                              child: WallpaperView(
-                                wallpaper: WallpaperRef.builtin(name),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Text('YOUR PHOTOS', style: VText.eyebrow),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          for (final p in _photos) ...[
-                            GestureDetector(
-                              onLongPress: () {
-                                HapticFeedback.mediumImpact();
-                                setState(() => _photos.remove(p));
-                              },
-                              child: _Swatch(
-                                selected: theme.wallpaper.photo == p,
-                                onTap: () => _set(
-                                  theme.copyWith(
-                                    wallpaper: WallpaperRef.photo(p),
-                                    ink: InkChoice.auto,
-                                  ),
-                                ),
-                                child: ArtBox(
-                                  art: int.tryParse(p.substring(5)) ?? 0,
-                                  path: p.startsWith('mock:') ? null : p,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                          ],
-                          Semantics(
-                            button: true,
-                            label: 'Add a photo',
-                            child: VTappable(
-                              onTap: _addPhoto,
-                              child: const SizedBox.square(
-                                dimension: 58,
-                                child: VOutlined(
-                                  radius: 16,
-                                  outline: VOutline.dashed,
-                                  child: Center(
-                                    child: VIconView(VIcon.plus, size: 24),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      VSlider(
-                        label: 'Dim',
-                        value: theme.dim / 0.8,
-                        onChanged: (v) => _set(theme.copyWith(dim: v * 0.8)),
-                        display: '${(theme.dim * 100).round()}%',
-                      ),
-                      const SizedBox(height: 8),
-                      Opacity(
-                        opacity: theme.wallpaper.photo == null ? 0.35 : 1,
-                        child: VSlider(
-                          label: 'Blur',
-                          value: theme.blur,
-                          onChanged: theme.wallpaper.photo == null
-                              ? null
-                              : (v) => _set(theme.copyWith(blur: v)),
-                          display: '${(theme.blur * 30).round()}',
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      VSlider(
-                        label: 'Glass',
-                        value: theme.glass,
-                        onChanged: (v) => _set(theme.copyWith(glass: v)),
-                      ),
-                      const SizedBox(height: 16),
-                      VButton.primary(
-                        'Apply for both',
-                        onPressed: () => Navigator.of(context).pop(true),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+    final ink = VInk.of(context);
+    TextStyle label() =>
+        VText.eyebrow.copyWith(color: ink.withValues(alpha: 0.55));
+    const fade = Duration(milliseconds: 180);
+    final away = _adjusting != null;
+
+    /// Shown unless a slider (other than [keep]) is being dragged. The one
+    /// being dragged gets its own small glass panel, so it reads over the
+    /// chat while everything else is gone.
+    Widget unless(Widget child, {String? keep}) {
+      final hide = away && _adjusting != keep;
+      final lifted = away && keep != null && _adjusting == keep;
+      return AnimatedOpacity(
+        opacity: hide ? 0 : 1,
+        duration: fade,
+        child: IgnorePointer(
+          ignoring: hide,
+          child: AnimatedContainer(
+            duration: fade,
+            padding: EdgeInsets.all(lifted ? 12 : 0),
+            decoration: BoxDecoration(
+              color: lifted
+                  ? VGlass.fill(context, VPalette.of(context).glassSheet)
+                  : VColors.transparent,
+              borderRadius: BorderRadius.circular(18),
             ),
+            child: child,
           ),
         ),
-      ],
+      );
+    }
+
+    VSlider slider(
+      String name, {
+      required double value,
+      required ValueChanged<double>? onChanged,
+      String? display,
+    }) => VSlider(
+      label: name,
+      value: value,
+      onChanged: onChanged,
+      display: display,
+      onChangeStart: () => setState(() => _adjusting = name),
+      onChangeEnd: () => setState(() => _adjusting = null),
+    );
+
+    // The clean look: soft swatches, "+" and sliders, no outlines.
+    return VQuiet(
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(false),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Stack(
+              children: [
+                // The sheet itself, faded out while a slider is dragged.
+                Positioned.fill(
+                  child: AnimatedOpacity(
+                    opacity: away ? 0 : 1,
+                    duration: fade,
+                    child: VGlass(
+                      radius: 28,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28),
+                      ),
+                      tint: VPalette.of(context).glassSheet,
+                      blur: 14,
+                      border: false,
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                ),
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        unless(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Center(
+                                child: Container(
+                                  width: 36,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: ink.withValues(alpha: 0.3),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text('Theme', style: VText.doto(26)),
+                                  const Spacer(),
+                                  Text(
+                                    'Changes for both of you',
+                                    style: VText.secondary.copyWith(
+                                      color: ink.withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              Text('PALETTES', style: label()),
+                              const SizedBox(height: 10),
+                              GridView(
+                                // Not the status bar's inset, which a grid
+                                // takes by default.
+                                padding: EdgeInsets.zero,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                // A tile and its name, whatever the width.
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                      mainAxisSpacing: 10,
+                                      crossAxisSpacing: 10,
+                                      mainAxisExtent: 82,
+                                    ),
+                                children: [
+                                  for (final name in VWallpapers.all.keys)
+                                    _Swatch(
+                                      label: name,
+                                      selected: theme.wallpaper.builtin == name,
+                                      onTap: () => _set(
+                                        theme.copyWith(
+                                          wallpaper: WallpaperRef.builtin(name),
+                                          ink: InkChoice.auto,
+                                        ),
+                                      ),
+                                      child: WallpaperView(
+                                        wallpaper: WallpaperRef.builtin(name),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              Text('YOUR PHOTOS', style: label()),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  for (final p in _photos) ...[
+                                    GestureDetector(
+                                      onLongPress: () {
+                                        HapticFeedback.mediumImpact();
+                                        setState(() => _photos.remove(p));
+                                      },
+                                      child: _Swatch(
+                                        selected: theme.wallpaper.photo == p,
+                                        onTap: () => _set(
+                                          theme.copyWith(
+                                            wallpaper: WallpaperRef.photo(p),
+                                            ink: InkChoice.auto,
+                                          ),
+                                        ),
+                                        child: ArtBox(
+                                          art:
+                                              int.tryParse(p.substring(5)) ?? 0,
+                                          path: p.startsWith('mock:')
+                                              ? null
+                                              : p,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                  ],
+                                  Semantics(
+                                    button: true,
+                                    label: 'Add a photo',
+                                    child: VTappable(
+                                      onTap: _addPhoto,
+                                      child: const SizedBox.square(
+                                        dimension: 58,
+                                        child: VOutlined(
+                                          radius: 16,
+                                          outline: VOutline.dashed,
+                                          child: Center(
+                                            child: VIconView(
+                                              VIcon.plus,
+                                              size: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                        // Dim, blur and glass together, in one soft card;
+                        // while one is dragged, it alone, on glass.
+                        AnimatedContainer(
+                          duration: fade,
+                          padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                          decoration: BoxDecoration(
+                            // Gone while one is dragged: that one has its own.
+                            color: away
+                                ? VColors.transparent
+                                : ink.withValues(alpha: 0.07),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              unless(
+                                keep: 'Dim',
+                                slider(
+                                  'Dim',
+                                  value: theme.dim / 0.8,
+                                  onChanged: (v) =>
+                                      _set(theme.copyWith(dim: v * 0.8)),
+                                  display: '${(theme.dim * 100).round()}%',
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              unless(
+                                keep: 'Blur',
+                                Opacity(
+                                  opacity: theme.wallpaper.photo == null
+                                      ? 0.35
+                                      : 1,
+                                  child: slider(
+                                    'Blur',
+                                    value: theme.blur,
+                                    onChanged: theme.wallpaper.photo == null
+                                        ? null
+                                        : (v) => _set(theme.copyWith(blur: v)),
+                                    display: '${(theme.blur * 30).round()}',
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              unless(
+                                keep: 'Glass',
+                                slider(
+                                  'Glass',
+                                  value: theme.glass,
+                                  onChanged: (v) =>
+                                      _set(theme.copyWith(glass: v)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        unless(
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: VButton.primary(
+                              'Apply for both',
+                              onPressed: () => Navigator.of(context).pop(true),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -290,7 +404,9 @@ class _Swatch extends StatelessWidget {
       height: 58,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ink),
+        // A faint edge (black and white palettes still show); the chosen one
+        // a clear ring around it.
+        border: Border.all(color: ink.withValues(alpha: 0.2)),
         boxShadow: selected
             ? [
                 BoxShadow(color: paper, spreadRadius: 3),
@@ -338,6 +454,15 @@ class _WallpaperCropState extends State<WallpaperCrop> {
   var _offset = Offset.zero;
   var _start = 1.0;
   var _busy = false;
+
+  /// [offset], held so the photo still covers the whole screen: scaled by
+  /// [_scale] about the middle, it reaches (scale − 1) / 2 of the screen past
+  /// each edge, and may move only that far (not at all at 1×).
+  Offset _keepCovered(Offset offset, Size screen) {
+    final x = (_scale - 1) * screen.width / 2;
+    final y = (_scale - 1) * screen.height / 2;
+    return Offset(offset.dx.clamp(-x, x), offset.dy.clamp(-y, y));
+  }
 
   /// A photo from the phone (not the mock's stand-in).
   bool get _real => !widget.photo.startsWith('mock:');
@@ -416,7 +541,10 @@ class _WallpaperCropState extends State<WallpaperCrop> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  // The clean look (soft Cancel and composer), the frame excepted.
+  Widget build(BuildContext context) => VQuiet(child: _build(context));
+
+  Widget _build(BuildContext context) {
     final art = _real ? 0 : int.tryParse(widget.photo.substring(5)) ?? 0;
     return VInkScope(
       ink: VColors.white,
@@ -429,7 +557,10 @@ class _WallpaperCropState extends State<WallpaperCrop> {
               onScaleStart: (_) => _start = _scale,
               onScaleUpdate: (d) => setState(() {
                 _scale = (_start * d.scale).clamp(1.0, 3.0);
-                _offset += d.focalPointDelta;
+                _offset = _keepCovered(
+                  _offset + d.focalPointDelta,
+                  MediaQuery.sizeOf(context),
+                );
               }),
               child: Transform.translate(
                 offset: _offset,
@@ -466,9 +597,11 @@ class _WallpaperCropState extends State<WallpaperCrop> {
                     child: IgnorePointer(
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(22, 20, 22, 20),
+                        // The frame is the guide to fit to: it stays.
                         child: VOutlined(
                           radius: 28,
                           width: 2,
+                          quietable: false,
                           child: Padding(
                             padding: EdgeInsets.all(14),
                             child: Column(
@@ -566,8 +699,8 @@ class _PreviewBubble extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
     decoration: BoxDecoration(
-      color: mine ? VColors.white : VColors.white.withValues(alpha: 0.08),
-      border: mine ? null : Border.all(color: VColors.white),
+      // As the chat draws them now: theirs soft, without an outline.
+      color: mine ? VColors.white : VColors.white.withValues(alpha: 0.2),
       borderRadius: BorderRadius.only(
         topLeft: const Radius.circular(14),
         topRight: const Radius.circular(14),
