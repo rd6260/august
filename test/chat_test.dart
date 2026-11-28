@@ -147,8 +147,16 @@ void main() {
     // Shruti pokes back: close her burst first.
     await settle(tester, 900);
     expect(find.text('POKE'), findsOneWidget);
+    // It holds the screen for 5 s: Close does nothing yet, and a quiet
+    // countdown says when it will.
+    expect(find.textContaining('You can close this in'), findsOneWidget);
     await tester.tap(find.text('Close'));
     await settle(tester);
+    expect(find.byType(MomentBurst), findsOneWidget);
+    await settle(tester, 5000);
+    await tester.tap(find.text('Close'));
+    await settle(tester);
+    expect(find.byType(MomentBurst), findsNothing);
 
     await tester.longPress(poke.first);
     await settle(tester);
@@ -163,6 +171,7 @@ void main() {
     await settle(tester, 900);
     expect(find.byType(MomentBurst), findsOneWidget);
     expect(find.text('HUG'), findsOneWidget);
+    await settle(tester, 5000);
     await tester.tap(find.text('Close'));
     await settle(tester);
     expect(find.byType(MomentBurst), findsNothing);
@@ -185,6 +194,7 @@ void main() {
     expect(tester.testTextInput.isVisible, isFalse);
     expect(find.byType(BackdropFilter), findsWidgets);
 
+    await settle(tester, 5000);
     await tester.tap(find.text('Close'));
     await settle(tester);
     expect(find.byType(MomentBurst), findsNothing);

@@ -9,6 +9,7 @@ import '../../core/theme/v_colors.dart';
 import '../../core/theme/v_palette.dart';
 import '../../core/theme/v_text.dart';
 import '../../core/widgets/v_buttons.dart';
+import '../../core/widgets/v_ink.dart';
 import '../../core/widgets/v_surface.dart';
 
 /// What each moment says and does (DESIGN.md › Moment colours).
@@ -180,10 +181,21 @@ class _MomentBurstState extends State<MomentBurst>
   /// The field that had the keyboard when it arrived, to give it back.
   FocusNode? _typing;
 
+  /// How long it holds the screen before it can be closed (or answered).
+  static const hold = 5;
+
+  /// Seconds still to go before Close works; 0 once it does.
+  int _left = hold;
+  Timer? _count;
+
   @override
   void initState() {
     super.initState();
     if (widget.buzz) unawaited(widget.moment.buzz());
+    _count = Timer.periodic(const Duration(seconds: 1), (t) {
+      setState(() => _left--);
+      if (_left <= 0) t.cancel();
+    });
     // The keyboard is the system's, drawn over everything August draws:
     // take it down so the burst isn't hidden under it.
     final focus = FocusManager.instance.primaryFocus;
@@ -200,6 +212,7 @@ class _MomentBurstState extends State<MomentBurst>
     if (typing != null && typing.context != null && typing.canRequestFocus) {
       typing.requestFocus();
     }
+    _count?.cancel();
     _drift.dispose();
     _ripple.dispose();
     _beat.dispose();
@@ -287,36 +300,51 @@ class _MomentBurstState extends State<MomentBurst>
                 const SizedBox(height: 16),
                 Text('from ${widget.from} · just now', style: VText.inter(15)),
                 const SizedBox(height: 26),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    VPill(
-                      m.back,
-                      fill: VFill.filled,
-                      onTap: widget.onBack,
-                      style: VText.inter(14, weight: 600),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 11,
+                // Held for the first few seconds: faded, and not yet tappable.
+                AnimatedOpacity(
+                  opacity: _left > 0 ? 0.4 : 1,
+                  duration: const Duration(milliseconds: 300),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      VPill(
+                        m.back,
+                        fill: VFill.filled,
+                        onTap: _left > 0 ? null : widget.onBack,
+                        style: VText.inter(14, weight: 600),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 11,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    VPill(
-                      'Close',
-                      onTap: widget.onClose,
-                      style: VText.inter(14, weight: 500),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 10,
+                      const SizedBox(width: 10),
+                      VPill(
+                        'Close',
+                        onTap: _left > 0 ? null : widget.onClose,
+                        style: VText.inter(14, weight: 500),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 10,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 34),
-                  child: Text(m.haptic, style: VText.secondary),
+                Text(m.haptic, style: VText.secondary),
+                const SizedBox(height: 10),
+                // A quiet countdown till it can be closed, then gone.
+                AnimatedOpacity(
+                  opacity: _left > 0 ? 1 : 0,
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    'You can close this in ${_left.clamp(1, hold)} s',
+                    style: VText.secondary.copyWith(
+                      color: VInk.of(context).withValues(alpha: 0.5),
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 18),
               ],
             ),
           ),
