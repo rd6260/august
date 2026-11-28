@@ -82,7 +82,7 @@ class DoodlesPage extends ConsumerWidget {
       context,
       title: d.name,
       choices: [
-        const Choice('send', 'Send to chat', icon: VIcon.send),
+        const Choice('send', 'Send as sticker', icon: VIcon.send),
         const Choice('rename', 'Rename', icon: VIcon.doodle),
         Choice(
           'pin',

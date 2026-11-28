@@ -390,7 +390,7 @@ class _BoardPageState extends ConsumerState<BoardPage> {
       title: _doodle.name,
       choices: const [
         Choice('export', 'Save to gallery', icon: VIcon.download),
-        Choice('send', 'Send to chat', icon: VIcon.send),
+        Choice('send', 'Send as sticker', icon: VIcon.send),
         Choice(
           'clear',
           'Clear the board',

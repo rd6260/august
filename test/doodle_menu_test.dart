@@ -5,7 +5,7 @@ import 'package:august/app/app.dart';
 import 'package:august/app/router.dart';
 import 'package:august/data/providers.dart';
 
-/// A doodle's long-press menu: Send to chat first, the home screen just
+/// A doodle's long-press menu: Send as sticker first, the home screen just
 /// before Delete.
 void main() {
   testWidgets('the doodle menu is in order', (t) async {
@@ -35,7 +35,7 @@ void main() {
     await frames();
     double y(String label) => t.getRect(find.text(label).last).top;
     final order = [
-      'Send to chat',
+      'Send as sticker',
       'Rename',
       'Show on home screen',
       'Delete for both',
