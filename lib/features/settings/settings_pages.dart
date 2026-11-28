@@ -654,7 +654,7 @@ class AboutPage extends StatelessWidget {
                 ),
               ),
               title: 'Rohan Das',
-              subtitle: 'Made it too',
+              subtitle: "Him? Oh he's goated!",
               chevron: false,
             ),
             _link('GitHub', 'rd6260', 'https://github.com/rd6260'),
