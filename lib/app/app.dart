@@ -14,6 +14,7 @@ import '../features/onboarding/onboarding_pages.dart';
 import '../platform/secure_window.dart';
 import 'august_theme.dart';
 import 'router.dart';
+import '../platform/on_screen.dart';
 import 'share_intake.dart';
 import 'widget_sync.dart';
 
@@ -71,9 +72,15 @@ class _AugustAppState extends ConsumerState<AugustApp> {
     // Photos and videos shared to August from other apps.
     if (Platform.isAndroid) unawaited(_share.start());
     // Leaving August for longer than "Lock after" locks it (C36).
+    // On screen now (a push or the background check won't notify).
+    OnScreen.shown();
     _life = AppLifecycleListener(
-      onHide: () => _left = DateTime.now(),
+      onHide: () {
+        _left = DateTime.now();
+        unawaited(OnScreen.hidden());
+      },
       onShow: () {
+        OnScreen.shown();
         // A widget may have been added or removed meanwhile.
         unawaited(_widget.placed());
         // So may notifications have been allowed, in the phone's settings.
@@ -93,6 +100,7 @@ class _AugustAppState extends ConsumerState<AugustApp> {
   @override
   void dispose() {
     _widget.dispose();
+    unawaited(OnScreen.hidden());
     _share.dispose();
     if (identical(doodleWidgetSync, _widget)) doodleWidgetSync = null;
     _life.dispose();

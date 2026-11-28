@@ -23,6 +23,7 @@ import 'neon_backend.dart';
 import 'vault.dart';
 import 'widget_refresh.dart';
 import '../platform/data_home.dart';
+import '../platform/on_screen.dart';
 import 'wire.dart';
 
 /// What a notification says: who, what, whether it's a moment (the loud
@@ -202,6 +203,8 @@ abstract final class Push {
     String? key,
     LocalStore? store,
   }) async {
+    // August is open: the message is on screen already.
+    if (await OnScreen.now()) return;
     final dir = await DataHome.dir();
     final avatar = await _avatar(n.title, store?.partnerPhoto, dir);
     final them = notify.Person(
