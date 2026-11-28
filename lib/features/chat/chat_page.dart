@@ -117,6 +117,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
         body.sticker,
         from: m.fromMe ? 'You sent this' : 'From $partner',
         chat: true,
+        onReact: (e) => _messages.react(m.id, e),
       );
       if (!mounted) return;
       switch (pick) {

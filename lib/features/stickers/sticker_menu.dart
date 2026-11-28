@@ -11,6 +11,7 @@ import '../../data/models.dart';
 import '../../data/providers.dart';
 import '../common/action_group.dart';
 import '../common/overlay.dart';
+import '../common/reaction_bar.dart';
 import '../common/sticker_view.dart';
 import '../common/toast.dart';
 
@@ -36,18 +37,27 @@ enum StickerPick {
 ///   elsewhere; one you made stays in its pack);
 /// - one of your packs' (Ours): Delete sticker;
 /// - [recent]: Remove from recent; [chat]: Reply and Delete for me.
+///
+/// In the chat, [onReact] puts the quick reactions over the sheet, as on
+/// any message; picking one closes the menu.
 Future<StickerPick?> showStickerMenu(
   BuildContext context,
   Sticker sticker, {
   required String from,
   bool recent = false,
   bool chat = false,
+  ValueChanged<String>? onReact,
 }) {
   HapticFeedback.mediumImpact();
   return showOverlayPage<StickerPick>(
     context,
-    (_) =>
-        _StickerMenu(sticker: sticker, from: from, recent: recent, chat: chat),
+    (_) => _StickerMenu(
+      sticker: sticker,
+      from: from,
+      recent: recent,
+      chat: chat,
+      onReact: onReact,
+    ),
   );
 }
 
@@ -57,6 +67,7 @@ class _StickerMenu extends ConsumerWidget {
     required this.from,
     required this.recent,
     required this.chat,
+    this.onReact,
   });
 
   final Sticker sticker;
@@ -65,6 +76,7 @@ class _StickerMenu extends ConsumerWidget {
   final String from;
   final bool recent;
   final bool chat;
+  final ValueChanged<String>? onReact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -114,99 +126,119 @@ class _StickerMenu extends ConsumerWidget {
           left: 0,
           right: 0,
           bottom: 0,
-          child: VGlass(
-            radius: 28,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            tint: VPalette.of(context).glassSheet,
-            blur: 14,
-            border: false,
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 36,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: ink.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(2),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // React to it, as to any message: the row just over the sheet.
+              if (onReact case final react?)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: ReactionBar(
+                    onPick: (e) {
+                      Navigator.of(context).pop();
+                      react(e);
+                    },
+                  ),
+                ),
+              VGlass(
+                radius: 28,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
+                tint: VPalette.of(context).glassSheet,
+                blur: 14,
+                border: false,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: Container(
+                            width: 36,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: ink.withValues(alpha: 0.3),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Center(child: StickerView(sticker, size: 132, tilt: -4)),
-                    const SizedBox(height: 14),
-                    Text(
-                      from,
-                      textAlign: TextAlign.center,
-                      style: VText.inter(15, weight: 600),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      status,
-                      textAlign: TextAlign.center,
-                      style: VText.secondary.copyWith(
-                        color: ink.withValues(alpha: 0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ActionGroup(
-                      rows: [
-                        if (!starred)
-                          ActionRow(VIcon.star, 'Add to favourites', () {
-                            if (owned != null) {
-                              n.toggleFavourite(owned.id);
-                            } else {
-                              // Kept (in the hidden "Saved"), as a favourite.
-                              final p = into();
-                              if (p == null) return;
-                              n.add(p, sticker.withFavourite(true));
-                            }
-                            done('In your favourites');
-                          })
-                        else
-                          ActionRow(VIcon.star, 'Remove from favourites', () {
-                            // One you made keeps its place in its pack; one
-                            // from elsewhere goes (it was only a favourite).
-                            hidden
-                                ? n.remove(owned!.id)
-                                : n.toggleFavourite(owned!.id);
-                            done('Not in your favourites');
-                          }),
-                        if (owned != null && !hidden)
-                          ActionRow(VIcon.trash, 'Delete sticker', () {
-                            n.remove(owned.id);
-                            done('Sticker deleted');
-                          }),
-                        if (recent)
-                          ActionRow(
-                            VIcon.close,
-                            'Remove from recent',
-                            () => done(null, StickerPick.forget),
+                        const SizedBox(height: 18),
+                        Center(
+                          child: StickerView(sticker, size: 132, tilt: -4),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          from,
+                          textAlign: TextAlign.center,
+                          style: VText.inter(15, weight: 600),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          status,
+                          textAlign: TextAlign.center,
+                          style: VText.secondary.copyWith(
+                            color: ink.withValues(alpha: 0.6),
                           ),
-                        if (chat) ...[
-                          ActionRow(
-                            VIcon.reply,
-                            'Reply',
-                            () => done(null, StickerPick.reply),
-                          ),
-                          ActionRow(
-                            VIcon.trash,
-                            'Delete for me',
-                            () => done(null, StickerPick.delete),
-                          ),
-                        ],
+                        ),
+                        const SizedBox(height: 16),
+                        ActionGroup(
+                          rows: [
+                            if (!starred)
+                              ActionRow(VIcon.star, 'Add to favourites', () {
+                                if (owned != null) {
+                                  n.toggleFavourite(owned.id);
+                                } else {
+                                  // Kept (in the hidden "Saved"), as a favourite.
+                                  final p = into();
+                                  if (p == null) return;
+                                  n.add(p, sticker.withFavourite(true));
+                                }
+                                done('In your favourites');
+                              })
+                            else
+                              ActionRow(VIcon.star, 'Remove from favourites', () {
+                                // One you made keeps its place in its pack; one
+                                // from elsewhere goes (it was only a favourite).
+                                hidden
+                                    ? n.remove(owned!.id)
+                                    : n.toggleFavourite(owned!.id);
+                                done('Not in your favourites');
+                              }),
+                            if (owned != null && !hidden)
+                              ActionRow(VIcon.trash, 'Delete sticker', () {
+                                n.remove(owned.id);
+                                done('Sticker deleted');
+                              }),
+                            if (recent)
+                              ActionRow(
+                                VIcon.close,
+                                'Remove from recent',
+                                () => done(null, StickerPick.forget),
+                              ),
+                            if (chat) ...[
+                              ActionRow(
+                                VIcon.reply,
+                                'Reply',
+                                () => done(null, StickerPick.reply),
+                              ),
+                              ActionRow(
+                                VIcon.trash,
+                                'Delete for me',
+                                () => done(null, StickerPick.delete),
+                              ),
+                            ],
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ],

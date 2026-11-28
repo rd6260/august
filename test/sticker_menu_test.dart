@@ -6,10 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:august/app/app.dart';
 import 'package:august/data/models.dart';
 import 'package:august/data/providers.dart';
+import 'package:august/features/common/reaction_bar.dart';
 import 'package:august/features/common/sticker_view.dart';
 import 'package:august/features/stickers/sticker_menu.dart';
 
-/// The sticker long-press menu: keep, favourite, and the chat's actions.
+/// The sticker long-press menu: keep, favourite, and the chat's actions
+/// (react, reply, delete).
 void main() {
   Future<ProviderContainer> open(WidgetTester t) async {
     t.view.physicalSize = const Size(1170, 2532);
@@ -129,6 +131,42 @@ void main() {
     expect(find.text('Reply'), findsOneWidget);
     expect(find.text('Delete for me'), findsOneWidget);
     expect(find.textContaining(RegExp('(to|from) favourites')), findsOneWidget);
+    expect(t.takeException(), isNull);
+    await close(t);
+  });
+
+  testWidgets('react to a sticker in the chat', (t) async {
+    final c = await open(t);
+    final m = c.read(messagesProvider).lastWhere((m) => m.body is StickerBody);
+    await t.dragUntilVisible(
+      find.byKey(ValueKey(m.id)),
+      find.byType(Scrollable).first,
+      const Offset(0, 300),
+    );
+    await t.longPress(
+      find
+          .descendant(
+            of: find.byKey(ValueKey(m.id)),
+            matching: find.byType(StickerView),
+          )
+          .first,
+    );
+    await frames(t);
+    await t.tap(
+      find.descendant(of: find.byType(ReactionBar), matching: find.text('🔥')),
+    );
+    await frames(t);
+    // The menu closes, and the reaction is on the sticker, under it.
+    expect(find.text('Delete for me'), findsNothing);
+    final now = c.read(messagesProvider).firstWhere((x) => x.id == m.id);
+    expect(now.reactions.where((r) => r.mine).map((r) => r.emoji), ['🔥']);
+    expect(
+      find.descendant(
+        of: find.byKey(ValueKey(m.id)),
+        matching: find.text('🔥'),
+      ),
+      findsOneWidget,
+    );
     expect(t.takeException(), isNull);
     await close(t);
   });
