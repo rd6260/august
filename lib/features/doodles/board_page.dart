@@ -429,70 +429,96 @@ class _BoardPageState extends ConsumerState<BoardPage> {
         ? _strokes.where((s) => s.by == 'partner').lastOrNull?.points.lastOrNull
         : null;
 
+    // The page you draw on is a card clear of the top bar and the dock (12
+    // from each), so a stroke never starts on a button; it keeps the board's
+    // shape inside, so both phones see the same page.
+    final inset = EdgeInsets.fromLTRB(
+      wide ? 10 + pad.left + 64 + 12 : 12,
+      top + 8 + 40 + 12,
+      12 + (wide ? pad.right : 0),
+      wide ? bottom + 12 : bottom + 26 + 64 + 12,
+    );
+
     return AllowRotation(
       child: ColoredBox(
         color: VInk.surfaceOf(context),
         child: Stack(
           fit: StackFit.expand,
           children: [
-            LayoutBuilder(
-              builder: (context, box) {
-                final size = box.biggest;
-                final k = _scale(size);
-                final o = _origin(size);
-                final bounds = _pickedBounds();
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onPanStart: (d) => _down(d.localPosition, size),
-                  onPanUpdate: (d) => _move(d.localPosition, size, d.delta),
-                  onPanEnd: (_) => _up(),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      PaperView(doodle.paper),
-                      CustomPaint(
-                        painter: StrokesPainter(
-                          shown,
-                          space: boardSpace,
-                          repaintKey: _tick,
+            // Around the card: a faint tint, so its edge shows.
+            ColoredBox(color: VInk.of(context).withValues(alpha: 0.07)),
+            Positioned(
+              left: inset.left,
+              top: inset.top,
+              right: inset.right,
+              bottom: inset.bottom,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: ColoredBox(
+                  color: VInk.surfaceOf(context),
+                  child: LayoutBuilder(
+                    builder: (context, box) {
+                      final size = box.biggest;
+                      final k = _scale(size);
+                      final o = _origin(size);
+                      final bounds = _pickedBounds();
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onPanStart: (d) => _down(d.localPosition, size),
+                        onPanUpdate: (d) =>
+                            _move(d.localPosition, size, d.delta),
+                        onPanEnd: (_) => _up(),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            PaperView(doodle.paper),
+                            CustomPaint(
+                              painter: StrokesPainter(
+                                shown,
+                                space: boardSpace,
+                                repaintKey: _tick,
+                              ),
+                            ),
+                            if (live != null &&
+                                (_tool == PenTool.lasso ||
+                                    _tool == PenTool.eraser))
+                              CustomPaint(
+                                painter: _Trace(
+                                  live,
+                                  k,
+                                  o,
+                                  VInk.of(context),
+                                  dashed: _tool == PenTool.lasso,
+                                ),
+                              ),
+                            if (bounds != null) ...[
+                              Positioned.fromRect(
+                                rect: Rect.fromLTRB(
+                                  o.dx + bounds.left * k - 10,
+                                  o.dy + bounds.top * k - 10,
+                                  o.dx + bounds.right * k + 10,
+                                  o.dy + bounds.bottom * k + 10,
+                                ),
+                                child: IgnorePointer(
+                                  child: _SelectionBox(ink: VInk.of(context)),
+                                ),
+                              ),
+                            ],
+                            if (partnerAt != null)
+                              Positioned(
+                                left: o.dx + partnerAt.dx * k,
+                                top: o.dy + partnerAt.dy * k,
+                                child: IgnorePointer(
+                                  child: _PartnerCursor(name: partner),
+                                ),
+                              ),
+                          ],
                         ),
-                      ),
-                      if (live != null &&
-                          (_tool == PenTool.lasso || _tool == PenTool.eraser))
-                        CustomPaint(
-                          painter: _Trace(
-                            live,
-                            k,
-                            o,
-                            VInk.of(context),
-                            dashed: _tool == PenTool.lasso,
-                          ),
-                        ),
-                      if (bounds != null) ...[
-                        Positioned.fromRect(
-                          rect: Rect.fromLTRB(
-                            o.dx + bounds.left * k - 10,
-                            o.dy + bounds.top * k - 10,
-                            o.dx + bounds.right * k + 10,
-                            o.dy + bounds.bottom * k + 10,
-                          ),
-                          child: IgnorePointer(
-                            child: _SelectionBox(ink: VInk.of(context)),
-                          ),
-                        ),
-                      ],
-                      if (partnerAt != null)
-                        Positioned(
-                          left: o.dx + partnerAt.dx * k,
-                          top: o.dy + partnerAt.dy * k,
-                          child: IgnorePointer(
-                            child: _PartnerCursor(name: partner),
-                          ),
-                        ),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ),
             ),
             // The top bar: back, name and who's here, undo, redo, more.
             Positioned(
